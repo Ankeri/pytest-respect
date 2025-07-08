@@ -1,0 +1,56 @@
+[project]
+name = "pytest-respect"
+version = "0.1.0"
+description = "Pytest plugin to load resource files relative to test code and to expect values to match them."
+readme = "README.md"
+authors = [
+    { name = "Logi Ragnarsson", email = "logi.ragnarsson@ankeri.is" }
+]
+requires-python = ">=3.10"
+
+dependencies = []
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 140
+
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle
+    "F", # Pyflakes
+    "UP", # pyupgrade
+    "B", # flake8-bugbear
+    "I", # isort
+    "N", # pep8-naming
+]
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = [
+    "D401", # imperative mode: tests are doc'd with statements and fixtures with nouns
+    "N802", # snake_case: Allow test_MyFancyClass_method
+]
+
+[project.optional-dependencies]
+pydantic = [
+    "pydantic>=2.0.0",
+]
+numpy = [
+    "numpy>=2.0.0",
+]
+jsonyx = [
+    "jsonyx>=2.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.402",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "pytest-mock>=3.14.1",
+    "ruff>=0.12.0",
+]

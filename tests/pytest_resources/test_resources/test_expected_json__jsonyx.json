@@ -1,0 +1,5 @@
+{
+  "look": ["what", "I", "found"],
+  "numbers": [1, 2, 3, 4],
+  "sub": {"dict": 2, "flat": 4, "is": 3, "simple": 1}
+}
