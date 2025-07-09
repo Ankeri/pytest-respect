@@ -34,3 +34,4 @@ jobs:
     - name: Test with pytest
       run: pytest
     # TODO build package (when that works)
+    # TODO replace with tox to run locally?
