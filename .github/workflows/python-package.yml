@@ -40,19 +40,3 @@ jobs:
           mkdir junit
           uv run pytest tests/ --junitxml=junit/test-results.xml --cov-report=term-missing:skip-covered --cov=src |
             tee junit/pytest-coverage.txt
-
-      - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: junit/pytest-coverage.txt
-          junitxml-path: junit/test-results.xml
-          title: Coverage Report ${{ matrix.python-version }}
-          badge-title: Coverage ${{ matrix.python-version }}
-          hide-badge: false
-          hide-report: false
-          create-new-comment: false
-          hide-comment: false
-          report-only-changed-files: false
-          remove-link-from-badge: false
-          unique-id-for-comment: ${{ matrix.python-version }}
-          junitxml-title: JUnit Xml Summary ${{ matrix.python-version }}
