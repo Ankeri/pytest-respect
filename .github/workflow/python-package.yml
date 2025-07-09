@@ -25,13 +25,13 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        uv sync --all-extras
+        uv sync --dev --all-extras
       # TODO run subset of tests with no extras
     - name: Lint with ruff
       run: ruff check
     - name: Type-check with pyright
       run: pyright
     - name: Test with pytest
-      run: pytest
+      run: pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
     # TODO build package (when that works)
     # TODO replace with tox to run locally?
