@@ -5,7 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
-test-results.xml
+junit/
+.coverage
 
 # IDEs
 /.idea
