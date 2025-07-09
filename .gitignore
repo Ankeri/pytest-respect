@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+test-results.xml
 
 # IDEs
 /.idea
