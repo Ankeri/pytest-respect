@@ -36,7 +36,10 @@ jobs:
         run: uv run pyright
 
       - name: Test with pytest
-        run: uv run pytest tests/ --junitxml=junit/test-results.xml --cov-report=term-missing:skip-covered --cov=src | tee junit/pytest-coverage.txt
+        run: |
+          mkdir junit
+          uv run pytest tests/ --junitxml=junit/test-results.xml --cov-report=term-missing:skip-covered --cov=src |
+            tee junit/pytest-coverage.txt
 
       - name: Pytest coverage comment
         uses: MishaKav/pytest-coverage-comment@main
