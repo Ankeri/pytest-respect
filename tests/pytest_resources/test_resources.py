@@ -9,8 +9,6 @@ from pytest import FixtureRequest
 from pytest_respect.resources import (
     PathMaker,
     TestResources,
-    jsonyx_compactish_encoder,
-    jsonyx_permissive_loader,
     list_dir,
     list_resources,
     python_compact_json_encoder,
@@ -55,7 +53,6 @@ def test_list_dir(tmp_path: Path):
     assert listed == [
         "test_expected_json__ndigits__test_load_json.json",
         "test_load_json.json",
-        "test_load_json__jsonyx_permissive.json",
         "test_load_pydantic.json",
         "test_load_pydantic_adapter.json",
         "test_load_pydantic_adapter__failing.json",
@@ -221,11 +218,12 @@ def test_load_json(resources):
     assert data == {"look": ["what", "I", "found"]}
 
 
-def test_load_json__jsonyx_permissive(resources):
-    skip_if_not_jsonyx()
-    resources.json_loader = jsonyx_permissive_loader
-    data = resources.load_json()
-    assert data == {"look": ["what", "I", "found"]}
+def test_load_json__missing(resources):
+    with pytest.raises(ValueError) as exi:
+        resources.load_json()
+
+    assert str(exi.value).startswith("Failed to load JSON resource")
+    assert "pytest_resources/test_resources/test_load_json__missing.json" in str(exi.value)
 
 
 def test_load_pydantic(resources):
@@ -243,6 +241,31 @@ def test_load_pydantic_adapter__failing(resources):
         resources.load_pydantic_adapter(dict[str, int])
 
     assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
+
+
+def test_save_text__dir_does_not_exist(resources):
+    """We can write a file to a directory that doesn't exist yet."""
+    my_dir = Path(__file__).parent
+    missing_dir_name = "missing_dir"
+    missing_dir = my_dir / missing_dir_name
+    new_file_name = "new_file.txt"
+    new_file = missing_dir / new_file_name
+
+    # Clean up file and dir from previous run. If other files have been added, remove manually.
+    new_file.unlink(missing_ok=True)
+    if missing_dir.is_dir():
+        missing_dir.rmdir()
+
+    def make_missing_path(*a, **kw):
+        return (missing_dir, new_file_name)
+
+    resources.save_text("Some text is here", path_maker=make_missing_path)
+
+    text = new_file.read_text()
+    assert text == "Some text is here"
+
+    new_file.unlink()
+    missing_dir.rmdir()
 
 
 def test_save_json(resources):
@@ -376,6 +399,28 @@ def test_expect_text__mismatch(resources):
         resources.delete("actual", ext="txt")
 
 
+def test_expect_text__not_found(resources):
+    test_dir = Path(__file__).with_suffix("")
+    missing_file = test_dir / "test_expect_text__not_found.txt"
+    created_file = test_dir / "test_expect_text__not_found__actual.txt"
+    text_content = "actual text not found"
+
+    missing_file.unlink(missing_ok=True)
+    created_file.unlink(missing_ok=True)
+
+    with pytest.raises(AssertionError) as exi:
+        resources.expect_text(text_content)
+
+    assert str(exi.value).startswith("The expectation file was not found at ")
+    assert "test_expect_text__not_found.txt" in str(exi.value)
+
+    assert not missing_file.exists()
+    assert created_file.exists()
+    assert created_file.read_text() == text_content
+
+    created_file.unlink()
+
+
 def test_expected_json(resources):
     resources.expect_json(
         {
@@ -391,18 +436,6 @@ def test_expected_json__compact(resources):
         {
             "look": ["what", "I", "found"],
             "float": 0.1234,
-        }
-    )
-
-
-def test_expected_json__jsonyx(resources):
-    skip_if_not_jsonyx()
-    resources.json_encoder = jsonyx_compactish_encoder
-    resources.expect_json(
-        {
-            "look": ["what", "I", "found"],
-            "numbers": [1, 2, 3, 4],
-            "sub": {"simple": 1, "dict": 2, "is": 3, "flat": 4},
         }
     )
 
