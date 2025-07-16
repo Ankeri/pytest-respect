@@ -6,9 +6,30 @@ readme = "README.md"
 authors = [
     { name = "Logi Ragnarsson", email = "logi.ragnarsson@ankeri.is" }
 ]
-requires-python = ">=3.10"
+license.file = "LICENSE"
 
-dependencies = []
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Framework :: Pytest"
+]
+
+dependencies = [
+    "pytest>=8.0.0",
+]
+
+[project.entry-points.pytest11]
+respect = "pytest_respect.plugin"
 
 
 [build-system]
@@ -52,7 +73,6 @@ jsonyx = [
 [dependency-groups]
 dev = [
     "pyright>=1.1.402",
-    "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "pytest-mock>=3.14.1",
     "ruff>=0.12.0",

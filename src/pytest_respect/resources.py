@@ -46,8 +46,6 @@ def list_dir(
         include = [include]
     if isinstance(exclude, str):
         exclude = [exclude]
-    if exclude is None:
-        exclude = []
 
     names: set[str] = set()
     for inc in include:
@@ -156,53 +154,6 @@ def python_compact_json_encoder(obj: Any) -> str:
 def python_json_loader(text: str) -> Any:
     """Standard JSON loader."""
     return json.loads(text)
-
-
-def jsonyx_encoder(obj: Any) -> str:
-    """JSONYX encoder in very verbose mode."""
-    import jsonyx
-    import jsonyx.allow
-
-    return jsonyx.dumps(
-        obj,
-        sort_keys=True,
-        indent=2,
-        allow=jsonyx.allow.NON_STR_KEYS,
-    )
-
-
-def jsonyx_compactish_encoder(obj: Any) -> str:
-    """JSONYX encoder which doesn't encode leaves compact mode."""
-    import jsonyx
-    import jsonyx.allow
-
-    return jsonyx.dumps(
-        obj,
-        sort_keys=True,
-        indent=2,
-        indent_leaves=False,
-        allow=jsonyx.allow.NON_STR_KEYS,
-    )
-
-
-def jsonyx_compact_encoder(obj: Any) -> str:
-    """JSONYX encoder in very compact mode."""
-    import jsonyx
-    import jsonyx.allow
-
-    return jsonyx.dumps(
-        obj,
-        sort_keys=True,
-        allow=jsonyx.allow.NON_STR_KEYS,
-    )
-
-
-def jsonyx_permissive_loader(text: str) -> Any:
-    """JSONYX loader in very permissive mode."""
-    import jsonyx
-    import jsonyx.allow
-
-    return jsonyx.loads(text, allow=jsonyx.allow.EVERYTHING)
 
 
 class TestResources:
@@ -542,7 +493,7 @@ class TestResources:
     ) -> None:
         """Write a string to a resource relative to the current test."""
         path = self.path(*parts, ext=ext, path_maker=path_maker)
-        if not path.parent.exists:
+        if not path.parent.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
         print(f"write {len(text)} chars to {path}")
         path.parent.mkdir(parents=False, exist_ok=True)
