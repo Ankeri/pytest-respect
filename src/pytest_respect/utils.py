@@ -21,20 +21,24 @@ def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
         struct = struct.model_dump(mode="json")
     elif isinstance(struct, np.ndarray):
         struct = struct.tolist()
-
-    # Convert struct recursively
-    recurse = partial(prepare_for_json_encode, ndigits=ndigits)
-    if isinstance(struct, np.floating):
+    elif isinstance(struct, np.floating):
         struct = float(struct)
+
+    recurse = partial(prepare_for_json_encode, ndigits=ndigits)
+
+    # Special-case some leaf values
     if isinstance(struct, float):
         return round(struct, ndigits) if ndigits is not None else struct
     elif isinstance(struct, dt.date|dt.time|dt.datetime):
         return struct.isoformat()
+
+    # Convert struct recursively
     elif isinstance(struct, dict):
         return {recurse(key): recurse(value) for key, value in struct.items()}
     elif isinstance(struct, list):
         return [recurse(x) for x in struct]
     elif isinstance(struct, tuple):
         return tuple(recurse(x) for x in struct)
+
     else:
         return struct

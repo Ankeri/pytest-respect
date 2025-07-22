@@ -115,18 +115,23 @@ def test_prepare_for_json_encode__pydantic_model__json_mode():
     json.dumps(prepared)
 
 
-def test_prepare_for_json_encode__numpy_array():
+def test_prepare_for_json_encode__numpy():
     original = [
         0.111111,
-        np.arange(2, 5) * 0.111111,
+        np.arange(2, 5) * 1/9,  # 1-D array
+        np.full((2,3), 10/3),  # 2-D array
+        np.full(1, 1/7)[0], # scalar
         0.555555,
     ]
+    assert isinstance(original[-2], np.floating)
 
     prepared = prepare_for_json_encode(original, ndigits=2)
 
     assert prepared == [
         0.11,
         [0.22, 0.33, 0.44],
+        [[3.33, 3.33, 3.33], [3.33, 3.33, 3.33]],
+        0.14,
         0.56,
     ]
     json.dumps(prepared)
