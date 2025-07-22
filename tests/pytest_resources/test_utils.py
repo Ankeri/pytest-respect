@@ -13,7 +13,6 @@ class PydanticModel(BaseModel):
     when: dt.datetime
 
 
-
 def test_prepare_for_json_encode__simple():
     original = [
         {
@@ -34,6 +33,7 @@ def test_prepare_for_json_encode__simple():
         [1, 2, 3.333333333],
         ("a", "b", 5.1234321),
     ]
+
 
 def test_prepare_for_json_encode__round():
     original = [
@@ -90,7 +90,7 @@ def test_prepare_for_json_encode__pydantic_model():
 
     assert prepared == [
         0.11,
-        {"name": "foo", "weight": 75.43, "when": '1986-03-01T12:34:56'},
+        {"name": "foo", "weight": 75.43, "when": "1986-03-01T12:34:56"},
         0.56,
     ]
     json.dumps(prepared)
@@ -106,7 +106,6 @@ def test_prepare_for_json_encode__pydantic_model__json_mode():
 
     prepared = prepare_for_json_encode(original, ndigits=2)
 
-
     assert prepared == [
         0.11,
         {"name": "foo", "weight": 75.43, "when": "1986-03-01T12:34:56"},
@@ -118,9 +117,9 @@ def test_prepare_for_json_encode__pydantic_model__json_mode():
 def test_prepare_for_json_encode__numpy():
     original = [
         0.111111,
-        np.arange(2, 5) * 1/9,  # 1-D array
-        np.full((2,3), 10/3),  # 2-D array
-        np.full(1, 1/7)[0], # scalar
+        np.arange(2, 5) * 1 / 9,  # 1-D array
+        np.full((2, 3), 10 / 3),  # 2-D array
+        np.full(1, 1 / 7)[0],  # scalar
         0.555555,
     ]
     assert isinstance(original[-2], np.floating)
@@ -135,4 +134,3 @@ def test_prepare_for_json_encode__numpy():
         0.56,
     ]
     json.dumps(prepared)
-

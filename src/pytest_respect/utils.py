@@ -29,7 +29,7 @@ def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
     # Special-case some leaf values
     if isinstance(struct, float):
         return round(struct, ndigits) if ndigits is not None else struct
-    elif isinstance(struct, dt.date|dt.time|dt.datetime):
+    elif isinstance(struct, dt.date | dt.time | dt.datetime):
         return struct.isoformat()
 
     # Convert struct recursively
