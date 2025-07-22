@@ -1,40 +1,35 @@
+import datetime as dt
 from functools import partial
-from typing import Any, Literal
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel
 
 
-def round_floats_in(
-    struct: Any,
-    ndigits: int = 4,
-    model_dump_mode: Literal["json", "python"] | str = "python",
-) -> Any:
-    """Copy a structure of lists, dicts, pydantic models and numpy values and round.
-
-    The pydantic models will be dumped to dict in the recursion and numpy arrays and
-    values will be converted to python native values.
-
-    This allows us to write easy-to-read unit tests comparing complex data structures
-    to simple dicts, lists and floats.
+def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
+    """
+    Copy a structure of lists, tuples, dicts, pydantic models and numpy values into a parallel structure of dicts and
+    lists, trying to make them JSON encodeable. The encoding doesn't have to be reversible since the target is always
+    a block of text that we compare with one that we prepared earlier.
 
     Args:
         struct: The value to round the floats in
-        ndigits: The number of digits to round floats to
-        model_dump_mode: The mode to pass to pydantic model_dump method
+        ndigits: The number of digits to round floats to, or None to omit rounding
     """
     # Unwrap struct if needed
     if isinstance(struct, BaseModel):
-        struct = struct.model_dump(mode=model_dump_mode)
+        struct = struct.model_dump(mode="json")
     elif isinstance(struct, np.ndarray):
         struct = struct.tolist()
 
     # Convert struct recursively
-    recurse = partial(round_floats_in, ndigits=ndigits, model_dump_mode=model_dump_mode)
+    recurse = partial(prepare_for_json_encode, ndigits=ndigits)
     if isinstance(struct, np.floating):
         struct = float(struct)
     if isinstance(struct, float):
-        return round(struct, ndigits)
+        return round(struct, ndigits) if ndigits is not None else struct
+    elif isinstance(struct, dt.date|dt.time|dt.datetime):
+        return struct.isoformat()
     elif isinstance(struct, dict):
         return {recurse(key): recurse(value) for key, value in struct.items()}
     elif isinstance(struct, list):

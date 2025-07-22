@@ -14,7 +14,7 @@ from pytest import FixtureRequest
 
 __tracebackhide__ = True  # Dont' include in pytest tracebacks
 
-from pytest_respect.utils import round_floats_in
+from pytest_respect.utils import prepare_for_json_encode
 
 DEFAULT_RESOURCES_DIR = "resources"
 
@@ -516,7 +516,7 @@ class TestResources:
         if ndigits is ...:
             ndigits = self.default_ndigits
         if ndigits is not None:
-            data = round_floats_in(data, ndigits=ndigits)
+            data = prepare_for_json_encode(data, ndigits=ndigits)
         text = self.json_encoder(data)
         if not text.endswith("\n"):
             text += "\n"
