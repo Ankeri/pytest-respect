@@ -1,8 +1,8 @@
 # pytest-respect
 
-Pytest plugin to load resource files relative to test code and to expect values to match them. The name is a contraction of `resources.expect` which is frequently typed when using this plugin.
+Pytest plugin to load resource files relative to test code and to expect values to match them. The name is a contraction of `resources.expect`, which is frequently typed when using this plugin.
 
-This is particularly useful when running tests over moderately large datasets where adding them as constants in the test code would be cumbersome.
+The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base.
 
 ## Example
 

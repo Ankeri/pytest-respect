@@ -13,3 +13,6 @@ junit/
 
 # Virtual environments
 .venv
+
+# Local secrets for e.g. direnv
+/.envrc
