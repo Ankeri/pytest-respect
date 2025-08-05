@@ -1,14 +1,18 @@
+# METADATA
+
 [project]
 name = "pytest-respect"
-version = "0.1.0"
+version = "0.0.1"
 description = "Pytest plugin to load resource files relative to test code and to expect values to match them."
+urls.homepage = "https://github.com/Ankeri/pytest-respect"
+urls.issues = "https://github.com/Ankeri/pytest-respect/issues"
 readme = "README.md"
 authors = [
     { name = "Logi Ragnarsson", email = "logi.ragnarsson@ankeri.is" }
 ]
-license.file = "LICENSE"
+license = "MIT"
+license-files = ["LICENSE.md"]
 
-requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -24,13 +28,36 @@ classifiers = [
     "Framework :: Pytest"
 ]
 
+
+# DEPENDENCIES
+
+requires-python = ">=3.10"
+
 dependencies = [
     "pytest>=8.0.0",
 ]
 
+[project.optional-dependencies]
+pydantic = ["pydantic>=2.0.0"]
+numpy = ["numpy>=2.0.0"]
+jsonyx = ["jsonyx>=2.0.0"]
+
+[dependency-groups]
+dev = [
+    "pyright==1.1.*",
+    "pytest-cov==6.*",
+    "pytest-mock==3.*",
+    "ruff==0.*",
+]
+
+
+# PYTEST PLUGIN
+
 [project.entry-points.pytest11]
 respect = "pytest_respect.plugin"
 
+
+# BUILD
 
 [build-system]
 requires = ["hatchling"]
@@ -39,9 +66,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/pytest_respect"]
 
+
+# LINTING
+
 [tool.ruff]
 line-length = 140
-
 
 [tool.ruff.lint]
 select = [
@@ -57,23 +86,4 @@ select = [
 "test_*.py" = [
     "D401", # imperative mode: tests are doc'd with statements and fixtures with nouns
     "N802", # snake_case: Allow test_MyFancyClass_method
-]
-
-[project.optional-dependencies]
-pydantic = [
-    "pydantic>=2.0.0",
-]
-numpy = [
-    "numpy>=2.0.0",
-]
-jsonyx = [
-    "jsonyx>=2.0.0",
-]
-
-[dependency-groups]
-dev = [
-    "pyright>=1.1.402",
-    "pytest-cov>=6.2.1",
-    "pytest-mock>=3.14.1",
-    "ruff>=0.12.0",
 ]
