@@ -7,7 +7,8 @@ from typing import Any
 
 
 def jsonyx_encoder(obj: Any) -> str:
-    """JSONYX encoder in very verbose mode."""
+    """JSONYX encoder which allows non-string dict keys.
+    Here it runs in very verbose mode."""
     import jsonyx.allow
 
     return jsonyx.dumps(
@@ -19,7 +20,8 @@ def jsonyx_encoder(obj: Any) -> str:
 
 
 def jsonyx_compactish_encoder(obj: Any) -> str:
-    """JSONYX encoder which encodes lists and objects of primitives in compact mode."""
+    """JSONYX encoder which allows non-string dict keys.
+    Here it runs in a semi-compact mode where arrays and dicts containing only primitives are not indented."""
     import jsonyx.allow
 
     return jsonyx.dumps(
@@ -32,7 +34,8 @@ def jsonyx_compactish_encoder(obj: Any) -> str:
 
 
 def jsonyx_compact_encoder(obj: Any) -> str:
-    """JSONYX encoder in very compact mode."""
+    """JSONYX encoder which allows non-string dict keys.
+    Here it runs in very compact mode."""
     import jsonyx.allow
 
     return jsonyx.dumps(

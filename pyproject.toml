@@ -87,3 +87,14 @@ select = [
     "D401", # imperative mode: tests are doc'd with statements and fixtures with nouns
     "N802", # snake_case: Allow test_MyFancyClass_method
 ]
+
+
+# TESTING
+
+[tool.pytest.ini_options]
+markers = [
+    # Each optional extra corresponds to a marker for tests which require it
+    "pydantic",
+    "numpy",
+    "jsonyx",
+]

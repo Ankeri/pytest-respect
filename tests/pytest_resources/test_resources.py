@@ -3,7 +3,6 @@ from pathlib import Path
 from unittest.mock import call
 
 import pytest
-from pydantic import BaseModel, ValidationError
 from pytest import FixtureRequest
 
 from pytest_respect.resources import (
@@ -14,25 +13,15 @@ from pytest_respect.resources import (
     python_compact_json_encoder,
 )
 
+# Optional imports falling back to stub implementations to make the type checker happy
+try:
+    from pydantic import BaseModel, ValidationError
+except ImportError:
+    from pytest_respect._fakes import BaseModel, ValidationError
+
+
 THIS_FILE = Path(__file__).absolute()
 THIS_DIR = THIS_FILE.parent
-
-
-class MyModel(BaseModel):
-    look: list[str]
-
-
-class MyModelWithDates(BaseModel):
-    date: date
-    datetime: datetime
-
-
-def skip_if_not_jsonyx() -> None:
-    """Check that jsonyx is installed or skip test"""
-    try:
-        import jsonyx  # noqa: F401
-    except ImportError:
-        raise pytest.skip("jsonyx not installed") from None
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -44,20 +33,6 @@ def dont_tracebackhide():
     module.__tracebackhide__ = False
     yield
     module.__tracebackhide__ = previous
-
-
-def test_list_dir(tmp_path: Path):
-    # This test is not very stable and needs to be updated when the dir content changes
-    # Having tested the file-access code we can use `mock_list_dir` for the rest.
-    listed = list_dir(THIS_DIR / "test_resources", "*_load_*", exclude="*__actual.*")
-    assert listed == [
-        "test_expected_json__ndigits__test_load_json.json",
-        "test_load_json.json",
-        "test_load_pydantic.json",
-        "test_load_pydantic_adapter.json",
-        "test_load_pydantic_adapter__failing.json",
-        "test_load_text.txt",
-    ]
 
 
 @pytest.fixture
@@ -82,6 +57,23 @@ def resources_4digits(request: FixtureRequest) -> TestResources:
         request,
         ndigits=4,
     )
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# path making
+
+def test_list_dir(tmp_path: Path):
+    # This test is not very stable and needs to be updated when the dir content changes
+    # Having tested the file-access code we can use `mock_list_dir` for the rest.
+    listed = list_dir(THIS_DIR / "test_resources", "*_load_*", exclude="*__actual.*")
+    assert listed == [
+        "test_expected_json__ndigits__test_load_json.json",
+        "test_load_json.json",
+        "test_load_pydantic.json",
+        "test_load_pydantic_adapter.json",
+        "test_load_pydantic_adapter__failing.json",
+        "test_load_text.txt",
+    ]
 
 
 @pytest.mark.parametrize(
@@ -208,6 +200,9 @@ class TestClass:
         assert str(path) == str(ex_path)
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# load
+
 def test_load_text(resources):
     text = resources.load_text()
     assert text == "text resource"
@@ -226,22 +221,8 @@ def test_load_json__missing(resources):
     assert "pytest_resources/test_resources/test_load_json__missing.json" in str(exi.value)
 
 
-def test_load_pydantic(resources):
-    data = resources.load_pydantic(MyModel)
-    assert data == MyModel(look=["I", "found", "this"])
-
-
-def test_load_pydantic_adapter(resources):
-    data = resources.load_pydantic_adapter(dict[str, int])
-    assert data == {"a": 1, "b": 2, "c": 3}
-
-
-def test_load_pydantic_adapter__failing(resources):
-    with pytest.raises(ValidationError) as exi:
-        resources.load_pydantic_adapter(dict[str, int])
-
-    assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# save
 
 def test_save_text__dir_does_not_exist(resources):
     """We can write a file to a directory that doesn't exist yet."""
@@ -279,6 +260,9 @@ def test_save_json(resources):
     resources.delete_json()
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# delete
+
 def test_delete(resources):
     path = resources.path()
     path.write_text("temporary")
@@ -287,6 +271,9 @@ def test_delete(resources):
     resources.delete()
     assert not path.is_file()
 
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# list
 
 def test_list_resources__patterns(mock_list_dir):
     listed = list_resources(
@@ -382,6 +369,9 @@ def test_list__filtered(resources, mock_list_dir):
     ]
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# expect
+
 def test_expect_text(resources):
     resources.expect_text("some text\nsome more text\n")
 
@@ -462,6 +452,35 @@ def test_expected_json__default_digits(resources_4digits):
     assert resources_4digits.default_ndigits == 4
     resources_4digits.expect_json(actual)
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# pydantic
 
+class MyModel(BaseModel):  # type: ignore
+    look: list[str]
+
+
+class MyModelWithDates(BaseModel):  # type: ignore
+    date: date
+    datetime: datetime
+
+
+@pytest.mark.pydantic
+def test_load_pydantic(resources):
+    data = resources.load_pydantic(MyModel)
+    assert data == MyModel(look=["I", "found", "this"])
+
+@pytest.mark.pydantic
+def test_load_pydantic_adapter(resources):
+    data = resources.load_pydantic_adapter(dict[str, int])
+    assert data == {"a": 1, "b": 2, "c": 3}
+
+@pytest.mark.pydantic
+def test_load_pydantic_adapter__failing(resources):
+    with pytest.raises(ValidationError) as exi:
+        resources.load_pydantic_adapter(dict[str, int])
+
+    assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
+
+@pytest.mark.pydantic
 def test_expected_pydantic(resources):
     resources.expect_pydantic(MyModel(look=["I", "was", "expecting", "this"]))

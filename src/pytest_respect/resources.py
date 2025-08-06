@@ -9,8 +9,14 @@ from pathlib import Path
 from types import EllipsisType
 from typing import Any, Protocol, TypeVar
 
-from pydantic import BaseModel, TypeAdapter
 from pytest import FixtureRequest
+
+# Optional imports falling back to stub implementations to make the type checker happy
+try:
+    from pydantic import BaseModel, TypeAdapter
+except ImportError:
+    from ._fakes import BaseModel, TypeAdapter
+
 
 __tracebackhide__ = True  # Dont' include in pytest tracebacks
 
@@ -459,29 +465,6 @@ class TestResources:
         except Exception as e:
             raise ValueError(f"Failed to load JSON resource {path}: {repr(e)}") from e
 
-    def load_pydantic(
-        self,
-        model_class: type[PMT],
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ) -> PMT:
-        """Load a pydantic resource relative to the current test."""
-        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
-        return model_class.model_validate(data)
-
-    def load_pydantic_adapter(
-        self,
-        type_: type[T] | TypeAdapter[T],
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ) -> T:
-        """Load a resource with a pydantic TypeAdapter relative to the current test."""
-        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
-        adapter = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
-        return adapter.validate_python(data)
-
     # # # SAVA DATA TO RESOURCE # # #
 
     def save_text(
@@ -567,6 +550,31 @@ class TestResources:
         actual_text = self.data_to_json(actual, ndigits=ndigits)
         self.expect_text(actual_text, *parts, ext=ext, path_maker=path_maker)
 
+    # # # PYDANTIC MODELS # # #
+
+    def load_pydantic(
+        self,
+        model_class: type[PMT],
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ) -> PMT:
+        """Load a pydantic resource relative to the current test."""
+        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
+        return model_class.model_validate(data)
+
+    def load_pydantic_adapter(
+        self,
+        type_: type[T] | TypeAdapter[T],
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ) -> T:
+        """Load a resource with a pydantic TypeAdapter relative to the current test."""
+        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
+        return adapter.validate_python(data)
+
     def expect_pydantic(
         self,
         actual: BaseModel,
@@ -586,3 +594,5 @@ class TestResources:
             path_maker=path_maker,
             ndigits=ndigits,
         )
+
+    # TODO expect_pydantic_adapter

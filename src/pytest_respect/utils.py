@@ -2,8 +2,17 @@ import datetime as dt
 from functools import partial
 from typing import Any
 
-import numpy as np
-from pydantic import BaseModel
+# Optional imports falling back to stub implementations to make the type checker happy
+try:
+    from pydantic import BaseModel, TypeAdapter
+except ImportError:
+    from ._fakes import BaseModel
+    
+try:
+    from numpy import floating as ndfloat
+    from numpy import ndarray
+except ImportError:
+    from ._fakes import ndarray, ndfloat
 
 
 def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
@@ -19,9 +28,9 @@ def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
     # Unwrap struct if needed
     if isinstance(struct, BaseModel):
         struct = struct.model_dump(mode="json")
-    elif isinstance(struct, np.ndarray):
+    elif isinstance(struct, ndarray):
         struct = struct.tolist()
-    elif isinstance(struct, np.floating):
+    elif isinstance(struct, ndfloat):
         struct = float(struct)
 
     recurse = partial(prepare_for_json_encode, ndigits=ndigits)
