@@ -47,7 +47,7 @@ jobs:
         run: |
           for extra in ${EXTRAS} ; do
             echo ====[ EXTRA: ${extra} ]==================================================================
-            uv sync --dev --extra ${extra]
+            uv sync --dev --extra ${extra}
             uv run pytest -m "${extra}" --junitxml=junit/test-results.xml
           done
 
