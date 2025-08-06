@@ -5,13 +5,7 @@ from unittest.mock import call
 import pytest
 from pytest import FixtureRequest
 
-from pytest_respect.resources import (
-    PathMaker,
-    TestResources,
-    list_dir,
-    list_resources,
-    python_compact_json_encoder,
-)
+from pytest_respect.resources import PathMaker, TestResources, list_dir, list_resources, python_compact_json_encoder
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -207,7 +201,7 @@ class TestClass:
 
 def test_load_text(resources):
     text = resources.load_text()
-    assert text == "text resource"
+    assert text == "text resource\n"
 
 
 def test_load_json(resources):
