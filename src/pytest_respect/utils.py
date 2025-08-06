@@ -4,10 +4,10 @@ from typing import Any
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
-    from pydantic import BaseModel, TypeAdapter
+    from pydantic import BaseModel
 except ImportError:
     from ._fakes import BaseModel
-    
+
 try:
     from numpy import floating as ndfloat
     from numpy import ndarray

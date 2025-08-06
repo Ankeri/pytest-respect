@@ -43,11 +43,11 @@ class ValidationError(Exception):
 # Fake numpy types
 
 
-class ndarray:
+class ndarray:  # noqa N801
     def tolist(self) -> NoReturn:
         needs("numpy")
 
 
-class ndfloat:
+class ndfloat:  # noqa N801
     def __float__(self) -> NoReturn:
         needs("numpy")
