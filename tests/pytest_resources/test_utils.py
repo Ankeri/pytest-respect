@@ -1,16 +1,16 @@
 import datetime as dt
 import json
 
-import numpy as np
-from pydantic import BaseModel
+import pytest
+
+# Optional imports, falling back to stub classes
+try:
+    from pydantic import BaseModel
+except ImportError:
+    from pytest_respect._fakes import BaseModel
+
 
 from pytest_respect.utils import prepare_for_json_encode
-
-
-class PydanticModel(BaseModel):
-    name: str
-    weight: float
-    when: dt.datetime
 
 
 def test_prepare_for_json_encode__simple():
@@ -78,6 +78,13 @@ def test_prepare_for_json_encode__date_and_time():
     json.dumps(prepared)
 
 
+class PydanticModel(BaseModel):  # type: ignore (fake is insufficient)
+    name: str
+    weight: float
+    when: dt.datetime
+
+
+@pytest.mark.pydantic
 def test_prepare_for_json_encode__pydantic_model():
     when = dt.datetime(1986, 3, 1, 12, 34, 56)
     original = [
@@ -96,6 +103,7 @@ def test_prepare_for_json_encode__pydantic_model():
     json.dumps(prepared)
 
 
+@pytest.mark.pydantic
 def test_prepare_for_json_encode__pydantic_model__json_mode():
     when = dt.datetime(1986, 3, 1, 12, 34, 56)
     original = [
@@ -114,7 +122,10 @@ def test_prepare_for_json_encode__pydantic_model__json_mode():
     json.dumps(prepared)
 
 
+@pytest.mark.numpy
 def test_prepare_for_json_encode__numpy():
+    import numpy as np
+
     original = [
         0.111111,
         np.arange(2, 5) * 1 / 9,  # 1-D array

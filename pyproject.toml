@@ -2,7 +2,7 @@
 
 [project]
 name = "pytest-respect"
-version = "0.0.1"
+version = "0.1.0"
 description = "Pytest plugin to load resource files relative to test code and to expect values to match them."
 urls.homepage = "https://github.com/Ankeri/pytest-respect"
 urls.issues = "https://github.com/Ankeri/pytest-respect/issues"
@@ -44,6 +44,7 @@ jsonyx = ["jsonyx>=2.0.0"]
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.2.0",
     "pyright==1.1.*",
     "pytest-cov==6.*",
     "pytest-mock==3.*",
@@ -86,4 +87,19 @@ select = [
 "test_*.py" = [
     "D401", # imperative mode: tests are doc'd with statements and fixtures with nouns
     "N802", # snake_case: Allow test_MyFancyClass_method
+]
+
+
+# TESTING
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"  # To help pyright in pre-commit
+
+[tool.pytest.ini_options]
+markers = [
+    # Each optional extra corresponds to a marker for tests which require it
+    "pydantic",
+    "numpy",
+    "jsonyx",
 ]

@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+
+# Run tests with no extra dependencies, with each one individually, and then with all of them.
+
+# If tests fail, the project will have the failing set of extras installed so the tests can be run manually.
+# If all tests pass, then the project will be left in its natural state with all extras.
+
+# List of extras to iterate through
+EXTRAS="pydantic numpy jsonyx"
+
+# not extra1 and not extra2 ... and not extraN
+NO_EXTRAS="not $(echo ${EXTRAS} | sed 's: : and not :g')"
+
+HRULE=$(printf '▃%.0s' {1..1000})
+HRULE=${HRULE:0:$(tput cols)}
+COL="\033[0;35m"
+RST="\033[0m"
+
+shout() {
+  echo "${COL}\n${HRULE}\n$@\n${RST}"
+}
+
+
+shout "NO EXTRAS"
+uv sync --only-dev
+uv run pytest -m "${NO_EXTRAS}" || exit $?
+
+for extra in ${EXTRAS}
+do
+  shout "EXTRA: ${extra}"
+  uv sync --dev --extra ${extra}
+  uv run pytest -m "${extra}" || exit $?
+done
+
+shout "ALL EXTRAS"
+uv sync --all-extras
+uv run pytest || exit $?
