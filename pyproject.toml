@@ -2,7 +2,7 @@
 
 [project]
 name = "pytest-respect"
-version = "0.0.1"
+version = "0.1.0"
 description = "Pytest plugin to load resource files relative to test code and to expect values to match them."
 urls.homepage = "https://github.com/Ankeri/pytest-respect"
 urls.issues = "https://github.com/Ankeri/pytest-respect/issues"
