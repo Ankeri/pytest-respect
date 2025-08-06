@@ -66,7 +66,7 @@ The main entry point to the library is the `resources` fixture. Each method is f
 ### Path Makers
 
 **TBD**
- 
+
 ### `resources.load_foo`
 
 **TBD**
@@ -98,7 +98,8 @@ The main entry point to the library is the `resources` fixture. Each method is f
 
 - [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Run `uv sync --all-extras`
-- Run `pytest` to verify installation
+- Run `pre-commit install` to enable pre-commit linting.
+- Run `pytest` to verify installation.
 
 ### Testing
 

@@ -44,6 +44,7 @@ jsonyx = ["jsonyx>=2.0.0"]
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.2.0",
     "pyright==1.1.*",
     "pytest-cov==6.*",
     "pytest-mock==3.*",
@@ -90,6 +91,10 @@ select = [
 
 
 # TESTING
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"  # To help pyright in pre-commit
 
 [tool.pytest.ini_options]
 markers = [
