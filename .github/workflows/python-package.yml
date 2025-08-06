@@ -41,7 +41,7 @@ jobs:
           mkdir junit
           uv sync --only-dev
           NO_EXTRAS="not $(echo ${EXTRAS} | sed 's: : and not :g')"
-          uv run pytest --junitxml=junit/test-results.xml
+          uv run pytest -m "$NO_EXTRAS" --junitxml=junit/test-results.xml
 
       - name: Test with pytest and each individual extra
         run: |
