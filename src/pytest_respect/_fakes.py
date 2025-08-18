@@ -39,6 +39,12 @@ class ValidationError(Exception):
         needs("pydantic")
 
 
+class WrapSerializer:
+
+    def __init__(self, *a, **kw):
+        super().__init__()
+
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Fake numpy types
 

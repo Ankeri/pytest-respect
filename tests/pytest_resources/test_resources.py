@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from pathlib import Path
+from typing import Annotated
 from unittest.mock import call
 
 import pytest
@@ -9,9 +10,9 @@ from pytest_respect.resources import PathMaker, TestResources, list_dir, list_re
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
-    from pydantic import BaseModel, ValidationError
-except ImportError:
-    from pytest_respect._fakes import BaseModel, ValidationError
+    from pydantic import BaseModel, ValidationError, WrapSerializer
+except ImportError:  # pragma: no cover
+    from pytest_respect._fakes import BaseModel, ValidationError, WrapSerializer
 
 
 THIS_FILE = Path(__file__).absolute()
@@ -421,8 +422,13 @@ def test_save_json(resources):
         "here": ["is", "a", "new", "one"],
         "foo": 1.23456,
     }
+
     resources.save_json(data, ndigits=2)
-    resources.expect_json(data, ndigits=2)
+
+    assert resources.load_json() == {
+        "here": ["is", "a", "new", "one"],
+        "foo": 1.23,
+    }
     resources.delete_json()
 
 
@@ -507,14 +513,47 @@ def test_load_pydantic_adapter__failing(resources):
     assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
 
 
+def add_context(x, handler, info) -> list[str]:
+    x = handler(x)
+    if info.context:
+        return x + info.context
+    return x
+
+
+class MyModelWithContext(BaseModel):  # type: ignore
+    look: Annotated[
+        list[str],
+        WrapSerializer(add_context),
+    ]
+    """A property whose custom serializer adds to it whatever is in the serialization context."""
+
+
+def test_save_pydantic(resources):
+    resources.delete_pydantic()
+    data = MyModel(look=["saved", "pydantic", "data"])
+
+    resources.save_pydantic(data, ndigits=2)
+
+    assert resources.load_json() == {
+        "look": ["saved", "pydantic", "data"],
+    }
+    resources.delete_pydantic()
+
+
+def test_save_pydantic__with_context(resources):
+    resources.delete_pydantic()
+    data = MyModelWithContext(look=["saved", "pydantic", "data"])
+
+    resources.save_pydantic(data, ndigits=2, context=["with", "context"])
+
+    assert resources.load_json() == {
+        "look": ["saved", "pydantic", "data", "with", "context"],
+    }
+    resources.delete_pydantic()
+
+
 def test_delete_pydantic(resources, mock_delete):
     resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
-
-    mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
-
-
-def test_delete_pydantic_adapter(resources, mock_delete):
-    resources.delete_pydantic_adapter("one", "two", path_maker=resources.pm_file)
 
     mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
@@ -522,3 +561,14 @@ def test_delete_pydantic_adapter(resources, mock_delete):
 @pytest.mark.pydantic
 def test_expected_pydantic(resources):
     resources.expect_pydantic(MyModel(look=["I", "was", "expecting", "this"]))
+
+
+@pytest.mark.pydantic
+def test_expected_pydantic__with_context(resources):
+    resources.expect_pydantic(
+        MyModelWithContext(look=["I", "was", "expecting", "this"]),
+        context=["with", "context"],
+    )
+
+    # Show that the expectation contains the context
+    assert resources.load_json()["look"] == ["I", "was", "expecting", "this", "with", "context"]
