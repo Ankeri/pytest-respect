@@ -14,7 +14,7 @@ from pytest import FixtureRequest
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
     from pydantic import BaseModel, TypeAdapter
-except ImportError:
+except ImportError:  # pragma: no cover
     from ._fakes import BaseModel, TypeAdapter
 
 
@@ -38,6 +38,10 @@ class PathMaker(Protocol):
         test_class_name: str | None,
         test_name: str,
     ) -> tuple[Path, str | None]: ...
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Static Resource Listing
 
 
 def list_dir(
@@ -147,6 +151,10 @@ def strip_extensions(
     return resources
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# JSON encoders & Decoders
+
+
 def python_json_encoder(obj: Any) -> str:
     """Standard JSON encoder in very verbose mode."""
     return json.dumps(obj, sort_keys=True, indent=2)
@@ -194,7 +202,8 @@ class TestResources:
         ``__TestClass`` part if we are not in a class.
         """
 
-    # # # BUILD RELATIVE PATHS # # #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Path Makers
 
     @staticmethod
     def pm_function(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> tuple[Path, str | None]:
@@ -323,6 +332,9 @@ class TestResources:
 
         return path_from_dir
 
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Paths
+
     def dir(self, path_maker: PathMaker | None = None) -> Path:
         """Directory for resources belonging to the test.
 
@@ -391,7 +403,8 @@ class TestResources:
             name = f"{name}.{ext}"
         return dir_path / name
 
-    # # # LIST RESOURCES # # #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # List Resources
 
     def list(
         self,
@@ -418,8 +431,6 @@ class TestResources:
         dir: Path = self.dir(path_maker)
         return list_dir(dir, include, exclude=exclude, strip_ext=strip_ext)
 
-    # # # DELETE RESOURCE # # #
-
     def delete(
         self,
         *parts,
@@ -430,16 +441,8 @@ class TestResources:
         path = self.path(*parts, ext=ext, path_maker=path_maker)
         path.unlink(missing_ok=True)
 
-    def delete_json(
-        self,
-        *parts,
-        path_maker: PathMaker | None = None,
-    ):
-        """Delete a json resource relative to the current test."""
-        path = self.path(*parts, ext="json", path_maker=path_maker)
-        path.unlink(missing_ok=True)
-
-    # # # LOAD DATA FROM RESOURCE # # #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Text Resources
 
     def load_text(
         self,
@@ -450,22 +453,6 @@ class TestResources:
         """Load a string resource relative to the current test."""
         path = self.path(*parts, ext=ext, path_maker=path_maker)
         return path.read_text()
-
-    def load_json(
-        self,
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ) -> Any:
-        """Load a json resource relative to the current test."""
-        path = self.path(*parts, ext=ext, path_maker=path_maker)
-        try:
-            text = path.read_text()
-            return self.json_loader(text)
-        except Exception as e:
-            raise ValueError(f"Failed to load JSON resource {path}: {repr(e)}") from e
-
-    # # # SAVA DATA TO RESOURCE # # #
 
     def save_text(
         self,
@@ -482,30 +469,14 @@ class TestResources:
         path.parent.mkdir(parents=False, exist_ok=True)
         path.write_text(text)
 
-    def save_json(
+    def delete_text(
         self,
-        data: Any,
         *parts,
-        ext: str = "json",
+        ext: str = "txt",
         path_maker: PathMaker | None = None,
-        ndigits: int | None | EllipsisType = ...,
-    ) -> None:
-        """Write JSON data to a resource relative to the current test."""
-        text = self.data_to_json(data, ndigits=ndigits)
-        self.save_text(text, *parts, ext=ext, path_maker=path_maker)
-
-    def data_to_json(self, data: Any, ndigits: int | None | EllipsisType = ...) -> str:
-        """Convert data to json string for use by both expectations and save_json."""
-        if ndigits is ...:
-            ndigits = self.default_ndigits
-        if ndigits is not None:
-            data = prepare_for_json_encode(data, ndigits=ndigits)
-        text = self.json_encoder(data)
-        if not text.endswith("\n"):
-            text += "\n"
-        return text
-
-    # # # EXPECTED FILE CONTENT # # #
+    ):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
 
     def expect_text(
         self,
@@ -538,6 +509,55 @@ class TestResources:
             actual_path.write_text(actual)
             raise
 
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # JSON Resources
+
+    def load_json(
+        self,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ) -> Any:
+        """Load a json resource relative to the current test."""
+        path = self.path(*parts, ext=ext, path_maker=path_maker)
+        try:
+            text = path.read_text()
+            return self.json_loader(text)
+        except Exception as e:
+            raise ValueError(f"Failed to load JSON resource {path}: {repr(e)}") from e
+
+    def data_to_json(self, data: Any, ndigits: int | None | EllipsisType = ...) -> str:
+        """Convert data to json string. Use for both expectations and save_json."""
+        if ndigits is ...:
+            ndigits = self.default_ndigits
+        if ndigits is not None:
+            data = prepare_for_json_encode(data, ndigits=ndigits)
+        text = self.json_encoder(data)
+        if not text.endswith("\n"):
+            text += "\n"
+        return text
+
+    def save_json(
+        self,
+        data: Any,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+        ndigits: int | None | EllipsisType = ...,
+    ) -> None:
+        """Write JSON data to a resource relative to the current test."""
+        text = self.data_to_json(data, ndigits=ndigits)
+        self.save_text(text, *parts, ext=ext, path_maker=path_maker)
+
+    def delete_json(
+        self,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
+
     def expect_json(
         self,
         actual: Any,
@@ -550,7 +570,8 @@ class TestResources:
         actual_text = self.data_to_json(actual, ndigits=ndigits)
         self.expect_text(actual_text, *parts, ext=ext, path_maker=path_maker)
 
-    # # # PYDANTIC MODELS # # #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Pydantic Resources
 
     def load_pydantic(
         self,
@@ -575,6 +596,28 @@ class TestResources:
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         return adapter.validate_python(data)
 
+    # TODO save_pydantic
+
+    # TODO save_pydantic_adapter
+
+    def delete_pydantic(
+        self,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
+
+    def delete_pydantic_adapter(
+        self,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
+
     def expect_pydantic(
         self,
         actual: BaseModel,
@@ -584,9 +627,7 @@ class TestResources:
         ndigits: int | None | EllipsisType = ...,
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
-        actual_data = actual.model_dump(
-            mode="json",  # convert fields such as datetime to JSON serializable types
-        )
+        actual_data = actual.model_dump(mode="json")  # convert fields such as datetime to JSON serializable types
         self.expect_json(
             actual_data,
             *parts,
