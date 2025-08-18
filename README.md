@@ -2,9 +2,11 @@
 
 Pytest plugin to load resource files relative to test code and to expect values to match them. The name is a contraction of `resources.expect`, which is frequently typed when using this plugin.
 
+
 ## Motivation
 
 The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base. If you find your test _code_ being obscured by the test _data_, filling with complex data generation code, or ad-hoc reading of input data or expected results, then pytest-respect is probably for you.
+
 
 ## Installation
 
@@ -16,6 +18,7 @@ Install with your favourite package manager such as:
 
 See your package management tool for details, especially on how to install optional extra dependencies.
 
+
 #### Extras
 
 The following extra dependencies are required for additional functionality:
@@ -25,7 +28,6 @@ The following extra dependencies are required for additional functionality:
 - `jsonyx` - Alternative JSON encoder for semi-compact files, numeric keys, trailing commas, etc.
 
 
----
 ## Usage
 
 
@@ -108,6 +110,7 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 - Alternative JSON formatter
 - Jsonyx extension
 
+
 #### Resource Path Construction
 
 **To Document:**
@@ -118,8 +121,8 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 - Custom path makers
 
 
----
 ## Development
+
 
 ### Installation
 
@@ -127,6 +130,7 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 - Run `uv sync --all-extras`
 - Run `pre-commit install` to enable pre-commit linting.
 - Run `pytest` to verify installation.
+
 
 ### Testing
 
