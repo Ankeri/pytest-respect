@@ -639,11 +639,11 @@ class TestResources:
     def save_pydantic_adapter(
         self,
         data: Any,
-        type_: type[T] | TypeAdapter[T] | None = None,
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
         ndigits: int | None | EllipsisType = ...,
+        type_: type[T] | TypeAdapter[T] | None = None,
         context: Any = None,
     ) -> None:
         """Write pydantic data to a resource relative to the current test."""
@@ -659,11 +659,11 @@ class TestResources:
     def expect_pydantic_adapter(
         self,
         actual: Any,
-        type_: type[T] | TypeAdapter[T] | None = None,
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
         ndigits: int | None | EllipsisType = ...,
+        type_: type[T] | TypeAdapter[T] | None = None,
         context: Any = None,
     ) -> None:
         """Assert that the type adapter encodes the actual value to the JSON content from resource. This allows us to
