@@ -499,20 +499,6 @@ def test_load_pydantic(resources):
     assert data == MyModel(look=["I", "found", "this"])
 
 
-@pytest.mark.pydantic
-def test_load_pydantic_adapter(resources):
-    data = resources.load_pydantic_adapter(dict[str, int])
-    assert data == {"a": 1, "b": 2, "c": 3}
-
-
-@pytest.mark.pydantic
-def test_load_pydantic_adapter__failing(resources):
-    with pytest.raises(ValidationError) as exi:
-        resources.load_pydantic_adapter(dict[str, int])
-
-    assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
-
-
 def add_context(x, handler, info) -> list[str]:
     x = handler(x)
     if info.context:
@@ -528,6 +514,7 @@ class MyModelWithContext(BaseModel):  # type: ignore
     """A property whose custom serializer adds to it whatever is in the serialization context."""
 
 
+@pytest.mark.pydantic
 def test_save_pydantic(resources):
     resources.delete_pydantic()
     data = MyModel(look=["saved", "pydantic", "data"])
@@ -540,6 +527,7 @@ def test_save_pydantic(resources):
     resources.delete_pydantic()
 
 
+@pytest.mark.pydantic
 def test_save_pydantic__with_context(resources):
     resources.delete_pydantic()
     data = MyModelWithContext(look=["saved", "pydantic", "data"])
@@ -572,3 +560,53 @@ def test_expected_pydantic__with_context(resources):
 
     # Show that the expectation contains the context
     assert resources.load_json()["look"] == ["I", "was", "expecting", "this", "with", "context"]
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Pydantic TypeAdapter Resources
+
+
+@pytest.mark.pydantic
+def test_load_pydantic_adapter(resources):
+    data = resources.load_pydantic_adapter(dict[str, int])
+    assert data == {"a": 1, "b": 2, "c": 3}
+
+
+@pytest.mark.pydantic
+def test_load_pydantic_adapter__failing(resources):
+    with pytest.raises(ValidationError) as exi:
+        resources.load_pydantic_adapter(dict[str, int])
+
+    assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
+
+
+@pytest.mark.pydantic
+def test_save_pydantic_adapter(resources):
+    resources.delete_pydantic()
+    data: dict[int, MyModelWithContext] = {
+        1: MyModelWithContext(look=["I", "was", "expecting", "this"]),
+        2: MyModel(look=["and", "also", "this"]),  # Won't have the context
+    }
+
+    resources.save_pydantic_adapter(data, context=["with", "context"])
+
+    assert resources.load_json() == {
+        "1": {"look": ["I", "was", "expecting", "this", "with", "context"]},
+        "2": {"look": ["and", "also", "this"]},  # without context
+    }
+    resources.delete_pydantic()
+
+
+def test_delete_pydantic_adapter(resources, mock_delete):
+    resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
+
+    mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
+
+
+@pytest.mark.pydantic
+def test_expected_pydantic_adapter(resources):
+    data: dict[int, MyModelWithContext] = {
+        1: MyModelWithContext(look=["I", "was", "expecting", "this"]),
+        2: MyModel(look=["and", "also", "this"]),  # Won't have the context
+    }
+    resources.expect_pydantic_adapter(data, context=["with", "context"])

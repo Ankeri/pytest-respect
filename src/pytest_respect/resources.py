@@ -585,18 +585,6 @@ class TestResources:
         data = self.load_json(*parts, ext=ext, path_maker=path_maker)
         return model_class.model_validate(data)
 
-    def load_pydantic_adapter(
-        self,
-        type_: type[T] | TypeAdapter[T],
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ) -> T:
-        """Load a resource with a pydantic TypeAdapter relative to the current test."""
-        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
-        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
-        return adapter.validate_python(data)
-
     def save_pydantic(
         self,
         data: Any,
@@ -610,12 +598,7 @@ class TestResources:
         actual_data = data.model_dump(mode="json", context=context)
         self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, ndigits=ndigits)
 
-    def delete_pydantic(
-        self,
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ):
+    def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
         """Delete a json resource relative to the current test."""
         self.delete(*parts, ext=ext, path_maker=path_maker)
 
@@ -630,6 +613,64 @@ class TestResources:
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
         actual_data = actual.model_dump(mode="json", context=context)
+        self.expect_json(
+            actual_data,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+            ndigits=ndigits,
+        )
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Pydantic TypeAdapter Resources
+
+    def load_pydantic_adapter(
+        self,
+        type_: type[T] | TypeAdapter[T],
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+    ) -> T:
+        """Load a resource with a pydantic TypeAdapter relative to the current test."""
+        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
+        return adapter.validate_python(data)
+
+    def save_pydantic_adapter(
+        self,
+        data: Any,
+        type_: type[T] | TypeAdapter[T] | None = None,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+        ndigits: int | None | EllipsisType = ...,
+        context: Any = None,
+    ) -> None:
+        """Write pydantic data to a resource relative to the current test."""
+        type_ = type_ or type(data)
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
+        actual_data: T = adapter.dump_python(data, mode="json", context=context)
+        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, ndigits=ndigits)
+
+    def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
+
+    def expect_pydantic_adapter(
+        self,
+        actual: Any,
+        type_: type[T] | TypeAdapter[T] | None = None,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+        ndigits: int | None | EllipsisType = ...,
+        context: Any = None,
+    ) -> None:
+        """Assert that the type adapter encodes the actual value to the JSON content from resource. This allows us to
+        pass a context to the serializers of any objects embedded within actual."""
+        type_ = type_ or type(actual)
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
+        actual_data: T = adapter.dump_python(actual, mode="json", context=context)
         self.expect_json(
             actual_data,
             *parts,

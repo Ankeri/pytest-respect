@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `resources.save_pydantic` methods.
-- `context` argument to `resources.expect_pydantic` and `resources.save_pydantic` methods (#11).
+- `context` argument to `resources.expect_pydantic` method (#11).
+- `resources.save_pydantic` method which serializes a pydantic model and accepts the new `context` (#11).
+- `resources.save_pydantic_adapter` method which serializes arbitrary data using a pydantic `TypeAdapter`. It accepts the new `context` object in case there are pydantic models somewhere within the data being saved (#11).
+- `resources.expect_pydantic_adapter` method which serializes like `save_pydantic_adapter` and expects the result to match a resource on-disk (#11).
 
 ### Changed
 
