@@ -45,6 +45,12 @@ def resources(request: FixtureRequest) -> TestResources:
 
 
 @pytest.fixture
+def mock_delete(resources, mocker):
+    """Mock resources.delete method"""
+    return mocker.patch.object(resources, "delete", autospec=True)
+
+
+@pytest.fixture
 def resources_4digits(request: FixtureRequest) -> TestResources:
     """A TestResrouces fixture which defaults to rounding to 4 digits."""
     return TestResources(
@@ -54,7 +60,7 @@ def resources_4digits(request: FixtureRequest) -> TestResources:
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# path making
+# Static Resource Listing
 
 
 def test_list_dir(tmp_path: Path):
@@ -69,6 +75,17 @@ def test_list_dir(tmp_path: Path):
         "test_load_pydantic_adapter__failing.json",
         "test_load_text.txt",
     ]
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# JSON encoders & Decoders
+
+# TODO test_python_json_encoder
+# TODO test_python_compact_json_encoder
+# TODO test_python_json_loader
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Path Makers & Paths
 
 
 @pytest.mark.parametrize(
@@ -196,82 +213,7 @@ class TestClass:
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# load
-
-
-def test_load_text(resources):
-    text = resources.load_text()
-    assert text == "text resource\n"
-
-
-def test_load_json(resources):
-    data = resources.load_json()
-    assert data == {"look": ["what", "I", "found"]}
-
-
-def test_load_json__missing(resources):
-    with pytest.raises(ValueError) as exi:
-        resources.load_json()
-
-    assert str(exi.value).startswith("Failed to load JSON resource")
-    assert "pytest_resources/test_resources/test_load_json__missing.json" in str(exi.value)
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# save
-
-
-def test_save_text__dir_does_not_exist(resources):
-    """We can write a file to a directory that doesn't exist yet."""
-    my_dir = Path(__file__).parent
-    missing_dir_name = "missing_dir"
-    missing_dir = my_dir / missing_dir_name
-    new_file_name = "new_file.txt"
-    new_file = missing_dir / new_file_name
-
-    # Clean up file and dir from previous run. If other files have been added, remove manually.
-    new_file.unlink(missing_ok=True)
-    if missing_dir.is_dir():
-        missing_dir.rmdir()
-
-    def make_missing_path(*a, **kw):
-        return (missing_dir, new_file_name)
-
-    resources.save_text("Some text is here", path_maker=make_missing_path)
-
-    text = new_file.read_text()
-    assert text == "Some text is here"
-
-    new_file.unlink()
-    missing_dir.rmdir()
-
-
-def test_save_json(resources):
-    resources.delete_json()
-    data = {
-        "here": ["is", "a", "new", "one"],
-        "foo": 1.23456,
-    }
-    resources.save_json(data, ndigits=2)
-    resources.expect_json(data, ndigits=2)
-    resources.delete_json()
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# delete
-
-
-def test_delete(resources):
-    path = resources.path()
-    path.write_text("temporary")
-    assert path.is_file()
-
-    resources.delete()
-    assert not path.is_file()
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# list
+# List Resources
 
 
 def test_list_resources__patterns(mock_list_dir):
@@ -368,8 +310,53 @@ def test_list__filtered(resources, mock_list_dir):
     ]
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# expect
+def test_delete(resources):
+    path = resources.path()
+    path.write_text("temporary")
+    assert path.is_file()
+
+    resources.delete()
+    assert not path.is_file()
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Text Resources
+
+
+def test_load_text(resources):
+    text = resources.load_text()
+    assert text == "text resource\n"
+
+
+def test_save_text__dir_does_not_exist(resources):
+    """We can write a file to a directory that doesn't exist yet."""
+    my_dir = Path(__file__).parent
+    missing_dir_name = "missing_dir"
+    missing_dir = my_dir / missing_dir_name
+    new_file_name = "new_file.txt"
+    new_file = missing_dir / new_file_name
+
+    # Clean up file and dir from previous run. If other files have been added, remove manually.
+    new_file.unlink(missing_ok=True)
+    if missing_dir.is_dir():
+        missing_dir.rmdir()
+
+    def make_missing_path(*a, **kw):
+        return (missing_dir, new_file_name)
+
+    resources.save_text("Some text is here", path_maker=make_missing_path)
+
+    text = new_file.read_text()
+    assert text == "Some text is here"
+
+    new_file.unlink()
+    missing_dir.rmdir()
+
+
+def test_delete_text(resources, mock_delete):
+    resources.delete_text("one", "two", path_maker=resources.pm_file)
+
+    mock_delete.assert_called_once_with("one", "two", ext="txt", path_maker=resources.pm_file)
 
 
 def test_expect_text(resources):
@@ -409,6 +396,40 @@ def test_expect_text__not_found(resources):
     assert created_file.read_text() == text_content
 
     created_file.unlink()
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# JSON Resources
+
+
+def test_load_json(resources):
+    data = resources.load_json()
+    assert data == {"look": ["what", "I", "found"]}
+
+
+def test_load_json__missing(resources):
+    with pytest.raises(ValueError) as exi:
+        resources.load_json()
+
+    assert str(exi.value).startswith("Failed to load JSON resource")
+    assert "pytest_resources/test_resources/test_load_json__missing.json" in str(exi.value)
+
+
+def test_save_json(resources):
+    resources.delete_json()
+    data = {
+        "here": ["is", "a", "new", "one"],
+        "foo": 1.23456,
+    }
+    resources.save_json(data, ndigits=2)
+    resources.expect_json(data, ndigits=2)
+    resources.delete_json()
+
+
+def test_delete_json(resources, mock_delete):
+    resources.delete_json("one", "two", path_maker=resources.pm_file)
+
+    mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
 
 def test_expected_json(resources):
@@ -454,7 +475,7 @@ def test_expected_json__default_digits(resources_4digits):
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# pydantic
+# Pydantic Resources
 
 
 class MyModel(BaseModel):  # type: ignore
@@ -484,6 +505,18 @@ def test_load_pydantic_adapter__failing(resources):
         resources.load_pydantic_adapter(dict[str, int])
 
     assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
+
+
+def test_delete_pydantic(resources, mock_delete):
+    resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
+
+    mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
+
+
+def test_delete_pydantic_adapter(resources, mock_delete):
+    resources.delete_pydantic_adapter("one", "two", path_maker=resources.pm_file)
+
+    mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
 
 @pytest.mark.pydantic
