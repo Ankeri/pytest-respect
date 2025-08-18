@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Generated JSON now converts negative zero (`-0.0`) to non-negative zero (`0.0`) by default. The underlying `allow_negative_zero` takes a new argument `prepare_for_json_encode` to change this, but the save and expect methods don't make use of it (#10).
+- Generated JSON now converts negative zero (`-0.0`) to non-negative zero (`0.0`) by default. The underlying `prepare_for_json_encode` takes a new argument `allow_negative_zero` to change this, but the save and expect methods don't make use of it (#10).
 
 ## [0.1.2] - 2025-08-18
 
