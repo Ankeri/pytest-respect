@@ -105,7 +105,7 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 
 #### JSON Formatting and Parsing
 
-*To Document:**
+**To Document:**
 - Default JSON formatter and parser
 - Alternative JSON formatter
 - Jsonyx extension
