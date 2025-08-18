@@ -18,7 +18,8 @@ except ImportError:  # pragma: no cover
     from ._fakes import BaseModel, TypeAdapter
 
 
-__tracebackhide__ = True  # Dont' include in pytest tracebacks
+# Dont' include in pytest tracebacks. We patch this out in unit tests to see where in our code errors occur.
+__tracebackhide__ = True
 
 from pytest_respect.utils import prepare_for_json_encode
 
@@ -584,6 +585,45 @@ class TestResources:
         data = self.load_json(*parts, ext=ext, path_maker=path_maker)
         return model_class.model_validate(data)
 
+    def save_pydantic(
+        self,
+        data: Any,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+        ndigits: int | None | EllipsisType = ...,
+        context: Any = None,
+    ) -> None:
+        """Write pydantic data to a resource relative to the current test."""
+        actual_data = data.model_dump(mode="json", context=context)
+        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, ndigits=ndigits)
+
+    def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
+
+    def expect_pydantic(
+        self,
+        actual: BaseModel,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+        ndigits: int | None | EllipsisType = ...,
+        context: Any = None,
+    ) -> None:
+        """Assert that the actual value encodes to the JSON content from resource."""
+        actual_data = actual.model_dump(mode="json", context=context)
+        self.expect_json(
+            actual_data,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+            ndigits=ndigits,
+        )
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Pydantic TypeAdapter Resources
+
     def load_pydantic_adapter(
         self,
         type_: type[T] | TypeAdapter[T],
@@ -596,38 +636,41 @@ class TestResources:
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         return adapter.validate_python(data)
 
-    # TODO save_pydantic
-
-    # TODO save_pydantic_adapter
-
-    def delete_pydantic(
+    def save_pydantic_adapter(
         self,
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ):
-        """Delete a json resource relative to the current test."""
-        self.delete(*parts, ext=ext, path_maker=path_maker)
-
-    def delete_pydantic_adapter(
-        self,
-        *parts,
-        ext: str = "json",
-        path_maker: PathMaker | None = None,
-    ):
-        """Delete a json resource relative to the current test."""
-        self.delete(*parts, ext=ext, path_maker=path_maker)
-
-    def expect_pydantic(
-        self,
-        actual: BaseModel,
+        data: Any,
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
         ndigits: int | None | EllipsisType = ...,
+        type_: type[T] | TypeAdapter[T] | None = None,
+        context: Any = None,
     ) -> None:
-        """Assert that the actual value encodes to the JSON content from resource."""
-        actual_data = actual.model_dump(mode="json")  # convert fields such as datetime to JSON serializable types
+        """Write pydantic data to a resource relative to the current test."""
+        type_ = type_ or type(data)
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
+        actual_data: T = adapter.dump_python(data, mode="json", context=context)
+        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, ndigits=ndigits)
+
+    def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
+        """Delete a json resource relative to the current test."""
+        self.delete(*parts, ext=ext, path_maker=path_maker)
+
+    def expect_pydantic_adapter(
+        self,
+        actual: Any,
+        *parts,
+        ext: str = "json",
+        path_maker: PathMaker | None = None,
+        ndigits: int | None | EllipsisType = ...,
+        type_: type[T] | TypeAdapter[T] | None = None,
+        context: Any = None,
+    ) -> None:
+        """Assert that the type adapter encodes the actual value to the JSON content from resource. This allows us to
+        pass a context to the serializers of any objects embedded within actual."""
+        type_ = type_ or type(actual)
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
+        actual_data: T = adapter.dump_python(actual, mode="json", context=context)
         self.expect_json(
             actual_data,
             *parts,
@@ -635,5 +678,3 @@ class TestResources:
             path_maker=path_maker,
             ndigits=ndigits,
         )
-
-    # TODO expect_pydantic_adapter

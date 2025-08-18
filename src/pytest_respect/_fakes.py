@@ -33,10 +33,18 @@ class TypeAdapter(Generic[T]):
     def validate_python(self, obj: Any, *a, **kw) -> NoReturn:
         needs("pydantic")
 
+    def dump_python(self, instance: T, /, **kw) -> Any:
+        needs("pydantic")
+
 
 class ValidationError(Exception):
     def errors(self, *a, **kw) -> NoReturn:
         needs("pydantic")
+
+
+class WrapSerializer:
+    def __init__(self, *a, **kw):
+        super().__init__()
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
