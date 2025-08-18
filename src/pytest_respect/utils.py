@@ -15,15 +15,16 @@ except ImportError:
     from ._fakes import ndarray, ndfloat
 
 
-def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
+def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None, allow_negative_zero: bool = False) -> Any:
     """
     Copy a structure of lists, tuples, dicts, pydantic models and numpy values into a parallel structure of dicts and
-    lists, trying to make them JSON encodeable. The encoding doesn't have to be reversible since the target is always
+    lists, trying to make them JSON encodable. The encoding doesn't have to be reversible since the target is always
     a block of text that we compare with one that we prepared earlier.
 
     Args:
         struct: The value to round the floats in
         ndigits: The number of digits to round floats to, or None to omit rounding
+        allow_negative_zero: bool = False,
     """
     # Unwrap struct if needed
     if isinstance(struct, BaseModel):
@@ -33,11 +34,15 @@ def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None) -> Any:
     elif isinstance(struct, ndfloat):
         struct = float(struct)
 
-    recurse = partial(prepare_for_json_encode, ndigits=ndigits)
+    recurse = partial(prepare_for_json_encode, ndigits=ndigits, allow_negative_zero=allow_negative_zero)
 
     # Special-case some leaf values
     if isinstance(struct, float):
-        return round(struct, ndigits) if ndigits is not None else struct
+        if ndigits is not None:
+            struct = round(struct, ndigits)
+        if not allow_negative_zero:
+            struct += 0.0
+        return struct
     elif isinstance(struct, dt.date | dt.time | dt.datetime):
         return struct.isoformat()
 

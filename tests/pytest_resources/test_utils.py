@@ -145,3 +145,53 @@ def test_prepare_for_json_encode__numpy():
         0.56,
     ]
     json.dumps(prepared)
+
+
+def test_prepare_for_json_encode__allow_negative_zero__default_to_False():
+    precise = [
+        -0.001,
+        [-0.001, -0.003, -0.005],
+    ]
+
+    # Compare json dumps since 0.0 == -0.0 as numbers
+    rounded = prepare_for_json_encode(precise, ndigits=2)
+    assert json.dumps(rounded) == "[0.0, [0.0, 0.0, -0.01]]"
+
+
+def test_prepare_for_json_encode__allow_negative_zero__True():
+    precise = [
+        -0.001,
+        [-0.001, -0.003, -0.005],
+    ]
+
+    # Compare json dumps since 0.0 == -0.0 as numbers
+    rounded = prepare_for_json_encode(precise, ndigits=2, allow_negative_zero=True)
+    assert json.dumps(rounded) == "[-0.0, [-0.0, -0.0, -0.01]]"
+
+
+@pytest.mark.numpy
+def test_prepare_for_json_encode__allow_negative_zero__default_to_False__numpy():
+    import numpy as np
+
+    precise = [
+        -0.001,
+        np.array([-0.001, -0.003, -0.005]),
+    ]
+
+    # Compare json dumps since 0.0 == -0.0 as numbers
+    rounded = prepare_for_json_encode(precise, ndigits=2)
+    assert json.dumps(rounded) == "[0.0, [0.0, 0.0, -0.01]]"
+
+
+@pytest.mark.numpy
+def test_prepare_for_json_encode__allow_negative_zero__True__numpy():
+    import numpy as np
+
+    precise = [
+        -0.001,
+        np.array([-0.001, -0.003, -0.005]),
+    ]
+
+    # Compare json dumps since 0.0 == -0.0 as numbers
+    rounded = prepare_for_json_encode(precise, ndigits=2, allow_negative_zero=True)
+    assert json.dumps(rounded) == "[-0.0, [-0.0, -0.0, -0.01]]"
