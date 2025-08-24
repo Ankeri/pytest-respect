@@ -42,7 +42,10 @@ def mock_list_dir(mocker):
 @pytest.fixture
 def resources(request: FixtureRequest) -> TestResources:
     """The fixture being tested."""
-    return TestResources(request)
+    return TestResources(
+        request,
+        accept=False,  # We set accept in individual tests instead of using the --respect-accept flag.
+    )
 
 
 @pytest.fixture
@@ -337,21 +340,23 @@ def test_save_text__dir_does_not_exist(resources):
     new_file_name = "new_file.txt"
     new_file = missing_dir / new_file_name
 
-    # Clean up file and dir from previous run. If other files have been added, remove manually.
-    new_file.unlink(missing_ok=True)
-    if missing_dir.is_dir():
+    try:
+        # Clean up file and dir from previous run. If other files have been added, remove manually.
+        new_file.unlink(missing_ok=True)
+        if missing_dir.is_dir():
+            missing_dir.rmdir()
+
+        def make_missing_path(*a, **kw):
+            return (missing_dir, new_file_name)
+
+        resources.save_text("Some text is here", path_maker=make_missing_path)
+
+        text = new_file.read_text()
+        assert text == "Some text is here"
+
+    finally:
+        new_file.unlink(missing_ok=True)
         missing_dir.rmdir()
-
-    def make_missing_path(*a, **kw):
-        return (missing_dir, new_file_name)
-
-    resources.save_text("Some text is here", path_maker=make_missing_path)
-
-    text = new_file.read_text()
-    assert text == "Some text is here"
-
-    new_file.unlink()
-    missing_dir.rmdir()
 
 
 def test_delete_text(resources, mock_delete):
@@ -360,43 +365,102 @@ def test_delete_text(resources, mock_delete):
     mock_delete.assert_called_once_with("one", "two", ext="txt", path_maker=resources.pm_file)
 
 
-def test_expect_text(resources):
+@pytest.mark.parametrize("accept", [True, False])
+def test_expect_text__match(resources, accept: bool):
+    resources.accept = accept
     resources.expect_text("some text\nsome more text\n")
 
 
 def test_expect_text__mismatch(resources):
     try:
-        resources.delete("actual", ext="txt")
+        resources.delete_text("actual")
         with pytest.raises(AssertionError):
             resources.expect_text("actual text not found")
 
-        written_actual = resources.load_text("actual", ext="txt")
+        # Actual file was written
+        actual_path = resources.path("actual", ext="txt")
+        assert actual_path.exists()
+        written_actual = resources.load_text("actual")
         assert written_actual == "actual text not found"
 
+        # Expected file was not changed
+        resources.expect_text("original expected test\n")
+
     finally:
-        resources.delete("actual", ext="txt")
+        resources.delete_text("actual")
+
+
+def test_expect_text__mismatch__accept(resources, capsys):
+    resources.accept = True
+    try:
+        resources.save_text("previous actual\n", "actual")
+        resources.save_text("original expected test\n")
+
+        resources.expect_text("updated expected test\n")
+
+        # The actual file was removed
+        actual_path = resources.path("actual", ext="txt")
+        assert not actual_path.exists()
+
+        # The expected file was overwritten
+        written_expected = resources.load_text()
+        assert written_expected == "updated expected test\n"
+
+        expected_path = resources.path(ext="txt")
+        assert capsys.readouterr().out.splitlines()[-1] == f"The expectation file was updated at {expected_path}."
+
+    finally:
+        resources.delete_text()
+        resources.delete_text("actual")
 
 
 def test_expect_text__not_found(resources):
     test_dir = Path(__file__).with_suffix("")
-    missing_file = test_dir / "test_expect_text__not_found.txt"
-    created_file = test_dir / "test_expect_text__not_found__actual.txt"
+    expected_file = test_dir / "test_expect_text__not_found.txt"
+    actual_file = test_dir / "test_expect_text__not_found__actual.txt"
     text_content = "actual text not found"
 
-    missing_file.unlink(missing_ok=True)
-    created_file.unlink(missing_ok=True)
+    expected_file.unlink(missing_ok=True)
+    actual_file.unlink(missing_ok=True)
 
-    with pytest.raises(AssertionError) as exi:
+    try:
+        with pytest.raises(AssertionError) as exi:
+            resources.expect_text(text_content)
+
+        assert str(exi.value).startswith("The expectation file was not found at ")
+        assert "test_expect_text__not_found.txt" in str(exi.value)
+
+        assert not expected_file.exists()
+        assert actual_file.exists()
+        assert actual_file.read_text() == text_content
+
+    finally:
+        actual_file.unlink(missing_ok=True)
+
+
+def test_expect_text__not_found__accept(resources, capsys):
+    resources.accept = True
+
+    test_dir = Path(__file__).with_suffix("")
+    expected_file = test_dir / "test_expect_text__not_found__accept.txt"
+    actual_file = test_dir / "test_expect_text__not_found__accept__actual.txt"
+    text_content = "actual text not found"
+
+    expected_file.unlink(missing_ok=True)
+    actual_file.write_text("previous actual\n")
+
+    try:
         resources.expect_text(text_content)
 
-    assert str(exi.value).startswith("The expectation file was not found at ")
-    assert "test_expect_text__not_found.txt" in str(exi.value)
+        assert expected_file.exists()
+        assert expected_file.read_text() == text_content
 
-    assert not missing_file.exists()
-    assert created_file.exists()
-    assert created_file.read_text() == text_content
+        assert not actual_file.exists()
 
-    created_file.unlink()
+        assert capsys.readouterr().out.splitlines()[-1] == f"A new expectation file was written to {expected_file}."
+    finally:
+        expected_file.unlink(missing_ok=True)
+        actual_file.unlink(missing_ok=True)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

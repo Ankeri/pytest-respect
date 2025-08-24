@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-MM-DD
+
+### Added
+
+- `resources.accept` property which decide whether to accept a result if it differs from the expectation instead of failing the test.
+- `--respect-accept` command-line option which populates the `resources.accept` property.
+
 ## [0.2.0] - 2025-08-18
 
 ### Added
@@ -16,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Generated JSON now converts negative zero (`-0.0`) to non-negative zero (`0.0`) by default. The underlying `prepare_for_json_encode` takes a new argument `allow_negative_zero` to change this, but the save and expect methods don't make use of it (#10).
+- Generated JSON now converts negative zero (`-0.0`) to non-negative zero (`0.0`) (#10).
 
 ## [0.1.2] - 2025-08-18
 
@@ -42,6 +49,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.1] - 2025-08-05
 
-### Added
-
-- Initial semi-functional release
+Initial import from [Ankeri](https://ankeri.com/)'s proprietary [Platform](https://platform.ankeri.net/) code-base.
