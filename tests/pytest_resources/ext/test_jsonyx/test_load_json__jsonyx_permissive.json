@@ -1,4 +1,4 @@
 {
   /* This is a comment! */
-  "look": ["what", "I", "found"],  // trailing comma
+  "look": ["I", "found", "a", NaN],  // trailing comma
 }
