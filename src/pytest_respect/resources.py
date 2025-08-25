@@ -191,7 +191,7 @@ class TestResources:
 
         """
         self.request: FixtureRequest = request
-        """The pytest fixture request that we get context information from.."""
+        """The pytest fixture request that we get context information from."""
 
         self.default_ndigits = ndigits
         """How many digits to round floats to by default when comparing JSON data."""
