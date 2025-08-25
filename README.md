@@ -21,12 +21,14 @@ See your package management tool for details, especially on how to install optio
 The following extra dependencies are required for additional functionality:
 
 - `poetry` - Load, save, and expect pydantic models or arbitrary data through type adapters.
-- `numpy` - Convert numpy arrays and scalars to python equivalents when generating JSON both in save and expect.
+- `numpy` - Convert numpy arrays and scalars to python equivalents when generating JSON, both in save and expect.
 - `jsonyx` - Alternative JSON encoder for semi-compact files, numeric keys, trailing commas, etc.
 
 ## Usage
 
 #### Text Data
+
+The simplest use-case is loading textual input data and comparing textual output to an expectation file:
 
 ```python
 def test_translate(resources):
@@ -37,7 +39,7 @@ def test_translate(resources):
 
 If the test is found in a file called `foo/test_stuff.py`, then it will load the content of `foo/test_stuff/test_translate__input.txt`, run the `translate` function on it, and assert that the output exactly matches the content of the file `foo/test_stuff/test_translate__output.json`.
 
-The expectation must match also on trailing spaces and trailing empty lines for the test to pass.
+The expectation must also match on trailing spaces and trailing empty lines for the test to pass.
 
 #### Json Data
 
@@ -61,8 +63,8 @@ With the optional
 
 ```python
 def test_compute(resources):
-    input = resources.load_pydantic(InputModel, "input")
-    output = compute(input)
+    input: InputModel = resources.load_pydantic(InputModel, "input")
+    output:OutputModel = compute(input)
     resources.expect_pydantic(output, "output")
 ```
 
@@ -94,7 +96,9 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 
 #### Data-driven Parametric Tests
 
-- **To Document:** using list
+- **To Document:**
+
+- Using `list` function
 
 #### JSON Formatting and Parsing
 
