@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `resources.accept` property which decide whether to accept a result if it differs from the expectation instead of failing the test.
+- `resources.accept` property which decides whether to accept a result if it differs from the expectation instead of failing the test.
 - `--respect-accept` command-line option which populates the `resources.accept` property.
 
 ### Changed

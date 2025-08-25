@@ -74,7 +74,7 @@ If one of the above expectations fails, then a new file is created at `foo/test_
 
 When the values being compared are more complex, then the diference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
 
-Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, the actual file will have to be deleted manually.
+Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.
 
 Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations.
 
