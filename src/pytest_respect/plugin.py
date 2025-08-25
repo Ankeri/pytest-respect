@@ -16,5 +16,5 @@ def pytest_addoption(parser):
         "--respect-accept",
         action="store_true",
         default=False,
-        help="When results don't match expectations, create or update the expected files insetad of failing the tests.",
+        help="When results don't match expectations, create or update the expected files instead of failing the tests.",
     )

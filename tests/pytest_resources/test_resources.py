@@ -356,7 +356,8 @@ def test_save_text__dir_does_not_exist(resources):
 
     finally:
         new_file.unlink(missing_ok=True)
-        missing_dir.rmdir()
+        if missing_dir.is_dir():
+            missing_dir.rmdir()
 
 
 def test_delete_text(resources, mock_delete):
@@ -435,6 +436,7 @@ def test_expect_text__not_found(resources):
         assert actual_file.read_text() == text_content
 
     finally:
+        expected_file.unlink(missing_ok=True)
         actual_file.unlink(missing_ok=True)
 
 
