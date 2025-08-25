@@ -15,7 +15,7 @@ def jsonyx_encoder(obj: Any) -> str:
         obj,
         sort_keys=True,
         indent=2,
-        allow=jsonyx.allow.NON_STR_KEYS,
+        allow=jsonyx.allow.EVERYTHING,
     )
 
 
@@ -29,7 +29,7 @@ def jsonyx_compactish_encoder(obj: Any) -> str:
         sort_keys=True,
         indent=2,
         indent_leaves=False,
-        allow=jsonyx.allow.NON_STR_KEYS,
+        allow=jsonyx.allow.EVERYTHING,
     )
 
 
@@ -41,7 +41,7 @@ def jsonyx_compact_encoder(obj: Any) -> str:
     return jsonyx.dumps(
         obj,
         sort_keys=True,
-        allow=jsonyx.allow.NON_STR_KEYS,
+        allow=jsonyx.allow.EVERYTHING,
     )
 
 

@@ -1,3 +1,6 @@
+from math import isnan, nan
+from unittest.mock import ANY
+
 import pytest
 from pytest import FixtureRequest
 
@@ -17,7 +20,8 @@ def resources(request: FixtureRequest) -> TestResources:
 def test_load_json__jsonyx_permissive(resources):
     resources.json_loader = jsonyx_permissive_loader
     data = resources.load_json()
-    assert data == {"look": ["what", "I", "found"]}
+    assert data == {"look": ["I", "found", "a", ANY]}
+    assert isnan(data["look"][-1])
 
 
 def test_expected_json__jsonyx(resources):
@@ -25,7 +29,7 @@ def test_expected_json__jsonyx(resources):
     resources.expect_json(
         {
             "look": ["what", "I", "found"],
-            "numbers": [1, 2, 3, 4],
+            "numbers": [1, 2, 3, nan],
             "sub": {"simple": 1, "dict": 2, "is": 3, "flat": 4},
         }
     )

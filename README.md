@@ -2,11 +2,9 @@
 
 Pytest plugin to load resource files relative to test code and to expect values to match them. The name is a contraction of `resources.expect`, which is frequently typed when using this plugin.
 
-
 ## Motivation
 
 The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base. If you find your test _code_ being obscured by the test _data_, filling with complex data generation code, or ad-hoc reading of input data or expected results, then pytest-respect is probably for you.
-
 
 ## Installation
 
@@ -18,7 +16,6 @@ Install with your favourite package manager such as:
 
 See your package management tool for details, especially on how to install optional extra dependencies.
 
-
 #### Extras
 
 The following extra dependencies are required for additional functionality:
@@ -27,9 +24,7 @@ The following extra dependencies are required for additional functionality:
 - `numpy` - Convert numpy arrays and scalars to python equivalents when generating JSON both in save and expect.
 - `jsonyx` - Alternative JSON encoder for semi-compact files, numeric keys, trailing commas, etc.
 
-
 ## Usage
-
 
 #### Text Data
 
@@ -43,7 +38,6 @@ def test_translate(resources):
 If the test is found in a file called `foo/test_stuff.py`, then it will load the content of `foo/test_stuff/test_translate__input.txt`, run the `translate` function on it, and assert that the output exactly matches the content of the file `foo/test_stuff/test_translate__output.json`.
 
 The expectation must match also on trailing spaces and trailing empty lines for the test to pass.
-
 
 #### Json Data
 
@@ -60,7 +54,6 @@ This will load the content of `foo/test_stuff/test_compute__input.json`, run the
 
 The expectation matching is done on a text representation of the JSON data. This avoids having to parse the expectation files, and allows us to use text-based diff tools, but instead we must avoid other tools reformating the expectations. By default the JSON formatting is by `json.dumps(obj, sort_keys=True, indent=2)` but see the section on [JSON Formatting and Parsing](#json-formatting-and-parsing).
 
-
 #### Pydantic Models
 
 With the optional
@@ -75,13 +68,15 @@ def test_compute(resources):
 
 The input and output paths will be identical to the JSON test, since we re-used the name of the test function.
 
-
 #### Failing Tests
 
-If one of the above expectations fails, then a new file is created at `foo/test_stuff/test_compute__output__actual.json` with the actual value passed to the expect function, as well as the usual diff from pytest's assert. You can then use your existing diff tools to compare the expected and actual values and even to pick individual changes from the actual file before fixing the code to deal with any remaining differences.
+If one of the above expectations fails, then a new file is created at `foo/test_stuff/test_compute__output__actual.json` containing the actual value passed to the expect function. In addition to this, the normal pytest assert re-writing happens to show the difference between the expected value and the actual value.
 
-Once the test passes, the actual file will be removed. Note that if you change the name of a test after an actual file has been created, the actual file will have to be deleted manually.
+When the values being compared are more complex, then the diference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
 
+Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.
+
+Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations.
 
 #### Parametric Tests
 
@@ -97,19 +92,17 @@ def test_compute(resources, case):
 
 Omitting the directory name, this test will load each of `test_compute__input__red.json`, `test_compute__input__blue.json`, `test_compute__input__green.json` and compare the results to `test_compute__output__red.json`, `test_compute__output__blue.json`, `test_compute__output__green.json`
 
-
 #### Data-driven Parametric Tests
 
 - **To Document:** using list
 
-
 #### JSON Formatting and Parsing
 
 **To Document:**
+
 - Default JSON formatter and parser
 - Alternative JSON formatter
 - Jsonyx extension
-
 
 #### Resource Path Construction
 
@@ -120,9 +113,7 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 - Alternative path makers
 - Custom path makers
 
-
 ## Development
-
 
 ### Installation
 
@@ -130,7 +121,6 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 - Run `uv sync --all-extras`
 - Run `pre-commit install` to enable pre-commit linting.
 - Run `pytest` to verify installation.
-
 
 ### Testing
 

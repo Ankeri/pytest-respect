@@ -178,23 +178,32 @@ class TestResources:
         self,
         request: FixtureRequest,
         ndigits: int | None = None,
+        accept: bool = False,
     ):
         """Create test resources instance, usually in a function-scoped fixture.
 
         Args:
             request: The pytest fixture request object.
-            ndigits: How many digits to round floats to by default when comparing JSON
-                data and objects which are converted to JSON before comparison. Defaults
-                to no rounding.
+            ndigits: How many digits to round floats to by default when comparing JSON data and objects which are
+                converted to JSON before comparison. Defaults to no rounding.
+            accept: Whether to accept the actual results when they differ from the expected ones, instead of failing
+                the test.
 
         """
         self.request: FixtureRequest = request
-
-        self.json_encoder = python_json_encoder
-        self.json_loader = python_json_loader
+        """The pytest fixture request that we get context information from."""
 
         self.default_ndigits = ndigits
         """How many digits to round floats to by default when comparing JSON data."""
+
+        self.accept = accept
+        """Whether to accept the actual results when they differ from the expected ones, instead of failing the test."""
+
+        self.json_encoder = python_json_encoder
+        """The function used to convert data to JSON encoded text."""
+
+        self.json_loader = python_json_loader
+        """The function used to convert JSON encoded text to python data."""
 
         self.default_path_maker = TestResources.pm_class
         """
@@ -492,10 +501,15 @@ class TestResources:
 
         if not expected_path.is_file():
             expected_path.parent.mkdir(parents=False, exist_ok=True)
-            actual_path.write_text(actual)
-            raise AssertionError(
-                f"The expectation file was not found at {expected_path}. The actual value has been written to {actual_path}."
-            )
+            if self.accept:
+                expected_path.write_text(actual)
+                print(f"A new expectation file was written to {expected_path}.")
+                actual_path.unlink(missing_ok=True)
+            else:
+                actual_path.write_text(actual)
+                raise AssertionError(
+                    f"The expectation file was not found at {expected_path}. The actual value has been written to {actual_path}."
+                )
 
         expected = expected_path.read_text()
 
@@ -507,8 +521,13 @@ class TestResources:
                 actual_path.unlink(missing_ok=True)
                 print("removing matching actual file", actual_path)
         except AssertionError:
-            actual_path.write_text(actual)
-            raise
+            if self.accept:
+                print(f"The expectation file was updated at {expected_path}.")
+                expected_path.write_text(actual)
+                actual_path.unlink(missing_ok=True)
+            else:
+                actual_path.write_text(actual)
+                raise
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # JSON Resources
