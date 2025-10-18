@@ -275,6 +275,21 @@ def test_list_resources__strip_ext_json(mock_list_dir):
     ]
 
 
+@pytest.fixture(params=list_resources("*.json", exclude=["*__actual*"], strip_ext=True))
+def each_resource_name(request) -> str:
+    """Dependants run for name of each file in the resources folder."""
+    return request.param
+
+
+def test_load_json_resource(resources, each_resource_name):
+    # The resources names already include the full file name
+    print(each_resource_name)
+    resources.default_path_maker = resources.pm_only_file
+    path = resources.path(each_resource_name, ext="json")
+    assert path.is_file()
+    resources.load_json(each_resource_name)
+
+
 def test_list__defaults(resources, mock_list_dir):
     assert resources.list() == mock_list_dir.return_value
     assert mock_list_dir.call_args_list == [

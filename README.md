@@ -64,7 +64,7 @@ With the optional
 ```python
 def test_compute(resources):
     input: InputModel = resources.load_pydantic(InputModel, "input")
-    output:OutputModel = compute(input)
+    output: OutputModel = compute(input)
     resources.expect_pydantic(output, "output")
 ```
 
@@ -95,6 +95,26 @@ def test_compute(resources, case):
 Omitting the directory name, this test will load each of `test_compute__input__red.json`, `test_compute__input__blue.json`, `test_compute__input__green.json` and compare the results to `test_compute__output__red.json`, `test_compute__output__blue.json`, `test_compute__output__green.json`
 
 #### Data-driven Parametric Tests
+
+We can use the `list_resources` function to generate a list of resource names to run parametric tests over:
+
+```python
+@pytest.fixture(params=list_resources("widget_*.json", exclude=["*__actual.json"], strip_ext=True))
+def each_widget_name(request) -> str:
+    """Request this fixture to run for each widget file in the resource directory."""
+    return request.param
+```
+
+The `list_resources` function is run in a static context and so doesn't have a test function or class to build paths from. Instead, it constructs a path to the file that it is called from and uses the `pm_only_file` path maker by default.
+
+Tests can then request `each_widget_name` to run on each of the resources but will have to use a suitable path-maker to find the resource files:
+
+```python
+def test_load_json_resource(resources, each_widget_name):
+    resources.default_path_maker = resources.pm_only_file
+    widget = resources.load_json(each_widget_name)
+    assert transform(widget) == 42
+```
 
 - **To Document:**
 

@@ -108,7 +108,7 @@ def list_resources(
 
     """
     if path_maker is None:
-        path_maker = TestResources.pm_only_class
+        path_maker = TestResources.pm_only_file
 
     calling_frame = inspect.stack()[1]
     test_file = Path(calling_frame.filename)
