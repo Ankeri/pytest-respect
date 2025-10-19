@@ -1,6 +1,7 @@
 import datetime as dt
 from functools import partial
-from typing import Any
+from types import EllipsisType
+from typing import Any, Literal, TypeVar, overload
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -13,6 +14,25 @@ try:
     from numpy import ndarray
 except ImportError:
     from ._fakes import ndarray, ndfloat
+
+T = TypeVar("T")
+
+
+@overload
+def coalesce(default: T | None | None, *args: T | None | EllipsisType, nonable: Literal[True]) -> T | None: ...
+@overload
+def coalesce(default: T, *args: T | None | EllipsisType, nonable: Literal[False]) -> T: ...
+@overload
+def coalesce(default: T, *args: T | None | EllipsisType) -> T: ...
+
+
+def coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool = False) -> T | None:
+    """Return the first value among default, *args that is not ... and, if nonable is Fals, is not None either."""
+    value: T | None = default
+    for arg in args:
+        if not isinstance(arg, EllipsisType) and (arg is not None or nonable is True):
+            value = arg
+    return value
 
 
 def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None, allow_negative_zero: bool = False) -> Any:

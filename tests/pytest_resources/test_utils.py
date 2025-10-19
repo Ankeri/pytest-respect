@@ -3,6 +3,8 @@ import json
 
 import pytest
 
+from pytest_respect.utils import coalesce, prepare_for_json_encode
+
 # Optional imports, falling back to stub classes
 try:
     from pydantic import BaseModel
@@ -10,7 +12,25 @@ except ImportError:
     from pytest_respect._fakes import BaseModel
 
 
-from pytest_respect.utils import prepare_for_json_encode
+def test_coalesce__given():
+    assert coalesce(42, None, ..., 888, None, ...) == 888
+
+
+def test_coalesce__not_given():
+    assert coalesce(42, None, ...) == 42
+
+
+def test_coalesce__nonable__given__not_none():
+    assert coalesce(42, 888, ..., nonable=True) == 888
+
+
+def test_coalesce__nonable__given__none():
+    assert coalesce(42, None, ..., nonable=True) is None
+
+
+@pytest.mark.parametrize("default", [42, None])
+def test_coalesce__nonable__not_given(default):
+    assert coalesce(default, ..., ..., nonable=True) == default
 
 
 def test_prepare_for_json_encode__simple():
