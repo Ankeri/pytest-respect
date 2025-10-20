@@ -1,19 +1,9 @@
 import datetime as dt
+from collections.abc import Callable, Collection, Iterable, Mapping
 from functools import partial
-from types import EllipsisType
+from itertools import chain
+from types import EllipsisType, UnionType
 from typing import Any, Literal, TypeVar, overload
-
-# Optional imports falling back to stub implementations to make the type checker happy
-try:
-    from pydantic import BaseModel
-except ImportError:
-    from ._fakes import BaseModel
-
-try:
-    from numpy import floating as ndfloat
-    from numpy import ndarray
-except ImportError:
-    from ._fakes import ndarray, ndfloat
 
 T = TypeVar("T")
 
@@ -35,44 +25,99 @@ def coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool = 
     return value
 
 
-def prepare_for_json_encode(struct: Any, *, ndigits: int | None = None, allow_negative_zero: bool = False) -> Any:
+class AbortJsonPrep(Exception):  # noqa: N818
+    """Raised by a JSON prepper to indicate that even though the argument is of the expected type, it should not be
+    handled by this prepper and any other ones should be given a chance."""
+
+
+JSON_PREPPERS: list[tuple[type | UnionType, Callable[[Any], Any]]] = [
+    (dt.date | dt.time | dt.datetime, lambda v: v.isoformat()),
+]
+"""List of types along with functions to prepare instances of (any sub-class of) those types for JSON encoding."""
+
+
+def add_json_prepper(type_: type | UnionType, prepper: Callable[[Any], Any]) -> None:
+    """Register a global JSON prepper for a given type, including sub-classes.
+
+    The prepper can return a few kinds of values:
+    - Simple value: encoded as-is and must be JSON serializable.
+    - Dict: encoded recursively but must have keys that are supported by the json_encoder use, which is usually str.
+    - Collection: list, tuple, set, etc will be recursively encoded as a list.
+
+    It can also raise AbortJsonPrep to skip this prepper and continue trying others.
+    """
+    JSON_PREPPERS.append((type_, prepper))
+
+
+# Try importing optional dependencies and register preppers for their types
+try:
+    from pydantic import BaseModel
+
+    add_json_prepper(BaseModel, lambda v: v.model_dump(mode="json"))
+except ImportError:
+    pass
+
+try:
+    import numpy as np
+
+    add_json_prepper(np.ndarray, lambda v: v.tolist())
+    add_json_prepper(np.floating, lambda v: float(v))
+except ImportError:
+    pass
+
+
+def prepare_for_json_encode(
+    value: Any,
+    *,
+    ndigits: int | None = None,
+    allow_negative_zero: bool = False,
+    extra_preppers: Iterable[tuple[type | UnionType, Callable[[Any], Any]]] = tuple(),
+) -> Any:
     """
     Copy a structure of lists, tuples, dicts, pydantic models and numpy values into a parallel structure of dicts and
-    lists, trying to make them JSON encodable. The encoding doesn't have to be reversible since the target is always
-    a block of text that we compare with one that we prepared earlier.
+    lists, trying to make them JSON encodable.
+
+    The encoding is specifically intended for writing expectation files so it doesn't need to be reversible and if
+    data or precision is lost in a way that is not acceptable, then the user has the oportunity to register a custom
+    stringer.
 
     Args:
-        struct: The value to round the floats in
+        value: The value to prepare for JSON encoding
         ndigits: The number of digits to round floats to, or None to omit rounding
-        allow_negative_zero: bool = False,
+        allow_negative_zero: If False, convert negative zero to plain zero in output
+        extra_preppers: Additional preppers to apply before the default ones.
     """
-    # Unwrap struct if needed
-    if isinstance(struct, BaseModel):
-        struct = struct.model_dump(mode="json")
-    elif isinstance(struct, ndarray):
-        struct = struct.tolist()
-    elif isinstance(struct, ndfloat):
-        struct = float(struct)
 
-    recurse = partial(prepare_for_json_encode, ndigits=ndigits, allow_negative_zero=allow_negative_zero)
+    # Apply the configured preppers
+    for type_, prepper in chain(extra_preppers, JSON_PREPPERS):
+        if isinstance(value, type_):
+            try:
+                value = prepper(value)
+                continue
+            except AbortJsonPrep:
+                pass
 
-    # Special-case some leaf values
-    if isinstance(struct, float):
+    recurse = partial(prepare_for_json_encode, ndigits=ndigits, allow_negative_zero=allow_negative_zero, extra_preppers=extra_preppers)
+
+    # Apply rounding of floats values
+    if isinstance(value, float):
         if ndigits is not None:
-            struct = round(struct, ndigits)
+            value = round(value, ndigits)
         if not allow_negative_zero:
-            struct += 0.0
-        return struct
-    elif isinstance(struct, dt.date | dt.time | dt.datetime):
-        return struct.isoformat()
+            value += 0.0
+        return value
 
-    # Convert struct recursively
-    elif isinstance(struct, dict):
-        return {recurse(key): recurse(value) for key, value in struct.items()}
-    elif isinstance(struct, list):
-        return [recurse(x) for x in struct]
-    elif isinstance(struct, tuple):
-        return tuple(recurse(x) for x in struct)
+    # Return other JSON encodable values directly
+    elif isinstance(value, str | int | bool | None):
+        return value
 
+    # Recurse into dicts and collections
+    elif isinstance(value, Mapping):
+        return {recurse(key): recurse(value) for key, value in value.items()}
+    elif isinstance(value, Collection):
+        # Collections other than strings are encoded to lists
+        return [recurse(x) for x in value]
+
+    # Convert anything else to a string
     else:
-        return struct
+        return str(value)

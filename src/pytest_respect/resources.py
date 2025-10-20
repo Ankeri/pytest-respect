@@ -6,7 +6,7 @@ import inspect
 import json
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
-from types import EllipsisType
+from types import EllipsisType, UnionType
 from typing import Any, Protocol, TypeVar
 
 from pytest import FixtureRequest
@@ -232,6 +232,10 @@ class TestResources:
         """Whether to accept the actual results when they differ from the expected ones, instead of failing the test."""
 
         self.default: Defaults = Defaults()
+        """Default behaviours. They can be optionally overridden in methods that use them."""
+
+        self._extra_preppers: list[tuple[type | UnionType, Callable[[Any], Any]]] = []
+        """JSON Preppers to apply after the global JSON_PREPPERS."""
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Path Makers
@@ -549,6 +553,18 @@ class TestResources:
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # JSON Resources
 
+    def add_json_prepper(self, type_: type | UnionType, prepper: Callable[[Any], Any]) -> None:
+        """Register a local JSON prepper for a given type, including sub-classes.
+
+        The prepper can return a few kinds of values:
+        - Simple value: encoded as-is and must be JSON serializable.
+        - Dict: encoded recursively but must have keys that are supported by the json_encoder use, which is usually str.
+        - Collection: list, tuple, set, etc will be recursively encoded as a list.
+
+        It can also raise AbortJsonPrep to skip this prepper and continue trying others.
+        """
+        self._extra_preppers.append((type_, prepper))
+
     def load_json(
         self,
         *parts,
@@ -571,9 +587,9 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
     ) -> str:
-        """Convert data to json string. Use for both expectations and save_json."""
+        """Convert data to json a string used for both expectations and save_json."""
         ndigits = self.default._ndigits(ndigits)
-        data = prepare_for_json_encode(data, ndigits=ndigits)
+        data = prepare_for_json_encode(data, ndigits=ndigits, extra_preppers=self._extra_preppers)
         json_encoder = self.default._json_encoder(json_encoder)
         text = json_encoder(data)
         if not text.endswith("\n"):

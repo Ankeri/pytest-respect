@@ -18,6 +18,7 @@ from pytest_respect.resources import (
     python_json_encoder,
     python_json_loader,
 )
+from pytest_respect.utils import AbortJsonPrep
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -318,7 +319,7 @@ def each_resource_name(request) -> str:
     return request.param
 
 
-def test_load_json_resource(resources, each_resource_name):
+def test_list_resources(resources, each_resource_name):
     # The resources names already include the full file name
     print(each_resource_name)
     resources.default.path_maker = resources.pm_only_file
@@ -519,6 +520,44 @@ def test_expect_text__not_found__accept(resources, capsys):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # JSON Resources
+
+
+def test_data_to_json__add_json_prepper(resources):
+    class CustomType:
+        def __init__(self, name: str):
+            self.name = name
+
+    data = {
+        1: "something",
+        2: CustomType("thingy"),
+    }
+
+    resources.add_json_prepper(CustomType, lambda ct: "my custom " + ct.name)
+
+    resources.default.json_encoder = python_compact_json_encoder
+    assert resources.data_to_json(data) == '{"1": "something", "2": "my custom thingy"}\n'
+
+
+def test_data_to_json__abort_json_prepper(resources):
+    class CustomType:
+        def __init__(self, name: str):
+            self.name = name
+
+        def __str__(self):
+            return f"CustomType({self.name})"
+
+    def aborting_prepper(ct: CustomType):
+        raise AbortJsonPrep()
+
+    data = {
+        1: "something",
+        2: CustomType("thingy"),
+    }
+
+    resources.add_json_prepper(CustomType, aborting_prepper)
+
+    resources.default.json_encoder = python_compact_json_encoder
+    assert resources.data_to_json(data) == '{"1": "something", "2": "CustomType(thingy)"}\n'
 
 
 def test_load_json(resources):

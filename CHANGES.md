@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `resources.default` structure with defaults for `path_maker`, `json_loader`, `json_encoder` and `ndigits`.
 - Added optional `json_loader` argument to: `load_json`, `load_pydantic` and `load_pydantic_adapter` which overrides the default.
 - Added optional `json_encoder` argument to : `data_to_json`, `save_json`, `expect_json`, `save_pydantic`, `expect_pydantic`, `save_pydantic_adapter`, `expect_pydantic_adapter` to override the default.
+- Added global list of `JSON_PREPPERS` and `add_json_prepper` function to add functions for preparing values of specific types before they are either JSON encoded _or_ recursively descended into in `prepare_for_json_encode`.
+- Converted the pydantic and numpy special preparations to JSON preppers.
+- Prepare any collection (other than str) recursively as a list
+- Any value, which is not directly JSON encodable and isn't prepared by a JSON prepper, will be prepared using `str()`.
 
 ### Breaking
 

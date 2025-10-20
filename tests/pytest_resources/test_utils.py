@@ -34,11 +34,14 @@ def test_coalesce__nonable__not_given(default):
 
 
 def test_prepare_for_json_encode__simple():
+    import uuid
+
     original = [
         {
             "f-zero": 0.123456789,
             "i-zero": 0,
             "s-zero": "0",
+            "stringable": uuid.NAMESPACE_X500,
         },
         [1, 2, 3.333333333],
         ("a", "b", 5.1234321),
@@ -49,9 +52,10 @@ def test_prepare_for_json_encode__simple():
             "f-zero": 0.123456789,
             "i-zero": 0,
             "s-zero": "0",
+            "stringable": "6ba7b814-9dad-11d1-80b4-00c04fd430c8",
         },
         [1, 2, 3.333333333],
-        ("a", "b", 5.1234321),
+        ["a", "b", 5.1234321],
     ]
 
 
@@ -73,8 +77,27 @@ def test_prepare_for_json_encode__round():
             "s-zero": "0",
         },
         [1, 2, 3.3333],
-        ("a", "b", 5.1234),  # last digit down
+        ["a", "b", 5.1234],  # last digit down
     ]
+
+
+def test_prepare_for_json_encode__collections():
+    map = {1: "a", 2: "b", 3: "c"}
+    original = {
+        "frozenset": frozenset((4, 5, 6)),
+        "items": map.items(),
+        "keys": map.keys(),
+        "set": {1, 2, 3},
+        "values": map.values(),
+    }
+
+    assert prepare_for_json_encode(original) == {
+        "frozenset": [4, 5, 6],
+        "items": [[1, "a"], [2, "b"], [3, "c"]],
+        "keys": [1, 2, 3],
+        "set": [1, 2, 3],
+        "values": ["a", "b", "c"],
+    }
 
 
 def test_prepare_for_json_encode__date_and_time():
