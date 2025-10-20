@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted the pydantic and numpy special preparations to JSON preppers.
 - Prepare any collection (other than str) recursively as a list
 - Any value, which is not directly JSON encodable and isn't prepared by a JSON prepper, will be prepared using `str()`.
+- Added pytest arguments `--respect-accept-one` and `--respect-accept-max` to accept a number of expectation mismatches before failing the test.
 
 ### Breaking
 
