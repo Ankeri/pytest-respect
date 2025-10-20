@@ -56,7 +56,7 @@ def resources(request: FixtureRequest) -> TestResources:
     """The fixture being tested."""
     return TestResources(
         request,
-        accept=False,  # We set accept in individual tests instead of using the --respect-accept flag.
+        accept_count=0,  # We set accept in individual tests instead of using the --respect-accept flag.
     )
 
 
@@ -419,9 +419,9 @@ def test_delete_text(resources, mock_delete):
     mock_delete.assert_called_once_with("one", "two", ext="txt", path_maker=resources.pm_file)
 
 
-@pytest.mark.parametrize("accept", [True, False])
+@pytest.mark.parametrize("accept", [1, 0])
 def test_expect_text__match(resources, accept: bool):
-    resources.accept = accept
+    resources.accept_count = accept
     resources.expect_text("some text\nsome more text\n")
 
 
@@ -445,7 +445,7 @@ def test_expect_text__mismatch(resources):
 
 
 def test_expect_text__mismatch__accept(resources, capsys):
-    resources.accept = True
+    resources.accept_count = 1
     try:
         resources.save_text("previous actual\n", "actual")
         resources.save_text("original expected test\n")
@@ -494,7 +494,7 @@ def test_expect_text__not_found(resources):
 
 
 def test_expect_text__not_found__accept(resources, capsys):
-    resources.accept = True
+    resources.accept_count = 1
 
     test_dir = Path(__file__).with_suffix("")
     expected_file = test_dir / "test_expect_text__not_found__accept.txt"
@@ -516,6 +516,29 @@ def test_expect_text__not_found__accept(resources, capsys):
     finally:
         expected_file.unlink(missing_ok=True)
         actual_file.unlink(missing_ok=True)
+
+
+def test_accept_count(resources):
+    assert resources.accept_count == 0
+    resources.accept_count = 2
+    resources.delete_text()  # Start with no expectation and accept 2 mismatches
+
+    # Allow one failure
+    resources.expect_text("first value")
+    assert resources.accept_count == 1
+
+    # Allow another failure
+    resources.expect_text("second value")
+    assert resources.accept_count == 0
+
+    # Don't allow a third failure
+    with pytest.raises(AssertionError):
+        resources.expect_text("third value")
+
+    # Second value is still in file
+    resources.expect_text("second value")
+
+    resources.delete_text()
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

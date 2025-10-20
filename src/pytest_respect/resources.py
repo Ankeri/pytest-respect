@@ -214,21 +214,20 @@ class Defaults:
 class TestResources:
     __test__ = False  # Don't try to collect this as a test
 
-    def __init__(self, request: FixtureRequest, accept: bool = False):
+    def __init__(self, request: FixtureRequest, accept_count: int = 0):
         """Create test resources instance, usually in a function-scoped fixture.
 
         Args:
             request: The pytest fixture request object.
             ndigits: How many digits to round floats to by default when comparing JSON data and objects which are
                 converted to JSON before comparison. Defaults to no rounding.
-            accept: Whether to accept the actual results when they differ from the expected ones, instead of failing
-                the test.
+            accept_count: Accept the actual results for this many mismatches before failing the test.
 
         """
         self.request: FixtureRequest = request
         """The pytest fixture request that we get context information from."""
 
-        self.accept: bool = accept
+        self.accept_count: int = accept_count
         """Whether to accept the actual results when they differ from the expected ones, instead of failing the test."""
 
         self.default: Defaults = Defaults()
@@ -522,7 +521,7 @@ class TestResources:
 
         if not expected_path.is_file():
             expected_path.parent.mkdir(parents=False, exist_ok=True)
-            if self.accept:
+            if self._accept_one():
                 expected_path.write_text(actual)
                 print(f"A new expectation file was written to {expected_path}.")
                 actual_path.unlink(missing_ok=True)
@@ -542,13 +541,18 @@ class TestResources:
                 actual_path.unlink(missing_ok=True)
                 print("removing matching actual file", actual_path)
         except AssertionError:
-            if self.accept:
+            if self._accept_one():
                 print(f"The expectation file was updated at {expected_path}.")
                 expected_path.write_text(actual)
                 actual_path.unlink(missing_ok=True)
             else:
                 actual_path.write_text(actual)
                 raise
+
+    def _accept_one(self) -> bool:
+        """Whether to accept one more mismatch before failing the test."""
+        self.accept_count -= 1
+        return self.accept_count >= 0
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # JSON Resources
