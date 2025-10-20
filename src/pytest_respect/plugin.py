@@ -7,7 +7,9 @@ from pytest_respect.resources import TestResources
 def resources(request: pytest.FixtureRequest) -> TestResources:
     """Load file resources relative to test functions and fixtures."""
     accept = request.config.getoption("--respect-accept")
-    return TestResources(request, ndigits=4, accept=accept)
+    resources = TestResources(request, accept=accept)
+    resources.default.ndigits = 4
+    return resources
 
 
 def pytest_addoption(parser):

@@ -4,7 +4,7 @@ import builtins
 import fnmatch
 import inspect
 import json
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from types import EllipsisType
 from typing import Any, Protocol, TypeVar
@@ -21,7 +21,7 @@ except ImportError:  # pragma: no cover
 # Dont' include in pytest tracebacks. We patch this out in unit tests to see where in our code errors occur.
 __tracebackhide__ = True
 
-from pytest_respect.utils import prepare_for_json_encode
+from pytest_respect.utils import coalesce, prepare_for_json_encode
 
 DEFAULT_RESOURCES_DIR = "resources"
 
@@ -155,6 +155,12 @@ def strip_extensions(
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # JSON encoders & Decoders
 
+JsonEncoder = Callable[[Any], str]
+"""Function to convert data to JSON encoded text."""
+
+JsonLoader = Callable[[str], Any]
+"""Function to convert JSON encoded text to python data."""
+
 
 def python_json_encoder(obj: Any) -> str:
     """Standard JSON encoder in very verbose mode."""
@@ -171,15 +177,44 @@ def python_json_loader(text: str) -> Any:
     return json.loads(text)
 
 
+class Defaults:
+    def __init__(self):
+        self.ndigits: int | None = None
+        """How many digits to round floats to by default when comparing JSON data."""
+
+        self.json_encoder: JsonEncoder = python_json_encoder
+        """Function used to convert data to JSON encoded text. Defaults to standard python JSON encoding."""
+
+        self.json_loader: JsonLoader = python_json_loader
+        """Function used to convert JSON encoded text to python data. Defaults to standard python JSON decoding."""
+
+        self.path_maker: PathMaker = TestResources.pm_class
+        """
+        Function used to make paths to resources. Defaults to as pm_class making resource paths like
+        ``<dir>/test_file__TestClass/test_method.<ext>``, omitting the ``__TestClass`` part if we are not in a class.
+        """
+
+    def _ndigits(self, value: int | None | EllipsisType) -> int | None:
+        """Resolve ndigits given the default value here and optional override."""
+        return coalesce(self.ndigits, value, nonable=True)
+
+    def _json_encoder(self, value: JsonEncoder | None | EllipsisType) -> JsonEncoder:
+        """Resolve json_encoder given the default value here and optional override."""
+        return coalesce(self.json_encoder, value)
+
+    def _json_loader(self, value: JsonLoader | None | EllipsisType) -> JsonLoader:
+        """Resolve json_loader given the default value here and optional override."""
+        return coalesce(self.json_loader, value)
+
+    def _path_maker(self, value: PathMaker | None | EllipsisType) -> PathMaker:
+        """Resolve path_maker given the default value here and optional override."""
+        return coalesce(self.path_maker, value)
+
+
 class TestResources:
     __test__ = False  # Don't try to collect this as a test
 
-    def __init__(
-        self,
-        request: FixtureRequest,
-        ndigits: int | None = None,
-        accept: bool = False,
-    ):
+    def __init__(self, request: FixtureRequest, accept: bool = False):
         """Create test resources instance, usually in a function-scoped fixture.
 
         Args:
@@ -193,24 +228,10 @@ class TestResources:
         self.request: FixtureRequest = request
         """The pytest fixture request that we get context information from."""
 
-        self.default_ndigits = ndigits
-        """How many digits to round floats to by default when comparing JSON data."""
-
-        self.accept = accept
+        self.accept: bool = accept
         """Whether to accept the actual results when they differ from the expected ones, instead of failing the test."""
 
-        self.json_encoder = python_json_encoder
-        """The function used to convert data to JSON encoded text."""
-
-        self.json_loader = python_json_loader
-        """The function used to convert JSON encoded text to python data."""
-
-        self.default_path_maker = TestResources.pm_class
-        """
-        Default method to make paths to resources. Starts as pm_class making resource
-        paths like ``<dir>/test_file__TestClass/test_method.<ext>``, omitting the
-        ``__TestClass`` part if we are not in a class.
-        """
+        self.default: Defaults = Defaults()
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Path Makers
@@ -353,9 +374,7 @@ class TestResources:
                 file-name for the resource. The file part will be ignored.
 
         """
-        if path_maker is None:
-            path_maker = self.default_path_maker
-
+        path_maker = self.default._path_maker(path_maker)
         test_file = Path(self.request.node.fspath)
         test_class: type | None = self.request.node.cls
 
@@ -387,9 +406,7 @@ class TestResources:
                 (and class if present) for the dir and the test function for the file.
 
         """
-        if path_maker is None:
-            path_maker = self.default_path_maker
-
+        path_maker = self.default._path_maker(path_maker)
         test_file = Path(self.request.node.fspath)
         test_class: type | None = self.request.node.cls
 
@@ -537,22 +554,28 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_loader: JsonLoader | EllipsisType = ...,
     ) -> Any:
         """Load a json resource relative to the current test."""
         path = self.path(*parts, ext=ext, path_maker=path_maker)
         try:
             text = path.read_text()
-            return self.json_loader(text)
+            json_loader = self.default._json_loader(json_loader)
+            return json_loader(text)
         except Exception as e:
             raise ValueError(f"Failed to load JSON resource {path}: {repr(e)}") from e
 
-    def data_to_json(self, data: Any, ndigits: int | None | EllipsisType = ...) -> str:
+    def data_to_json(
+        self,
+        data: Any,
+        json_encoder: JsonEncoder | EllipsisType = ...,
+        ndigits: int | None | EllipsisType = ...,
+    ) -> str:
         """Convert data to json string. Use for both expectations and save_json."""
-        if ndigits is ...:
-            ndigits = self.default_ndigits
-        if ndigits is not None:
-            data = prepare_for_json_encode(data, ndigits=ndigits)
-        text = self.json_encoder(data)
+        ndigits = self.default._ndigits(ndigits)
+        data = prepare_for_json_encode(data, ndigits=ndigits)
+        json_encoder = self.default._json_encoder(json_encoder)
+        text = json_encoder(data)
         if not text.endswith("\n"):
             text += "\n"
         return text
@@ -563,10 +586,11 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
     ) -> None:
         """Write JSON data to a resource relative to the current test."""
-        text = self.data_to_json(data, ndigits=ndigits)
+        text = self.data_to_json(data, json_encoder=json_encoder, ndigits=ndigits)
         self.save_text(text, *parts, ext=ext, path_maker=path_maker)
 
     def delete_json(
@@ -584,10 +608,11 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
-        actual_text = self.data_to_json(actual, ndigits=ndigits)
+        actual_text = self.data_to_json(actual, json_encoder=json_encoder, ndigits=ndigits)
         self.expect_text(actual_text, *parts, ext=ext, path_maker=path_maker)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -599,9 +624,10 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_loader: JsonLoader | EllipsisType = ...,
     ) -> PMT:
         """Load a pydantic resource relative to the current test."""
-        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
+        data = self.load_json(*parts, ext=ext, path_maker=path_maker, json_loader=json_loader)
         return model_class.model_validate(data)
 
     def save_pydantic(
@@ -610,12 +636,13 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         context: Any = None,
     ) -> None:
         """Write pydantic data to a resource relative to the current test."""
         actual_data = data.model_dump(mode="json", context=context)
-        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, ndigits=ndigits)
+        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
         """Delete a json resource relative to the current test."""
@@ -627,18 +654,13 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         context: Any = None,
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
         actual_data = actual.model_dump(mode="json", context=context)
-        self.expect_json(
-            actual_data,
-            *parts,
-            ext=ext,
-            path_maker=path_maker,
-            ndigits=ndigits,
-        )
+        self.expect_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Pydantic TypeAdapter Resources
@@ -649,9 +671,10 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_loader: JsonLoader | EllipsisType = ...,
     ) -> T:
         """Load a resource with a pydantic TypeAdapter relative to the current test."""
-        data = self.load_json(*parts, ext=ext, path_maker=path_maker)
+        data = self.load_json(*parts, ext=ext, path_maker=path_maker, json_loader=json_loader)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         return adapter.validate_python(data)
 
@@ -661,6 +684,7 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
         context: Any = None,
@@ -669,7 +693,7 @@ class TestResources:
         type_ = type_ or type(data)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         actual_data: T = adapter.dump_python(data, mode="json", context=context)
-        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, ndigits=ndigits)
+        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
         """Delete a json resource relative to the current test."""
@@ -681,6 +705,7 @@ class TestResources:
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
+        json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
         context: Any = None,
@@ -690,10 +715,4 @@ class TestResources:
         type_ = type_ or type(actual)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         actual_data: T = adapter.dump_python(actual, mode="json", context=context)
-        self.expect_json(
-            actual_data,
-            *parts,
-            ext=ext,
-            path_maker=path_maker,
-            ndigits=ndigits,
-        )
+        self.expect_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)

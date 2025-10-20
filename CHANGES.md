@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-MM-DD
+## [0.4.0] - Unreleased
+
+### Added
+
+- Added `resources.default` structure with defaults for `path_maker`, `json_loader`, `json_encoder` and `ndigits`.
+- Added optional `json_loader` argument to: `load_json`, `load_pydantic` and `load_pydantic_adapter` which overrides the default.
+- Added optional `json_encoder` argument to : `data_to_json`, `save_json`, `expect_json`, `save_pydantic`, `expect_pydantic`, `save_pydantic_adapter`, `expect_pydantic_adapter` to override the default.
+
+### Breaking
+
+- `resources.default_path_maker` was moved to `default.path_maker` and `default_ndigits` was moved to `default.ndigits`.
+
+## [0.3.0] - 2025-08-25
 
 ### Added
 

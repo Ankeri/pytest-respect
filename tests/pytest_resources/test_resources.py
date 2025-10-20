@@ -1,12 +1,23 @@
 from datetime import date, datetime
 from pathlib import Path
 from typing import Annotated
-from unittest.mock import call
+from unittest.mock import Mock, call
 
 import pytest
 from pytest import FixtureRequest
+from pytest_mock import MockerFixture
 
-from pytest_respect.resources import PathMaker, TestResources, list_dir, list_resources, python_compact_json_encoder
+from pytest_respect.resources import (
+    Defaults,
+    JsonLoader,
+    PathMaker,
+    TestResources,
+    list_dir,
+    list_resources,
+    python_compact_json_encoder,
+    python_json_encoder,
+    python_json_loader,
+)
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -31,7 +42,7 @@ def dont_tracebackhide():
 
 
 @pytest.fixture
-def mock_list_dir(mocker):
+def mock_list_dir(mocker: MockerFixture):
     return mocker.patch(
         "pytest_respect.resources.list_dir",
         autospec=True,
@@ -49,7 +60,7 @@ def resources(request: FixtureRequest) -> TestResources:
 
 
 @pytest.fixture
-def mock_delete(resources, mocker):
+def mock_delete(resources, mocker: MockerFixture):
     """Mock resources.delete method"""
     return mocker.patch.object(resources, "delete", autospec=True)
 
@@ -57,10 +68,36 @@ def mock_delete(resources, mocker):
 @pytest.fixture
 def resources_4digits(request: FixtureRequest) -> TestResources:
     """A TestResrouces fixture which defaults to rounding to 4 digits."""
-    return TestResources(
-        request,
-        ndigits=4,
-    )
+    resources = TestResources(request)
+    resources.default.ndigits = 4
+    return resources
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Defaults
+
+
+def test_Defaults_ndigits():
+    defaults = Defaults()
+    assert defaults._ndigits(...) is None
+    assert defaults._ndigits(None) is None
+    assert defaults._ndigits(4) == 4
+
+
+def test_Defaults_json_encoder():
+    defaults = Defaults()
+    assert defaults._json_encoder(...) is python_json_encoder
+    assert defaults._json_encoder(None) is python_json_encoder
+    assert defaults._json_encoder(python_compact_json_encoder) is python_compact_json_encoder
+
+
+def test_Defaults_json_loader():
+    defaults = Defaults()
+    assert defaults._json_loader(...) is python_json_loader
+    assert defaults._json_loader(None) is python_json_loader
+
+    mock_loader = Mock(spec=JsonLoader)
+    assert defaults._json_loader(mock_loader) is mock_loader
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -284,7 +321,7 @@ def each_resource_name(request) -> str:
 def test_load_json_resource(resources, each_resource_name):
     # The resources names already include the full file name
     print(each_resource_name)
-    resources.default_path_maker = resources.pm_only_file
+    resources.default.path_maker = resources.pm_only_file
     path = resources.path(each_resource_name, ext="json")
     assert path.is_file()
     resources.load_json(each_resource_name)
@@ -497,6 +534,19 @@ def test_load_json__missing(resources):
     assert "pytest_resources/test_resources/test_load_json__missing.json" in str(exi.value)
 
 
+def test_load_json__overrides(resources):
+    json_loader = Mock(wraps=resources.default.json_loader)
+
+    data = resources.load_json(
+        "test_load_json",
+        path_maker=resources.pm_only_file,  # Override allows us to find the file
+        json_loader=json_loader,
+    )
+
+    assert data == {"look": ["what", "I", "found"]}
+    assert json_loader.call_count == 1
+
+
 def test_save_json(resources):
     resources.delete_json()
     data = {
@@ -504,12 +554,35 @@ def test_save_json(resources):
         "foo": 1.23456,
     }
 
-    resources.save_json(data, ndigits=2)
+    resources.save_json(data)
+
+    assert resources.load_json() == {
+        "here": ["is", "a", "new", "one"],
+        "foo": 1.23456,
+    }
+    resources.delete_json()
+
+
+def test_save_json__overrides(resources):
+    resources.delete_json()
+
+    json_encoder = Mock(wraps=resources.default.json_encoder)
+    data = {
+        "here": ["is", "a", "new", "one"],
+        "foo": 1.23456,
+    }
+
+    resources.save_json(
+        data,
+        json_encoder=json_encoder,
+        ndigits=2,
+    )
 
     assert resources.load_json() == {
         "here": ["is", "a", "new", "one"],
         "foo": 1.23,
     }
+    assert json_encoder.call_count == 1
     resources.delete_json()
 
 
@@ -529,7 +602,7 @@ def test_expected_json(resources):
 
 
 def test_expected_json__compact(resources):
-    resources.json_encoder = python_compact_json_encoder
+    resources.default.json_encoder = python_compact_json_encoder
     resources.expect_json(
         {
             "look": ["what", "I", "found"],
@@ -557,7 +630,7 @@ def test_expected_json__default_digits(resources_4digits):
         "float": 0.1234321,  # more digits than the resource
     }
 
-    assert resources_4digits.default_ndigits == 4
+    assert resources_4digits.default.ndigits == 4
     resources_4digits.expect_json(actual)
 
 
@@ -566,7 +639,7 @@ def test_expected_json__default_digits(resources_4digits):
 
 
 class MyModel(BaseModel):  # type: ignore
-    look: list[str]
+    look: list[str | float]
 
 
 class MyModelWithDates(BaseModel):  # type: ignore
@@ -578,6 +651,21 @@ class MyModelWithDates(BaseModel):  # type: ignore
 def test_load_pydantic(resources):
     data = resources.load_pydantic(MyModel)
     assert data == MyModel(look=["I", "found", "this"])
+
+
+@pytest.mark.pydantic
+def test_load_pydantic__overrides(resources):
+    json_loader = Mock(wraps=resources.default.json_loader)
+
+    data = resources.load_pydantic(
+        MyModel,
+        "test_load_pydantic",
+        path_maker=resources.pm_only_file,  # Override allows us to find the file
+        json_loader=json_loader,
+    )
+
+    assert data == MyModel(look=["I", "found", "this"])
+    assert json_loader.call_count == 1
 
 
 def add_context(x, handler, info) -> list[str]:
@@ -598,12 +686,12 @@ class MyModelWithContext(BaseModel):  # type: ignore
 @pytest.mark.pydantic
 def test_save_pydantic(resources):
     resources.delete_pydantic()
-    data = MyModel(look=["saved", "pydantic", "data"])
+    data = MyModel(look=["saved", "pydantic", "data", 1.2345])
 
-    resources.save_pydantic(data, ndigits=2)
+    resources.save_pydantic(data)
 
     assert resources.load_json() == {
-        "look": ["saved", "pydantic", "data"],
+        "look": ["saved", "pydantic", "data", 1.2345],
     }
     resources.delete_pydantic()
 
@@ -619,6 +707,23 @@ def test_save_pydantic__with_context(resources):
         "look": ["saved", "pydantic", "data", "with", "context"],
     }
     resources.delete_pydantic()
+
+
+@pytest.mark.pydantic
+def test_save_pydantic__overrides(resources):
+    resources.delete_pydantic()
+
+    json_encoder = Mock(wraps=resources.default.json_encoder)
+    data = MyModel(look=["saved", "pydantic", "data", 1.2345])
+
+    resources.save_pydantic(data, json_encoder=json_encoder, ndigits=2)
+
+    assert resources.load_json() == {
+        "look": ["saved", "pydantic", "data", 1.23],
+    }
+    resources.delete_pydantic()
+
+    assert json_encoder.call_count == 1
 
 
 def test_delete_pydantic(resources, mock_delete):
@@ -662,19 +767,60 @@ def test_load_pydantic_adapter__failing(resources):
 
 
 @pytest.mark.pydantic
+def test_load_pydantic_adapter__overrides(resources):
+    json_loader = Mock(wraps=resources.default.json_loader)
+
+    data = resources.load_pydantic_adapter(
+        dict[str, int],
+        "test_load_pydantic_adapter",
+        path_maker=resources.pm_only_file,  # Override allows us to find the file
+        json_loader=json_loader,
+    )
+
+    assert data == {"a": 1, "b": 2, "c": 3}
+    assert json_loader.call_count == 1
+
+
+@pytest.mark.pydantic
 def test_save_pydantic_adapter(resources):
     resources.delete_pydantic()
     data: dict[int, MyModelWithContext] = {
         1: MyModelWithContext(look=["I", "was", "expecting", "this"]),
-        2: MyModel(look=["and", "also", "this"]),  # Won't have the context
+        2: MyModel(look=["and", "also", "this", 1.2345]),  # Won't have the context
     }
 
     resources.save_pydantic_adapter(data, context=["with", "context"])
 
     assert resources.load_json() == {
         "1": {"look": ["I", "was", "expecting", "this", "with", "context"]},
-        "2": {"look": ["and", "also", "this"]},  # without context
+        "2": {"look": ["and", "also", "this", 1.2345]},  # without context
     }
+    resources.delete_pydantic()
+
+
+@pytest.mark.pydantic
+def test_save_pydantic_adapter__overrides(resources):
+    resources.delete_pydantic()
+
+    json_encoder = Mock(wraps=resources.default.json_encoder)
+    data: dict[int, MyModelWithContext] = {
+        1: MyModelWithContext(look=["I", "was", "expecting", "this"]),
+        2: MyModel(look=["and", "also", "this", 1.2345]),  # Won't have the context
+    }
+
+    resources.save_pydantic_adapter(
+        data,
+        json_encoder=json_encoder,
+        ndigits=2,
+        context=["with", "context"],
+    )
+
+    assert resources.load_json() == {
+        "1": {"look": ["I", "was", "expecting", "this", "with", "context"]},
+        "2": {"look": ["and", "also", "this", 1.23]},  # without context
+    }
+    assert json_encoder.call_count == 1
+
     resources.delete_pydantic()
 
 

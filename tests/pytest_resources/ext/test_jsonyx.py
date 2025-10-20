@@ -18,18 +18,17 @@ def resources(request: FixtureRequest) -> TestResources:
 
 
 def test_load_json__jsonyx_permissive(resources):
-    resources.json_loader = jsonyx_permissive_loader
-    data = resources.load_json()
+    data = resources.load_json(json_loader=jsonyx_permissive_loader)
     assert data == {"look": ["I", "found", "a", ANY]}
     assert isnan(data["look"][-1])
 
 
 def test_expected_json__jsonyx(resources):
-    resources.json_encoder = jsonyx_compactish_encoder
     resources.expect_json(
         {
             "look": ["what", "I", "found"],
             "numbers": [1, 2, 3, nan],
             "sub": {"simple": 1, "dict": 2, "is": 3, "flat": 4},
-        }
+        },
+        json_encoder=jsonyx_compactish_encoder,
     )
