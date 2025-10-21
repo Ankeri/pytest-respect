@@ -18,6 +18,7 @@ from pytest_respect.resources import (
     python_json_encoder,
     python_json_loader,
 )
+from pytest_respect.utils import AbortJsonPrep
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -55,7 +56,7 @@ def resources(request: FixtureRequest) -> TestResources:
     """The fixture being tested."""
     return TestResources(
         request,
-        accept=False,  # We set accept in individual tests instead of using the --respect-accept flag.
+        accept_count=0,  # We set accept in individual tests instead of using the --respect-accept flag.
     )
 
 
@@ -318,7 +319,7 @@ def each_resource_name(request) -> str:
     return request.param
 
 
-def test_load_json_resource(resources, each_resource_name):
+def test_list_resources(resources, each_resource_name):
     # The resources names already include the full file name
     print(each_resource_name)
     resources.default.path_maker = resources.pm_only_file
@@ -418,9 +419,9 @@ def test_delete_text(resources, mock_delete):
     mock_delete.assert_called_once_with("one", "two", ext="txt", path_maker=resources.pm_file)
 
 
-@pytest.mark.parametrize("accept", [True, False])
+@pytest.mark.parametrize("accept", [1, 0])
 def test_expect_text__match(resources, accept: bool):
-    resources.accept = accept
+    resources.accept_count = accept
     resources.expect_text("some text\nsome more text\n")
 
 
@@ -444,7 +445,7 @@ def test_expect_text__mismatch(resources):
 
 
 def test_expect_text__mismatch__accept(resources, capsys):
-    resources.accept = True
+    resources.accept_count = 1
     try:
         resources.save_text("previous actual\n", "actual")
         resources.save_text("original expected test\n")
@@ -493,7 +494,7 @@ def test_expect_text__not_found(resources):
 
 
 def test_expect_text__not_found__accept(resources, capsys):
-    resources.accept = True
+    resources.accept_count = 1
 
     test_dir = Path(__file__).with_suffix("")
     expected_file = test_dir / "test_expect_text__not_found__accept.txt"
@@ -517,8 +518,75 @@ def test_expect_text__not_found__accept(resources, capsys):
         actual_file.unlink(missing_ok=True)
 
 
+def test_accept_count(resources):
+    assert resources.accept_count == 0
+    resources.accept_count = 2
+    resources.delete_text()  # Start with no expectation and accept 2 mismatches
+
+    # Allow one failure
+    resources.expect_text("first value")
+    assert resources.accept_count == 1
+
+    # Allow another failure
+    resources.expect_text("second value")
+    assert resources.accept_count == 0
+
+    # Don't allow a third failure
+    with pytest.raises(AssertionError):
+        resources.expect_text("third value")
+
+    # Second value is still in file
+    resources.expect_text("second value")
+
+    resources.delete_text()
+
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # JSON Resources
+
+
+def test_data_to_json__add_json_prepper(resources):
+    class CustomType:
+        def __init__(self, name: str):
+            self.name = name
+
+    data = {
+        1: "something",
+        2: CustomType("thingy"),
+    }
+
+    resources.add_json_prepper(CustomType, lambda ct: "my custom " + ct.name)
+
+    resources.default.json_encoder = python_compact_json_encoder
+    assert resources.data_to_json(data) == '{"1": "something", "2": "my custom thingy"}\n'
+
+
+def test_data_to_json__abort_json_prepper(resources):
+    class CustomType:
+        def __init__(self, name: str):
+            self.name = name
+
+        def __str__(self):
+            return f"CustomType({self.name})"
+
+    aborting_prepper_called = False
+
+    def aborting_prepper(ct: CustomType):
+        nonlocal aborting_prepper_called
+        aborting_prepper_called = True
+        raise AbortJsonPrep()
+
+    data = {
+        1: "something",
+        2: CustomType("thingy"),
+    }
+
+    resources.add_json_prepper(CustomType, aborting_prepper)
+
+    resources.default.json_encoder = python_compact_json_encoder
+    assert resources.data_to_json(data) == '{"1": "something", "2": "CustomType(thingy)"}\n'
+
+    assert aborting_prepper_called
 
 
 def test_load_json(resources):

@@ -6,7 +6,7 @@ import inspect
 import json
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
-from types import EllipsisType
+from types import EllipsisType, UnionType
 from typing import Any, Protocol, TypeVar
 
 from pytest import FixtureRequest
@@ -214,24 +214,27 @@ class Defaults:
 class TestResources:
     __test__ = False  # Don't try to collect this as a test
 
-    def __init__(self, request: FixtureRequest, accept: bool = False):
+    def __init__(self, request: FixtureRequest, accept_count: int = 0):
         """Create test resources instance, usually in a function-scoped fixture.
 
         Args:
             request: The pytest fixture request object.
             ndigits: How many digits to round floats to by default when comparing JSON data and objects which are
                 converted to JSON before comparison. Defaults to no rounding.
-            accept: Whether to accept the actual results when they differ from the expected ones, instead of failing
-                the test.
+            accept_count: Accept the actual results for this many mismatches before failing the test.
 
         """
         self.request: FixtureRequest = request
         """The pytest fixture request that we get context information from."""
 
-        self.accept: bool = accept
-        """Whether to accept the actual results when they differ from the expected ones, instead of failing the test."""
+        self.accept_count: int = accept_count
+        """Mimatches remaining before we fail the test."""
 
         self.default: Defaults = Defaults()
+        """Default behaviours. They can be optionally overridden in methods that use them."""
+
+        self._extra_preppers: list[tuple[type | UnionType, Callable[[Any], Any]]] = []
+        """JSON Preppers to apply after the global JSON_PREPPERS."""
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Path Makers
@@ -518,7 +521,7 @@ class TestResources:
 
         if not expected_path.is_file():
             expected_path.parent.mkdir(parents=False, exist_ok=True)
-            if self.accept:
+            if self._accept_one():
                 expected_path.write_text(actual)
                 print(f"A new expectation file was written to {expected_path}.")
                 actual_path.unlink(missing_ok=True)
@@ -538,7 +541,7 @@ class TestResources:
                 actual_path.unlink(missing_ok=True)
                 print("removing matching actual file", actual_path)
         except AssertionError:
-            if self.accept:
+            if self._accept_one():
                 print(f"The expectation file was updated at {expected_path}.")
                 expected_path.write_text(actual)
                 actual_path.unlink(missing_ok=True)
@@ -546,8 +549,25 @@ class TestResources:
                 actual_path.write_text(actual)
                 raise
 
+    def _accept_one(self) -> bool:
+        """Whether to accept one more mismatch before failing the test."""
+        self.accept_count -= 1
+        return self.accept_count >= 0
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # JSON Resources
+
+    def add_json_prepper(self, type_: type | UnionType, prepper: Callable[[Any], Any]) -> None:
+        """Register a local JSON prepper for a given type, including sub-classes.
+
+        The prepper can return a few kinds of values:
+        - Simple value: encoded as-is and must be JSON serializable.
+        - Dict: encoded recursively but must have keys that are supported by the json_encoder in use, usually str.
+        - Collection: list, tuple, set, etc will be recursively encoded as a list.
+
+        It can also raise AbortJsonPrep to skip this prepper and continue trying others.
+        """
+        self._extra_preppers.append((type_, prepper))
 
     def load_json(
         self,
@@ -571,9 +591,9 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
     ) -> str:
-        """Convert data to json string. Use for both expectations and save_json."""
+        """Convert data to a json string used for both expectations and save_json."""
         ndigits = self.default._ndigits(ndigits)
-        data = prepare_for_json_encode(data, ndigits=ndigits)
+        data = prepare_for_json_encode(data, ndigits=ndigits, extra_preppers=self._extra_preppers)
         json_encoder = self.default._json_encoder(json_encoder)
         text = json_encoder(data)
         if not text.endswith("\n"):
