@@ -228,7 +228,7 @@ class TestResources:
         """The pytest fixture request that we get context information from."""
 
         self.accept_count: int = accept_count
-        """Whether to accept the actual results when they differ from the expected ones, instead of failing the test."""
+        """Mimatches remaining before we fail the test."""
 
         self.default: Defaults = Defaults()
         """Default behaviours. They can be optionally overridden in methods that use them."""
