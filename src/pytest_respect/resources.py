@@ -562,7 +562,7 @@ class TestResources:
 
         The prepper can return a few kinds of values:
         - Simple value: encoded as-is and must be JSON serializable.
-        - Dict: encoded recursively but must have keys that are supported by the json_encoder use, which is usually str.
+        - Dict: encoded recursively but must have keys that are supported by the json_encoder in use, usually str.
         - Collection: list, tuple, set, etc will be recursively encoded as a list.
 
         It can also raise AbortJsonPrep to skip this prepper and continue trying others.

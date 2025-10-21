@@ -569,7 +569,11 @@ def test_data_to_json__abort_json_prepper(resources):
         def __str__(self):
             return f"CustomType({self.name})"
 
+    aborting_prepper_called = False
+
     def aborting_prepper(ct: CustomType):
+        nonlocal aborting_prepper_called
+        aborting_prepper_called = True
         raise AbortJsonPrep()
 
     data = {
@@ -581,6 +585,8 @@ def test_data_to_json__abort_json_prepper(resources):
 
     resources.default.json_encoder = python_compact_json_encoder
     assert resources.data_to_json(data) == '{"1": "something", "2": "CustomType(thingy)"}\n'
+
+    assert aborting_prepper_called
 
 
 def test_load_json(resources):
