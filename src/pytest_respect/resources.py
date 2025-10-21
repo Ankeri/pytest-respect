@@ -532,14 +532,16 @@ class TestResources:
             else:
                 actual_path.write_text(actual)
                 raise AssertionError(
-                    f"The expectation file was not found at {expected_path}. The actual value has been written to {actual_path}."
+                    f"The expectation file was not found at {expected_path}. "
+                    f"The actual value has been written to {actual_path}."
                 )
 
         expected = expected_path.read_text()
 
         try:
             assert actual == expected, (
-                f"The actual value did not match the content of {expected_path}. It has been written to {actual_path} for comparison."
+                f"The actual value did not match the content of {expected_path}. "
+                f"It has been written to {actual_path} for comparison."
             )
             if actual_path.exists():
                 actual_path.unlink(missing_ok=True)
