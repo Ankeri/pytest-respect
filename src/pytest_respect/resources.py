@@ -591,7 +591,7 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
     ) -> str:
-        """Convert data to json a string used for both expectations and save_json."""
+        """Convert data to a json string used for both expectations and save_json."""
         ndigits = self.default._ndigits(ndigits)
         data = prepare_for_json_encode(data, ndigits=ndigits, extra_preppers=self._extra_preppers)
         json_encoder = self.default._json_encoder(json_encoder)

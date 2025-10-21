@@ -75,10 +75,10 @@ def prepare_for_json_encode(
 ) -> Any:
     """
     Copy a structure of lists, tuples, dicts, pydantic models and numpy values into a parallel structure of dicts and
-    lists, trying to make them JSON encodable.
+    lists, trying very hard to make them JSON encodable.
 
-    The encoding is specifically intended for writing expectation files so it doesn't need to be reversible and if
-    data or precision is lost in a way that is not acceptable, then the user has the oportunity to register a custom
+    The encoding is specifically intended for writing expectation files, so it doesn't need to be reversible, and if
+    data or precision is lost in a way that is not acceptable, then the user has the opportunity to register a custom
     stringer.
 
     Args:
