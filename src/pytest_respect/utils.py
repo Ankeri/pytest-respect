@@ -97,8 +97,6 @@ def prepare_for_json_encode(
             except AbortJsonPrep:
                 pass
 
-    recurse = partial(prepare_for_json_encode, ndigits=ndigits, allow_negative_zero=allow_negative_zero, extra_preppers=extra_preppers)
-
     # Apply rounding of floats values
     if isinstance(value, float):
         if ndigits is not None:
@@ -111,8 +109,15 @@ def prepare_for_json_encode(
     elif isinstance(value, str | int | bool | None):
         return value
 
+    recurse = partial(
+        prepare_for_json_encode,
+        ndigits=ndigits,
+        allow_negative_zero=allow_negative_zero,
+        extra_preppers=extra_preppers,
+    )
+
     # Recurse into dicts and collections
-    elif isinstance(value, Mapping):
+    if isinstance(value, Mapping):
         return {recurse(key): recurse(value) for key, value in value.items()}
     elif isinstance(value, Collection):
         # Collections other than strings are encoded to lists
