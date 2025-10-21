@@ -29,6 +29,10 @@ PMT = TypeVar("PMT", bound=BaseModel)
 T = TypeVar("T")
 
 
+PathParts = tuple[Path, str | None]
+"""Directory and base file-name for a resource path"""
+
+
 class PathMaker(Protocol):
     """Protocol for functions which determine a directory and base file-name from the coordinates of a test function."""
 
@@ -38,7 +42,7 @@ class PathMaker(Protocol):
         test_file_name: str,
         test_class_name: str | None,
         test_name: str,
-    ) -> tuple[Path, str | None]: ...
+    ) -> PathParts: ...
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -240,7 +244,7 @@ class TestResources:
     # Path Makers
 
     @staticmethod
-    def pm_function(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> tuple[Path, str | None]:
+    def pm_function(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file, class if present, and function. No contribution is made to the
         file name.
 
@@ -255,7 +259,7 @@ class TestResources:
         return dir, None
 
     @staticmethod
-    def pm_class(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> tuple[Path, str | None]:
+    def pm_class(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and class if present, and file-name from test method.
 
         This is the default method for constructing resource paths.
@@ -270,7 +274,7 @@ class TestResources:
         return dir, test_name
 
     @staticmethod
-    def pm_only_class(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> tuple[Path, str | None]:
+    def pm_only_class(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and class if present and contribute nothing to the file-name
 
         - ``<dir>/test_file__TestClass/data.<ext>``
@@ -283,7 +287,7 @@ class TestResources:
         return dir, None
 
     @staticmethod
-    def pm_file(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> tuple[Path, str | None]:
+    def pm_file(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and file-name from test class if present, and test method.
 
         - ``<dir>/test_file__TestClass/test_method.<ext>``
@@ -309,7 +313,7 @@ class TestResources:
         return test_dir / test_file_name, None
 
     @staticmethod
-    def pm_dir(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> tuple[Path, str | None]:
+    def pm_dir(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to use "resources" for directory and build file-name from test file, test class if present and
         test function.
 
@@ -333,7 +337,7 @@ class TestResources:
             test_file_name: str,
             test_class_name: str | None,
             test_name: str,
-        ) -> tuple[Path, str | None]:
+        ) -> PathParts:
             if test_class_name:
                 file = f"{test_file_name}__{test_class_name}__{test_name}"
             else:
@@ -348,7 +352,7 @@ class TestResources:
         test_file_name: str,
         test_class_name: str | None = None,
         test_name: str | None = None,
-    ) -> tuple[Path, str | None]:
+    ) -> PathParts:
         """Use "resources" for directory and nothing for the file-name."""
         return test_dir / DEFAULT_RESOURCES_DIR, None
 
@@ -361,7 +365,7 @@ class TestResources:
             test_file_name: str,
             test_class_name: str | None,
             test_name: str,
-        ) -> tuple[Path, str | None]:
+        ) -> PathParts:
             return test_dir / dir_name, None
 
         return path_from_dir
@@ -633,7 +637,12 @@ class TestResources:
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
         actual_text = self.data_to_json(actual, json_encoder=json_encoder, ndigits=ndigits)
-        self.expect_text(actual_text, *parts, ext=ext, path_maker=path_maker)
+        self.expect_text(
+            actual_text,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+        )
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Pydantic Resources
@@ -680,7 +689,14 @@ class TestResources:
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
         actual_data = actual.model_dump(mode="json", context=context)
-        self.expect_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
+        self.expect_json(
+            actual_data,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+            json_encoder=json_encoder,
+            ndigits=ndigits,
+        )
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Pydantic TypeAdapter Resources
@@ -735,4 +751,11 @@ class TestResources:
         type_ = type_ or type(actual)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         actual_data: T = adapter.dump_python(actual, mode="json", context=context)
-        self.expect_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
+        self.expect_json(
+            actual_data,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+            json_encoder=json_encoder,
+            ndigits=ndigits,
+        )
