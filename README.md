@@ -70,19 +70,28 @@ def test_compute(resources):
 
 The input and output paths will be identical to the JSON test, since we re-used the name of the test function.
 
+#### TODO: Resource Path Construction
+
+**To Document:**
+
+- Multiple path parts
+- Default path maker
+- Alternative path makers
+- Custom path makers
+
 #### Failing Tests
 
 If one of the above expectations fails, then a new file is created at `foo/test_stuff/test_compute__output__actual.json` containing the actual value passed to the expect function. In addition to this, the normal pytest assert re-writing happens to show the difference between the expected value and the actual value.
 
-When the values being compared are more complex, then the diference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
+When the values being compared are more complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
 
 Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.
 
-Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations.
+Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations. You can also use the `--respect-accept-one` and `--respect-accept-max` flags to update only a single expectation or the first `n` expectations before failing on any remaining differences.
 
 #### Parametric Tests
 
-The load and expect (and other) methods can take multiple strings for the resource file name `parts`. Above we only used `"input"` and `"output"` parts and failures implicitly added an `"actual"` part. We can pass in as many parts as we like, which nicely brings us to parametric tests:
+The load and expect (and other) methods can take multiple strings for the resource file name `parts`. In the earlier examples we only used `"input"` and `"output"` parts and failures implicitly added an `"actual"` part. We can pass in as many parts as we like, which nicely brings us to parametric tests:
 
 ```python
 @pytest.mark.paramtrize("case", ["red", "blue", "green"])
@@ -96,7 +105,7 @@ Omitting the directory name, this test will load each of `test_compute__input__r
 
 #### Data-driven Parametric Tests
 
-We can use the `list_resources` function to generate a list of resource names to run parametric tests over:
+We can use the `list_resources` function to generate a list of resource names to run parametric tests over. With the below fixture, the content of the resource directory is listed, and the fixture is run once for each match. We can then add test cases simply by adding new resource files:
 
 ```python
 @pytest.fixture(params=list_resources("widget_*.json", exclude=["*__actual.json"], strip_ext=True))
@@ -111,8 +120,7 @@ Tests can then request `each_widget_name` to run on each of the resources but wi
 
 ```python
 def test_load_json_resource(resources, each_widget_name):
-    resources.default_path_maker = resources.pm_only_file
-    widget = resources.load_json(each_widget_name)
+    widget = resources.load_json(each_widget_name, path_maker=resources.pm_only_file)
     assert transform(widget) == 42
 ```
 
@@ -128,14 +136,13 @@ def test_load_json_resource(resources, each_widget_name):
 - Alternative JSON formatter
 - Jsonyx extension
 
-#### Resource Path Construction
+#### configuration
 
 **To Document:**
 
-- Multiple path parts
-- Default path maker
-- Alternative path makers
-- Custom path makers
+- Default path makers
+- Default JSON encoder and loader
+- Default ndigits
 
 ## Development
 
