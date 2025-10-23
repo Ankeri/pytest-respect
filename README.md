@@ -1,10 +1,10 @@
 # pytest-respect
 
-Pytest plugin to load resource files relative to test code and to expect values to match them. The name is a contraction of `resources.expect`, which is frequently typed when using this plugin.
+Pytest plugin to load resource files relative to test code and to expect values to match such files. The name is a contraction of `resources.expect`, which is frequently typed when using this plugin.
 
 ## Motivation
 
-The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base. If you find your test _code_ being obscured by the test _data_, filling with complex data generation code, or ad-hoc reading of input data or expected results, then pytest-respect is probably for you.
+The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base. If you find your test _code_ being obscured by the test _data_, filling with complex data generation code, or ad-hoc reading of input data or expected results, then pytest-respect is for you.
 
 ## Installation
 
@@ -16,7 +16,7 @@ Install with your favourite package manager such as:
 
 See your package management tool for details, especially on how to install optional extra dependencies.
 
-#### Extras
+### Extras
 
 The following extra dependencies are required for additional functionality:
 
@@ -26,7 +26,7 @@ The following extra dependencies are required for additional functionality:
 
 ## Usage
 
-#### Text Data
+### Text Data
 
 The simplest use-case is loading textual input data and comparing textual output to an expectation file:
 
@@ -41,7 +41,7 @@ If the test is found in a file called `foo/test_stuff.py`, then it will load the
 
 The expectation must also match on trailing spaces and trailing empty lines for the test to pass.
 
-#### Json Data
+### Json Data
 
 A much more interesting example is doing the same with JSON data:
 
@@ -56,7 +56,7 @@ This will load the content of `foo/test_stuff/test_compute__input.json`, run the
 
 The expectation matching is done on a text representation of the JSON data. This avoids having to parse the expectation files, and allows us to use text-based diff tools, but instead we must avoid other tools reformating the expectations. By default the JSON formatting is by `json.dumps(obj, sort_keys=True, indent=2)` but see the section on [JSON Formatting and Parsing](#json-formatting-and-parsing).
 
-#### Pydantic Models
+### Pydantic Models
 
 With the optional
 `pydantic` extra, the same can be done with pydantic data if you have models for your input and output data:
@@ -70,33 +70,42 @@ def test_compute(resources):
 
 The input and output paths will be identical to the JSON test, since we re-used the name of the test function.
 
-#### Failing Tests
+### TODO: Resource Path Construction
 
-If one of the above expectations fails, then a new file is created at `foo/test_stuff/test_compute__output__actual.json` containing the actual value passed to the expect function. In addition to this, the normal pytest assert re-writing happens to show the difference between the expected value and the actual value.
+**To Document:**
 
-When the values being compared are more complex, then the diference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
+- Multiple path parts
+- Default path maker
+- Alternative path makers
+- Custom path makers
+
+### Failing Tests
+
+If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an `actual` part appended. So in the JSON and Pydantic examples above, it would create the file `foo/test_stuff/test_compute__output__actual.json`. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.
+
+When the values being compared are more complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
 
 Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.
 
-Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations.
+Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations. You can also use the `--respect-accept-one` and `--respect-accept-max=n` flags to update only a single expectation or the first `n` expectations before failing on any remaining differences.
 
-#### Parametric Tests
+### Parametric Tests
 
-The load and expect (and other) methods can take multiple strings for the resource file name `parts`. Above we only used `"input"` and `"output"` parts and failures implicitly added an `"actual"` part. We can pass in as many parts as we like, which nicely brings us to parametric tests:
+The load and expect (and other) methods can take multiple strings for the resource file name `parts`. In the earlier examples we only used `"input"` and `"output"` parts and failures implicitly added an `"actual"` part. We can pass in as many parts as we like, which nicely brings us to parametric tests:
 
 ```python
-@pytest.mark.paramtrize("case", ["red", "blue", "green"])
+@pytest.mark.paramtrize("case", ["red", "green", "blue"])
 def test_compute(resources, case):
     input = resources.load_json("input", case)
     output = compute(input)
     resources.expect_json(output, "output", case)
 ```
 
-Omitting the directory name, this test will load each of `test_compute__input__red.json`, `test_compute__input__blue.json`, `test_compute__input__green.json` and compare the results to `test_compute__output__red.json`, `test_compute__output__blue.json`, `test_compute__output__green.json`
+Omitting the directory name, this test will load each of `test_compute__input__red.json`, `test_compute__input__green.json`, `test_compute__input__blue.json` and compare the results to `test_compute__output__red.json`, `test_compute__output__green.json`, `test_compute__output__blue.json`
 
-#### Data-driven Parametric Tests
+### Data-driven Parametric Tests
 
-We can use the `list_resources` function to generate a list of resource names to run parametric tests over:
+We can use the `list_resources` function to generate a list of resource names to run parametric tests over. With the below fixture, the content of the resource directory is listed, and the fixture is run once for each match. We can then add test cases simply by adding new resource files:
 
 ```python
 @pytest.fixture(params=list_resources("widget_*.json", exclude=["*__actual.json"], strip_ext=True))
@@ -105,37 +114,35 @@ def each_widget_name(request) -> str:
     return request.param
 ```
 
-The `list_resources` function is run in a static context and so doesn't have a test function or class to build paths from. Instead, it constructs a path to the file that it is called from and uses the `pm_only_file` path maker by default.
+The `list_resources` function is run in a static context and so doesn't have a test function or class to build paths from. Instead, it constructs a path to the file that it is called from and uses the `pm_only_file` path maker by default. However, it takes an optional `path_maker` argument to override this.
 
 Tests can then request `each_widget_name` to run on each of the resources but will have to use a suitable path-maker to find the resource files:
 
 ```python
 def test_load_json_resource(resources, each_widget_name):
-    resources.default_path_maker = resources.pm_only_file
-    widget = resources.load_json(each_widget_name)
+    widget = resources.load_json(each_widget_name, path_maker=resources.pm_only_file)
     assert transform(widget) == 42
 ```
 
-- **To Document:**
+**To Document:**
 
 - Using `list` function
 
-#### JSON Formatting and Parsing
+### JSON Formatting and Parsing
 
-**To Document:**
+### To Document:
 
 - Default JSON formatter and parser
 - Alternative JSON formatter
 - Jsonyx extension
 
-#### Resource Path Construction
+### Configuration
 
 **To Document:**
 
-- Multiple path parts
-- Default path maker
-- Alternative path makers
-- Custom path makers
+- Default path makers
+- Default JSON encoder and loader
+- Default ndigits
 
 ## Development
 
