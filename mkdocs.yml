@@ -1,0 +1,17 @@
+site_name: pytest-respect
+# docs_dir: .
+site_url: https://ankeri.github.io/pytest-respect/
+
+plugins:
+  - search
+  - mkdocstrings
+
+theme: readthedocs
+
+nav:
+  - Home: ./README.md
+  - Changes: CHANGES.md
+  - API Reference:
+    - Resources: api-resources.md
+    - Utilities: api-utils.md
+    - Extensions: api-ext.md

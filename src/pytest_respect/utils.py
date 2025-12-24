@@ -1,3 +1,6 @@
+"""Utilities used by the `resources` fixture. Most notably holds the registry of "perppers" which prepare values of
+different types to be converted to JSON."""
+
 import datetime as dt
 from collections.abc import Callable, Collection, Iterable, Mapping
 from functools import partial
@@ -9,14 +12,18 @@ T = TypeVar("T")
 
 
 @overload
-def coalesce(default: T | None | None, *args: T | None | EllipsisType, nonable: Literal[True]) -> T | None: ...
-@overload
-def coalesce(default: T, *args: T | None | EllipsisType, nonable: Literal[False]) -> T: ...
-@overload
-def coalesce(default: T, *args: T | None | EllipsisType) -> T: ...
+def _coalesce(default: T | None | None, *args: T | None | EllipsisType, nonable: Literal[True]) -> T | None: ...
 
 
-def coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool = False) -> T | None:
+@overload
+def _coalesce(default: T, *args: T | None | EllipsisType, nonable: Literal[False]) -> T: ...
+
+
+@overload
+def _coalesce(default: T, *args: T | None | EllipsisType) -> T: ...
+
+
+def _coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool = False) -> T | None:
     """Return the first value among default, *args that is not ... and, if nonable is Fals, is not None either."""
     value: T | None = default
     for arg in args:
@@ -27,10 +34,10 @@ def coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool = 
 
 class AbortJsonPrep(Exception):  # noqa: N818
     """Raised by a JSON prepper to indicate that even though the argument is of the expected type, it should not be
-    handled by this prepper and any other ones should be given a chance."""
+    handled by this prepper and any other ones should be given the oportuinty to handle it."""
 
 
-JSON_PREPPERS: list[tuple[type | UnionType, Callable[[Any], Any]]] = [
+_JSON_PREPPERS: list[tuple[type | UnionType, Callable[[Any], Any]]] = [
     (dt.date | dt.time | dt.datetime, lambda v: v.isoformat()),
 ]
 """List of types along with functions to prepare instances of (any sub-class of) those types for JSON encoding."""
@@ -46,7 +53,7 @@ def add_json_prepper(type_: type | UnionType, prepper: Callable[[Any], Any]) -> 
 
     It can also raise AbortJsonPrep to skip this prepper and continue trying others.
     """
-    JSON_PREPPERS.append((type_, prepper))
+    _JSON_PREPPERS.append((type_, prepper))
 
 
 # Try importing optional dependencies and register preppers for their types
@@ -79,17 +86,19 @@ def prepare_for_json_encode(
 
     The encoding is specifically intended for writing expectation files, so it doesn't need to be reversible, and if
     data or precision is lost in a way that is not acceptable, then the user has the opportunity to register a custom
-    stringer.
+    prepper for that type.
+
+    This library installs preppers for pydantic models and numpy arrays if those libraries are installed.
 
     Args:
         value: The value to prepare for JSON encoding
         ndigits: The number of digits to round floats to, or None to omit rounding
         allow_negative_zero: If False, convert negative zero to plain zero in output
-        extra_preppers: Additional preppers to apply before the default ones.
+        extra_preppers: Additional preppers to apply before the registered ones.
     """
 
     # Apply the configured preppers
-    for type_, prepper in chain(extra_preppers, JSON_PREPPERS):
+    for type_, prepper in chain(extra_preppers, _JSON_PREPPERS):
         if isinstance(value, type_):
             try:
                 value = prepper(value)

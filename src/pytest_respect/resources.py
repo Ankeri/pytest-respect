@@ -1,4 +1,4 @@
-"""Fixture for loading resources relative to test functions and fixtures."""
+"""Contains the `TestResources` class implementing the `resources` fixture along with various helpers."""
 
 import builtins
 import fnmatch
@@ -21,7 +21,7 @@ except ImportError:  # pragma: no cover
 # Dont' include in pytest tracebacks. We patch this out in unit tests to see where in our code errors occur.
 __tracebackhide__ = True
 
-from pytest_respect.utils import coalesce, prepare_for_json_encode
+from pytest_respect.utils import _coalesce, prepare_for_json_encode
 
 DEFAULT_RESOURCES_DIR = "resources"
 
@@ -30,7 +30,7 @@ T = TypeVar("T")
 
 
 PathParts = tuple[Path, str | None]
-"""Directory and base file-name for a resource path"""
+"""Directory and base file-name for a resource path, returned by PathMakers when locating resources."""
 
 
 class PathMaker(Protocol):
@@ -87,19 +87,18 @@ def list_resources(
 
     Parametric Test Example:
 
-        >>> @pytest.mark.parametrize("curve_name", list_resources("power_curve_*.json")
-        >>> def test_power_curve(resources, curve_name):
-        >>>    curve = resources.load_pydantic(PowerCurve, curve_name)
-        >>>    assert len(curve.points) >= 2
+        @pytest.mark.parametrize("curve_name", list_resources("power_curve_*.json")
+        def test_power_curve(resources, curve_name):
+           curve = resources.load_pydantic(PowerCurve, curve_name)
+           assert len(curve.points) >= 2
 
     Parametric Fixture Example:
 
-        >>> @pytest.fixture(params=list_resources("power_curve_*.json", exclude=["*__actual*"], strip_ext=".json"))
-        >>> def each_power_curve(request, resources) -> PowerCurve:
-        >>>    return resources.load_pydantic(PowerCurve, request.param)
+        @pytest.fixture(params=list_resources("power_curve_*.json", exclude=["*__actual*"], strip_ext=".json"))
+        def each_power_curve(request, resources) -> PowerCurve:
+           return resources.load_pydantic(PowerCurve, request.param)
 
     Args:
-
         include: one or more glob patterns for filenames to include
         exclude: zero or more glob patterns for filenames to exclude
         path_maker: Function to turn test co-ordinates into a directory to look for
@@ -160,10 +159,10 @@ def strip_extensions(
 # JSON encoders & Decoders
 
 JsonEncoder = Callable[[Any], str]
-"""Function to convert data to JSON encoded text."""
+"""Type for functions to convert data to JSON encoded text."""
 
 JsonLoader = Callable[[str], Any]
-"""Function to convert JSON encoded text to python data."""
+"""Type for functions to convert JSON encoded text to python data."""
 
 
 def python_json_encoder(obj: Any) -> str:
@@ -182,6 +181,9 @@ def python_json_loader(text: str) -> Any:
 
 
 class Defaults:
+    """Default settings for a TestResources instance. These can be set via `resources.default.foo` and usually
+    overridden in individual calls to `resources` methods."""
+
     def __init__(self):
         self.ndigits: int | None = None
         """How many digits to round floats to by default when comparing JSON data."""
@@ -201,22 +203,27 @@ class Defaults:
 
     def _ndigits(self, value: int | None | EllipsisType) -> int | None:
         """Resolve ndigits given the default value here and optional override."""
-        return coalesce(self.ndigits, value, nonable=True)
+        return _coalesce(self.ndigits, value, nonable=True)
 
     def _json_encoder(self, value: JsonEncoder | None | EllipsisType) -> JsonEncoder:
         """Resolve json_encoder given the default value here and optional override."""
-        return coalesce(self.json_encoder, value)
+        return _coalesce(self.json_encoder, value)
 
     def _json_loader(self, value: JsonLoader | None | EllipsisType) -> JsonLoader:
         """Resolve json_loader given the default value here and optional override."""
-        return coalesce(self.json_loader, value)
+        return _coalesce(self.json_loader, value)
 
     def _path_maker(self, value: PathMaker | None | EllipsisType) -> PathMaker:
         """Resolve path_maker given the default value here and optional override."""
-        return coalesce(self.path_maker, value)
+        return _coalesce(self.path_maker, value)
 
 
 class TestResources:
+    """
+    Implements the resources pytest fixture.
+
+    """
+
     __test__ = False  # Don't try to collect this as a test
 
     def __init__(self, request: FixtureRequest, accept_count: int = 0):
@@ -232,7 +239,7 @@ class TestResources:
         self.request: FixtureRequest = request
         """The pytest fixture request that we get context information from."""
 
-        self.accept_count: int = accept_count
+        self._accept_count: int = accept_count
         """Mimatches remaining before we fail the test."""
 
         self.default: Defaults = Defaults()
@@ -558,8 +565,8 @@ class TestResources:
 
     def _accept_one(self) -> bool:
         """Whether to accept one more mismatch before failing the test."""
-        self.accept_count -= 1
-        return self.accept_count >= 0
+        self._accept_count -= 1
+        return self._accept_count >= 0
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # JSON Resources
@@ -568,6 +575,7 @@ class TestResources:
         """Register a local JSON prepper for a given type, including sub-classes.
 
         The prepper can return a few kinds of values:
+
         - Simple value: encoded as-is and must be JSON serializable.
         - Dict: encoded recursively but must have keys that are supported by the json_encoder in use, usually str.
         - Collection: list, tuple, set, etc will be recursively encoded as a list.
