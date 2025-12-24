@@ -56,8 +56,6 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils">utils</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils.JSON_PREPPERS">JSON_PREPPERS</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils.AbortJsonPrep">AbortJsonPrep</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils.add_json_prepper">add_json_prepper</a>
@@ -123,28 +121,6 @@ different types to be converted to JSON.</p>
 
 
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h2 id="pytest_respect.utils.JSON_PREPPERS" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">JSON_PREPPERS</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="n">dt</span><span class="o">.</span><span class="n">time</span> <span class="o">|</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())]</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>List of types along with functions to prepare instances of (any sub-class of) those types for JSON encoding.</p>
-
-    </div>
-
-</div>
-
 
 
 <div class="doc doc-object doc-class">
@@ -175,9 +151,9 @@ handled by this prepper and any other ones should be given the oportuinty to han
 
               <details class="quote">
                 <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AbortJsonPrep</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa: N818</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AbortJsonPrep</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa: N818</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised by a JSON prepper to indicate that even though the argument is of the expected type, it should not be</span>
 <span class="sd">    handled by this prepper and any other ones should be given the oportuinty to handle it.&quot;&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
@@ -210,8 +186,7 @@ handled by this prepper and any other ones should be given the oportuinty to han
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
-<span class="normal">46</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
@@ -220,7 +195,8 @@ handled by this prepper and any other ones should be given the oportuinty to han
 <span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
-<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_json_prepper</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">prepper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">55</span>
+<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_json_prepper</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">prepper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a global JSON prepper for a given type, including sub-classes.</span>
 
 <span class="sd">    The prepper can return a few kinds of values:</span>
@@ -312,8 +288,7 @@ prepper for that type.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
-<span class="normal"> 76</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 76</span>
 <span class="normal"> 77</span>
 <span class="normal"> 78</span>
 <span class="normal"> 79</span>
@@ -373,12 +348,13 @@ prepper for that type.</p>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_json_encode</span><span class="p">(</span>
-        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">allow_negative_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">extra_preppers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(),</span>
+<span class="normal">136</span>
+<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_json_encode</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_negative_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">extra_preppers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Copy a structure of lists, tuples, dicts, pydantic models and numpy values into a parallel structure of dicts and</span>
