@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>pytest-respect</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "pytest-respect";
+        var mkdocs_page_input_path = "README.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> pytest-respect
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">pytest-respect</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#motivation">Motivation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#extras">Extras</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#text-data">Text Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#json-data">Json Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pydantic-models">Pydantic Models</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#todo-resource-path-construction">TODO: Resource Path Construction</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#failing-tests">Failing Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#parametric-tests">Parametric Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-driven-parametric-tests">Data-driven Parametric Tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#json-formatting-and-parsing">JSON Formatting and Parsing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#to-document">To Document:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development">Development</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#installation_1">Installation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="CHANGES/">Changelog</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">pytest-respect</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">pytest-respect</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pytest-respect">pytest-respect</h1>
+<p>Pytest plugin to load resource files relative to test code and to expect values to match such files. The name is a contraction of <code>resources.expect</code>, which is frequently typed when using this plugin.</p>
+<h2 id="motivation">Motivation</h2>
+<p>The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base. If you find your test <em>code</em> being obscured by the test <em>data</em>, filling with complex data generation code, or ad-hoc reading of input data or expected results, then pytest-respect is for you.</p>
+<h2 id="installation">Installation</h2>
+<p>Install with your favourite package manager such as:</p>
+<ul>
+<li><code>pip install pydantic-respect</code></li>
+<li><code>poetry add --dev pydantic-respect</code></li>
+<li><code>uv add --dev pydantic-respect</code></li>
+</ul>
+<p>See your package management tool for details, especially on how to install optional extra dependencies.</p>
+<h3 id="extras">Extras</h3>
+<p>The following extra dependencies are required for additional functionality:</p>
+<ul>
+<li><code>poetry</code> - Load, save, and expect pydantic models or arbitrary data through type adapters.</li>
+<li><code>numpy</code> - Convert numpy arrays and scalars to python equivalents when generating JSON, both in save and expect.</li>
+<li><code>jsonyx</code> - Alternative JSON encoder for semi-compact files, numeric keys, trailing commas, etc.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<h3 id="text-data">Text Data</h3>
+<p>The simplest use-case is loading textual input data and comparing textual output to an expectation file:</p>
+<pre><code class="language-python">def test_translate(resources):
+    input = resources.load_text(&quot;input&quot;)
+    output = translate(input)
+    resources.expect_text(output, &quot;output&quot;)
+</code></pre>
+<p>If the test is found in a file called <code>foo/test_stuff.py</code>, then it will load the content of <code>foo/test_stuff/test_translate__input.txt</code>, run the <code>translate</code> function on it, and assert that the output exactly matches the content of the file <code>foo/test_stuff/test_translate__output.json</code>.</p>
+<p>The expectation must also match on trailing spaces and trailing empty lines for the test to pass.</p>
+<h3 id="json-data">Json Data</h3>
+<p>A much more interesting example is doing the same with JSON data:</p>
+<pre><code class="language-python">def test_compute(resources):
+    input = resources.load_json(&quot;input&quot;)
+    output = compute(input)
+    resources.expect_json(output, &quot;output&quot;)
+</code></pre>
+<p>This will load the content of <code>foo/test_stuff/test_compute__input.json</code>, run the <code>compute</code> function on it, and assert that the output exactly matches the content of the file <code>foo/test_stuff/test_compute__output.json</code>.</p>
+<p>The expectation matching is done on a text representation of the JSON data. This avoids having to parse the expectation files, and allows us to use text-based diff tools, but instead we must avoid other tools reformating the expectations. By default the JSON formatting is by <code>json.dumps(obj, sort_keys=True, indent=2)</code> but see the section on <a href="#json-formatting-and-parsing">JSON Formatting and Parsing</a>.</p>
+<h3 id="pydantic-models">Pydantic Models</h3>
+<p>With the optional
+<code>pydantic</code> extra, the same can be done with pydantic data if you have models for your input and output data:</p>
+<pre><code class="language-python">def test_compute(resources):
+    input: InputModel = resources.load_pydantic(InputModel, &quot;input&quot;)
+    output: OutputModel = compute(input)
+    resources.expect_pydantic(output, &quot;output&quot;)
+</code></pre>
+<p>The input and output paths will be identical to the JSON test, since we re-used the name of the test function.</p>
+<h3 id="todo-resource-path-construction">TODO: Resource Path Construction</h3>
+<p><strong>To Document:</strong></p>
+<ul>
+<li>Multiple path parts</li>
+<li>Default path maker</li>
+<li>Alternative path makers</li>
+<li>Custom path makers</li>
+</ul>
+<h3 id="failing-tests">Failing Tests</h3>
+<p>If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an <code>actual</code> part appended. So in the JSON and Pydantic examples above, it would create the file <code>foo/test_stuff/test_compute__output__actual.json</code>. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.</p>
+<p>When the values being compared are more complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.</p>
+<p>Once the test passes, the <code>__actual</code> file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.</p>
+<p>Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the <code>--respect-accept</code> flag to update all the expectations. You can also use the <code>--respect-accept-one</code> and <code>--respect-accept-max=n</code> flags to update only a single expectation or the first <code>n</code> expectations before failing on any remaining differences.</p>
+<h3 id="parametric-tests">Parametric Tests</h3>
+<p>The load and expect (and other) methods can take multiple strings for the resource file name <code>parts</code>. In the earlier examples we only used <code>"input"</code> and <code>"output"</code> parts and failures implicitly added an <code>"actual"</code> part. We can pass in as many parts as we like, which nicely brings us to parametric tests:</p>
+<pre><code class="language-python">@pytest.mark.paramtrize(&quot;case&quot;, [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;])
+def test_compute(resources, case):
+    input = resources.load_json(&quot;input&quot;, case)
+    output = compute(input)
+    resources.expect_json(output, &quot;output&quot;, case)
+</code></pre>
+<p>Omitting the directory name, this test will load each of <code>test_compute__input__red.json</code>, <code>test_compute__input__green.json</code>, <code>test_compute__input__blue.json</code> and compare the results to <code>test_compute__output__red.json</code>, <code>test_compute__output__green.json</code>, <code>test_compute__output__blue.json</code></p>
+<h3 id="data-driven-parametric-tests">Data-driven Parametric Tests</h3>
+<p>We can use the <code>list_resources</code> function to generate a list of resource names to run parametric tests over. With the below fixture, the content of the resource directory is listed, and the fixture is run once for each match. We can then add test cases simply by adding new resource files:</p>
+<pre><code class="language-python">@pytest.fixture(params=list_resources(&quot;widget_*.json&quot;, exclude=[&quot;*__actual.json&quot;], strip_ext=True))
+def each_widget_name(request) -&gt; str:
+    &quot;&quot;&quot;Request this fixture to run for each widget file in the resource directory.&quot;&quot;&quot;
+    return request.param
+</code></pre>
+<p>The <code>list_resources</code> function is run in a static context and so doesn't have a test function or class to build paths from. Instead, it constructs a path to the file that it is called from and uses the <code>pm_only_file</code> path maker by default. However, it takes an optional <code>path_maker</code> argument to override this.</p>
+<p>Tests can then request <code>each_widget_name</code> to run on each of the resources but will have to use a suitable path-maker to find the resource files:</p>
+<pre><code class="language-python">def test_load_json_resource(resources, each_widget_name):
+    widget = resources.load_json(each_widget_name, path_maker=resources.pm_only_file)
+    assert transform(widget) == 42
+</code></pre>
+<p><strong>To Document:</strong></p>
+<ul>
+<li>Using <code>list</code> function</li>
+</ul>
+<h3 id="json-formatting-and-parsing">JSON Formatting and Parsing</h3>
+<h3 id="to-document">To Document:</h3>
+<ul>
+<li>Default JSON formatter and parser</li>
+<li>Alternative JSON formatter</li>
+<li>Jsonyx extension</li>
+</ul>
+<h3 id="configuration">Configuration</h3>
+<p><strong>To Document:</strong></p>
+<ul>
+<li>Default path makers</li>
+<li>Default JSON encoder and loader</li>
+<li>Default ndigits</li>
+</ul>
+<h2 id="development">Development</h2>
+<h3 id="installation_1">Installation</h3>
+<ul>
+<li><a href="https://docs.astral.sh/uv/getting-started/installation/">Install uv</a></li>
+<li>Run <code>uv sync --all-extras</code></li>
+<li>Run <code>pre-commit install</code> to enable pre-commit linting.</li>
+<li>Run <code>pytest</code> to verify installation.</li>
+</ul>
+<h3 id="testing">Testing</h3>
+<p>This is a pytest plugin so you're expected to know how to run pytest when hacking on it. Additionally, <code>scripts/pytest-extras</code> runs the test suite with different sets of optional extras. The CI Pipelines will go through an equivalent process for each Pull Request.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="CHANGES/" class="btn btn-neutral float-right" title="Changelog">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="CHANGES/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2025-12-24 14:54:00.426766+00:00
+-->
