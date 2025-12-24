@@ -62,8 +62,6 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils.add_json_prepper">add_json_prepper</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils.coalesce">coalesce</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pytest_respect.utils.prepare_for_json_encode">prepare_for_json_encode</a>
     </li>
     </ul>
@@ -95,7 +93,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="resources">Resources</h1>
+                <h1 id="pytest_respectutils"><code>pytest_respect.utils</code></h1>
 
 
 <div class="doc doc-object doc-module">
@@ -104,6 +102,9 @@
 
 <a id="pytest_respect.utils"></a>
     <div class="doc doc-contents first">
+
+        <p>Utilities used by the <code>resources</code> fixture. Most notably holds the registry of "perppers" which prepare values of
+different types to be converted to JSON.</p>
 
 
 
@@ -164,7 +165,7 @@
 
 
         <p>Raised by a JSON prepper to indicate that even though the argument is of the expected type, it should not be
-handled by this prepper and any other ones should be given a chance.</p>
+handled by this prepper and any other ones should be given the oportuinty to handle it.</p>
 
 
 
@@ -174,11 +175,11 @@ handled by this prepper and any other ones should be given a chance.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AbortJsonPrep</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa: N818</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AbortJsonPrep</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa: N818</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised by a JSON prepper to indicate that even though the argument is of the expected type, it should not be</span>
-<span class="sd">    handled by this prepper and any other ones should be given a chance.&quot;&quot;&quot;</span>
+<span class="sd">    handled by this prepper and any other ones should be given the oportuinty to handle it.&quot;&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -209,17 +210,17 @@ handled by this prepper and any other ones should be given a chance.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_json_prepper</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">prepper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_json_prepper</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">prepper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a global JSON prepper for a given type, including sub-classes.</span>
 
 <span class="sd">    The prepper can return a few kinds of values:</span>
@@ -229,55 +230,7 @@ handled by this prepper and any other ones should be given a chance.</p>
 
 <span class="sd">    It can also raise AbortJsonPrep to skip this prepper and continue trying others.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">JSON_PREPPERS</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">type_</span><span class="p">,</span> <span class="n">prepper</span><span class="p">))</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="pytest_respect.utils.coalesce" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">coalesce</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">nonable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
-
-</h2>
-          <div class="doc-overloads">
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">coalesce</span><span class="p">(</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">EllipsisType</span><span class="p">,</span>
-    <span class="n">nonable</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span>
-</code></pre></div><div class="doc-signature highlight"><pre><span></span><code><span class="nf">coalesce</span><span class="p">(</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">EllipsisType</span><span class="p">,</span>
-    <span class="n">nonable</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span>
-</code></pre></div><div class="doc-signature highlight"><pre><span></span><code><span class="nf">coalesce</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">EllipsisType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span>
-</code></pre></div>          </div>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Return the first value among default, *args that is not ... and, if nonable is Fals, is not None either.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">coalesce</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">EllipsisType</span><span class="p">,</span> <span class="n">nonable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first value among default, *args that is not ... and, if nonable is Fals, is not None either.&quot;&quot;&quot;</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">default</span>
-    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">EllipsisType</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">nonable</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">arg</span>
-    <span class="k">return</span> <span class="n">value</span>
+    <span class="n">_JSON_PREPPERS</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">type_</span><span class="p">,</span> <span class="n">prepper</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -299,7 +252,8 @@ handled by this prepper and any other ones should be given a chance.</p>
 lists, trying to make them JSON encodable.</p>
 <p>The encoding is specifically intended for writing expectation files, so it doesn't need to be reversible, and if
 data or precision is lost in a way that is not acceptable, then the user has the opportunity to register a custom
-stringer.</p>
+prepper for that type.</p>
+<p>This library installs preppers for pydantic models and numpy arrays if those libraries are installed.</p>
 
 
 <table class="field-list">
@@ -347,7 +301,7 @@ stringer.</p>
 )
               –
               <div class="doc-md-description">
-                <p>Additional preppers to apply before the default ones.</p>
+                <p>Additional preppers to apply before the registered ones.</p>
               </div>
             </li>
         </ul>
@@ -358,13 +312,7 @@ stringer.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
 <span class="normal"> 76</span>
 <span class="normal"> 77</span>
 <span class="normal"> 78</span>
@@ -417,12 +365,20 @@ stringer.</p>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
-<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_json_encode</span><span class="p">(</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">allow_negative_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">extra_preppers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(),</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_json_encode</span><span class="p">(</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_negative_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">extra_preppers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Copy a structure of lists, tuples, dicts, pydantic models and numpy values into a parallel structure of dicts and</span>
@@ -430,17 +386,19 @@ stringer.</p>
 
 <span class="sd">    The encoding is specifically intended for writing expectation files, so it doesn&#39;t need to be reversible, and if</span>
 <span class="sd">    data or precision is lost in a way that is not acceptable, then the user has the opportunity to register a custom</span>
-<span class="sd">    stringer.</span>
+<span class="sd">    prepper for that type.</span>
+
+<span class="sd">    This library installs preppers for pydantic models and numpy arrays if those libraries are installed.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        value: The value to prepare for JSON encoding</span>
 <span class="sd">        ndigits: The number of digits to round floats to, or None to omit rounding</span>
 <span class="sd">        allow_negative_zero: If False, convert negative zero to plain zero in output</span>
-<span class="sd">        extra_preppers: Additional preppers to apply before the default ones.</span>
+<span class="sd">        extra_preppers: Additional preppers to apply before the registered ones.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Apply the configured preppers</span>
-    <span class="k">for</span> <span class="n">type_</span><span class="p">,</span> <span class="n">prepper</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">extra_preppers</span><span class="p">,</span> <span class="n">JSON_PREPPERS</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">type_</span><span class="p">,</span> <span class="n">prepper</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">extra_preppers</span><span class="p">,</span> <span class="n">_JSON_PREPPERS</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">prepper</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
