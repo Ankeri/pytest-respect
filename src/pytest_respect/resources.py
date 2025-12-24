@@ -34,7 +34,7 @@ PathParts = tuple[Path, str | None]
 
 
 class PathMaker(Protocol):
-    """Protocol for functions which determine a directory and base file-name from the coordinates of a test function."""
+    """Protocol for functions which determine a directory and base file-name from the location of a test function."""
 
     def __call__(
         self,
@@ -192,10 +192,11 @@ class Defaults:
         self.json_loader: JsonLoader = python_json_loader
         """Function used to convert JSON encoded text to python data. Defaults to standard python JSON decoding."""
 
-        self.path_maker: PathMaker = TestResources.pm_class
+        self.path_maker: PathMaker = TestResources.pm_file
         """
-        Function used to make paths to resources. Defaults to as pm_class making resource paths like
-        ``<dir>/test_file__TestClass/test_method.<ext>``, omitting the ``__TestClass`` part if we are not in a class.
+        Function used to make paths to resources. Defaults to pm_file making resource paths like
+        ``<dir>/test_file/test_function.<ext>``, or  ``<dir>/test_file/TestClass__test_method.<ext>`` if the test is
+        within a class.
         """
 
     def _ndigits(self, value: int | None | EllipsisType) -> int | None:
@@ -248,8 +249,8 @@ class TestResources:
         """PathMaker to build directory from test_file, class if present, and function. No contribution is made to the
         file name.
 
+        - ``<dir>/test_file__test_function/data.<ext>``
         - ``<dir>/test_file__TestClass__test_method/data.<ext>``
-        - ``<dir>/test_file__test_method/data.<ext>``
         """
         if test_class_name:
             dir = test_dir / f"{test_file_name}__{test_class_name}__{test_name}"
@@ -264,8 +265,8 @@ class TestResources:
 
         This is the default method for constructing resource paths.
 
+        - ``<dir>/test_file/test_function.<ext>``
         - ``<dir>/test_file__TestClass/test_method.<ext>``
-        - ``<dir>/test_file/test_method.<ext>``
         """
         if test_class_name:
             dir = test_dir / f"{test_file_name}__{test_class_name}"
@@ -290,8 +291,8 @@ class TestResources:
     def pm_file(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and file-name from test class if present, and test method.
 
-        - ``<dir>/test_file__TestClass/test_method.<ext>``
-        - ``<dir>/test_file/test_method.<ext>``
+        - ``<dir>/test_file/test_function.<ext>``
+        - ``<dir>/test_file/TestClass__test_method.<ext>``
         """
         if test_class_name:
             file = f"{test_class_name}__{test_name}"
@@ -317,8 +318,8 @@ class TestResources:
         """PathMaker to use "resources" for directory and build file-name from test file, test class if present and
         test function.
 
+        - ``<dir>/resources/test_file__test_function.<ext>``
         - ``<dir>/resources/test_file__TestClass__test_method.<ext>``
-        - ``<dir>/resources/test_file__test_method.<ext>``
         """
         path_maker = TestResources.pm_dir_named(DEFAULT_RESOURCES_DIR)
         return path_maker(test_dir, test_file_name, test_class_name, test_name)
@@ -328,8 +329,8 @@ class TestResources:
         """PathMaker to use the given name for directory and build file-name from test file, test class if present and
         test function.
 
+        - ``<dir>/<dir_name>/test_file__test_function.<ext>``
         - ``<dir>/<dir_name>/test_file__TestClass__test_method.<ext>``
-        - ``<dir>/<dir_name>/test_file__test_method.<ext>``
         """
 
         def path_from_dir(
