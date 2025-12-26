@@ -231,8 +231,6 @@ class TestResources:
 
         Args:
             request: The pytest fixture request object.
-            ndigits: How many digits to round floats to by default when comparing JSON data and objects which are
-                converted to JSON before comparison. Defaults to no rounding.
             accept_count: Accept the actual results for this many mismatches before failing the test.
 
         """
