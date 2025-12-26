@@ -369,6 +369,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#breaking" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -397,7 +408,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -436,7 +447,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -475,7 +486,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -570,7 +581,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
+  <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -792,6 +803,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#breaking" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -820,7 +842,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -859,7 +881,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -898,7 +920,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -993,7 +1015,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
+  <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1055,6 +1077,10 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="100-2025-12-2x">[1.0.0] - 2025-12-2x</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>In <code>resources</code>, the methods <code>expect_pydantic</code>, <code>save_pydantic</code>, <code>expect_pydantic_adapter</code> and <code>save_pydantic_adapter</code> now accept several new arguments which are passed to the pydantic <code>model_dump</code> or <code>python_dump</code> methods: <code>include</code>, <code>exclude</code>, <code>by_alias</code>, <code>exclude_unset</code>, <code>exclude_defaults</code>, <code>exclude_none</code>, <code>round_trip</code>, <code>serialize_as_any</code>.</li>
+</ul>
 <h3 id="breaking">Breaking</h3>
 <ul>
 <li><code>resources.default.path_maker</code> is now <code>pm_file</code> instead of <code>pm_class</code>. This only affects resources relative to a test <code>some_package.TestSomeThing.test_an_aspect</code> where the base path is now <code>some_package/TestSomeThing__test_an_aspect</code> instead of <code>some_package__TestSomeThing/test_an_aspect</code>. This gives fewer directories next to the test file and less clutter.</li>
@@ -1062,7 +1088,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Made <code>resources._accept_count</code> private.</li>
 </ul>
 <h2 id="090-2025-10-21">[0.9.0] - 2025-10-21</h2>
-<h3 id="added">Added</h3>
+<h3 id="added_1">Added</h3>
 <ul>
 <li>Added <code>resources.default</code> structure with defaults for <code>path_maker</code>, <code>json_loader</code>, <code>json_encoder</code> and <code>ndigits</code>.</li>
 <li>Added optional <code>json_loader</code> argument to: <code>load_json</code>, <code>load_pydantic</code> and <code>load_pydantic_adapter</code> which overrides the default.</li>
@@ -1077,7 +1103,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>resources.default_path_maker</code> was moved to <code>default.path_maker</code> and <code>default_ndigits</code> was moved to <code>default.ndigits</code>.</li>
 </ul>
 <h2 id="030-2025-08-25">[0.3.0] - 2025-08-25</h2>
-<h3 id="added_1">Added</h3>
+<h3 id="added_2">Added</h3>
 <ul>
 <li><code>resources.accept</code> property which decides whether to accept a result if it differs from the expectation instead of failing the test.</li>
 <li><code>--respect-accept</code> command-line option which populates the <code>resources.accept</code> property.</li>
@@ -1087,7 +1113,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>The <code>jsonyx_encoder</code> variants now allow all JSON deviations. Most notably, they will encode <code>nan</code> values.</li>
 </ul>
 <h2 id="020-2025-08-18">[0.2.0] - 2025-08-18</h2>
-<h3 id="added_2">Added</h3>
+<h3 id="added_3">Added</h3>
 <ul>
 <li><code>context</code> argument to <code>resources.expect_pydantic</code> method (#11).</li>
 <li><code>resources.save_pydantic</code> method which serializes a pydantic model and accepts the new <code>context</code> (#11).</li>
@@ -1109,7 +1135,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Documentation.</li>
 </ul>
 <h2 id="010-2025-08-06">[0.1.0] - 2025-08-06</h2>
-<h3 id="added_3">Added</h3>
+<h3 id="added_4">Added</h3>
 <ul>
 <li>Convert to pytest plugin.</li>
 </ul>
