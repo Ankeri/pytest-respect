@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2025-12-2x
 
+### Added
+
+- In `resources`, the methods `expect_pydantic`, `save_pydantic`, `expect_pydantic_adapter` and `save_pydantic_adapter` now accept several new arguments which are passed to the pydantic `model_dump` or `python_dump` methods: `include`, `exclude`, `by_alias`, `exclude_unset`, `exclude_defaults`, `exclude_none`, `round_trip`, `serialize_as_any`.
+
+
 ### Breaking
 
 - `resources.default.path_maker` is now `pm_file` instead of `pm_class`. This only affects resources relative to a test `some_package.TestSomeThing.test_an_aspect` where the base path is now `some_package/TestSomeThing__test_an_aspect` instead of `some_package__TestSomeThing/test_an_aspect`. This gives fewer directories next to the test file and less clutter.

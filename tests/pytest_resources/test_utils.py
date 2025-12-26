@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from pytest_respect.utils import _coalesce, prepare_for_json_encode
+from pytest_respect.utils import _coalesce, _dict_without_ellipsis, prepare_for_json_encode
 
 # Optional imports, falling back to stub classes
 try:
@@ -31,6 +31,10 @@ def test_coalesce__nonable__given__none():
 @pytest.mark.parametrize("default", [42, None])
 def test_coalesce__nonable__not_given(default):
     assert _coalesce(default, ..., ..., nonable=True) == default
+
+
+def test_dict_without_ellipsis():
+    assert _dict_without_ellipsis(a=42, b=888, c=...) == dict(a=42, b=888)
 
 
 def test_prepare_for_json_encode__simple():

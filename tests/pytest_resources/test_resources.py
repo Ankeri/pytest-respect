@@ -26,7 +26,6 @@ try:
 except ImportError:  # pragma: no cover
     from pytest_respect._fakes import BaseModel, ValidationError, WrapSerializer
 
-
 THIS_FILE = Path(__file__).absolute()
 THIS_DIR = THIS_FILE.parent
 
@@ -707,7 +706,7 @@ def test_expected_json__default_digits(resources_4digits):
 
 
 class MyModel(BaseModel):  # type: ignore
-    look: list[str | float]
+    look: list[str | float] = ["the", "default"]
 
 
 class MyModelWithDates(BaseModel):  # type: ignore
@@ -814,6 +813,22 @@ def test_expected_pydantic__with_context(resources):
 
     # Show that the expectation contains the context
     assert resources.load_json()["look"] == ["I", "was", "expecting", "this", "with", "context"]
+
+
+@pytest.mark.pydantic
+def test_expected_pydantic__defaults(resources):
+    resources.expect_pydantic(MyModel())
+
+    # Show that the expectation contains the default values
+    assert resources.load_json() == {"look": ["the", "default"]}
+
+
+@pytest.mark.pydantic
+def test_expected_pydantic__exclude_defaults(resources):
+    resources.expect_pydantic(MyModel(), exclude_defaults=True)
+
+    # Show that the expectation excludes the default values
+    assert resources.load_json() == {}
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
