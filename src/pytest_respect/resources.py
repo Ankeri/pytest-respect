@@ -220,7 +220,7 @@ class Defaults:
 
 class TestResources:
     """
-    Implements the resources pytest fixture.
+    Implements the `resources` pytest fixture.
 
     """
 
