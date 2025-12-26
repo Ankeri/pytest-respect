@@ -11,7 +11,7 @@ from typing import Any, Protocol, TypeVar
 
 from pytest import FixtureRequest
 
-from pytest_respect.utils import _coalesce, prepare_for_json_encode, _dict_without_ellipsis
+from pytest_respect.utils import _coalesce, _dict_without_ellipsis, prepare_for_json_encode
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
