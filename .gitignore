@@ -8,6 +8,9 @@ wheels/
 junit/
 .coverage
 
+# Other generated files
+site/
+
 # IDEs
 /.idea
 

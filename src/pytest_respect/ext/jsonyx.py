@@ -1,6 +1,6 @@
 """
 JSON encoders and loaders using the jsonyx library.
-See https://github.com/nineteendo/jsonyx
+See [https://github.com/nineteendo/jsonyx](https://github.com/nineteendo/jsonyx)
 """
 
 from typing import Any

@@ -7,7 +7,8 @@ description = "Pytest plugin to load resource files relative to test code and to
 urls.homepage = "https://github.com/Ankeri/pytest-respect"
 urls.issues = "https://github.com/Ankeri/pytest-respect/issues"
 changelog = "https://github.com/Ankeri/pytest-respect/blob/master/CHANGELOG.md"
-readme = "README.md"
+readme = "docs/README.md"
+documentation = "https://ankeri.github.io/pytest-respect/"
 authors = [
     { name = "Logi Ragnarsson", email = "logi.ragnarsson@ankeri.is" }
 ]
@@ -45,6 +46,9 @@ jsonyx = ["jsonyx>=2.0.0"]
 
 [dependency-groups]
 dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings[python]>=1.0.0",
     "pre-commit>=4.2.0",
     "pyright==1.1.*",
     "pytest-cov==6.*",

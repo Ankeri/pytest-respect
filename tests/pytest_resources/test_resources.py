@@ -421,7 +421,7 @@ def test_delete_text(resources, mock_delete):
 
 @pytest.mark.parametrize("accept", [1, 0])
 def test_expect_text__match(resources, accept: bool):
-    resources.accept_count = accept
+    resources._accept_count = accept
     resources.expect_text("some text\nsome more text\n")
 
 
@@ -445,7 +445,7 @@ def test_expect_text__mismatch(resources):
 
 
 def test_expect_text__mismatch__accept(resources, capsys):
-    resources.accept_count = 1
+    resources._accept_count = 1
     try:
         resources.save_text("previous actual\n", "actual")
         resources.save_text("original expected test\n")
@@ -494,7 +494,7 @@ def test_expect_text__not_found(resources):
 
 
 def test_expect_text__not_found__accept(resources, capsys):
-    resources.accept_count = 1
+    resources._accept_count = 1
 
     test_dir = Path(__file__).with_suffix("")
     expected_file = test_dir / "test_expect_text__not_found__accept.txt"
@@ -519,17 +519,17 @@ def test_expect_text__not_found__accept(resources, capsys):
 
 
 def test_accept_count(resources):
-    assert resources.accept_count == 0
-    resources.accept_count = 2
+    assert resources._accept_count == 0
+    resources._accept_count = 2
     resources.delete_text()  # Start with no expectation and accept 2 mismatches
 
     # Allow one failure
     resources.expect_text("first value")
-    assert resources.accept_count == 1
+    assert resources._accept_count == 1
 
     # Allow another failure
     resources.expect_text("second value")
-    assert resources.accept_count == 0
+    assert resources._accept_count == 0
 
     # Don't allow a third failure
     with pytest.raises(AssertionError):

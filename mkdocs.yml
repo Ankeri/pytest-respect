@@ -1,0 +1,52 @@
+site_name: pytest-respect
+# docs_dir: .
+site_url: https://ankeri.github.io/pytest-respect
+repo_url: https://github.com/ankeri/pytest-respect
+
+plugins:
+  - search
+  - mkdocstrings
+
+markdown_extensions:
+# https://www.mkdocs.org/user-guide/configuration/#markdown_extensions
+# https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/
+#  - smarty
+#  - admonition
+
+  - pymdownx.superfences  # Enables code highlight
+
+theme:
+  name: material
+
+  features:
+    - content.code.copy
+
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+nav:
+  - Home: ./README.md
+  - Changes: CHANGES.md
+  - API Reference:
+      - Resources: api-resources.md
+      - Utilities: api-utils.md
+      - Extensions: api-ext.md
