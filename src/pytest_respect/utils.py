@@ -32,6 +32,11 @@ def _coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool =
     return value
 
 
+def _dict_without_ellipsis(**kw: T | EllipsisType) -> dict[str, T]:
+    """Exclude key/valye pairs where the value is ..."""
+    return {k: v for k, v in kw.items() if v is not ...}
+
+
 class AbortJsonPrep(Exception):  # noqa: N818
     """Raised by a JSON prepper to indicate that even though the argument is of the expected type, it should not be
     handled by this prepper and any other ones should be given the oportuinty to handle it."""
