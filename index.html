@@ -978,30 +978,30 @@
 <h2 id="usage">Usage</h2>
 <h3 id="text-data">Text Data</h3>
 <p>The simplest use-case is loading textual input data and comparing textual output to an expectation file:</p>
-<pre><code class="language-python">def test_translate(resources):
-    input = resources.load_text(&quot;input&quot;)
-    output = translate(input)
-    resources.expect_text(output, &quot;output&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_translate</span><span class="p">(</span><span class="n">resources</span><span class="p">):</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_text</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">translate</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">expect_text</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p>If the test is found in a file called <code>foo/test_stuff.py</code>, then it will load the content of <code>foo/test_stuff/test_translate__input.txt</code>, run the <code>translate</code> function on it, and assert that the output exactly matches the content of the file <code>foo/test_stuff/test_translate__output.json</code>.</p>
 <p>The expectation must also match on trailing spaces and trailing empty lines for the test to pass.</p>
 <h3 id="json-data">Json Data</h3>
 <p>A much more interesting example is doing the same with JSON data:</p>
-<pre><code class="language-python">def test_compute(resources):
-    input = resources.load_json(&quot;input&quot;)
-    output = compute(input)
-    resources.expect_json(output, &quot;output&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">):</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">expect_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p>This will load the content of <code>foo/test_stuff/test_compute__input.json</code>, run the <code>compute</code> function on it, and assert that the output exactly matches the content of the file <code>foo/test_stuff/test_compute__output.json</code>.</p>
 <p>The expectation matching is done on a text representation of the JSON data. This avoids having to parse the expectation files, and allows us to use text-based diff tools, but instead we must avoid other tools reformating the expectations. By default the JSON formatting is by <code>json.dumps(obj, sort_keys=True, indent=2)</code> but see the section on <a href="#json-formatting-and-parsing">JSON Formatting and Parsing</a>.</p>
 <h3 id="pydantic-models">Pydantic Models</h3>
 <p>With the optional
 <code>pydantic</code> extra, the same can be done with pydantic data if you have models for your input and output data:</p>
-<pre><code class="language-python">def test_compute(resources):
-    input: InputModel = resources.load_pydantic(InputModel, &quot;input&quot;)
-    output: OutputModel = compute(input)
-    resources.expect_pydantic(output, &quot;output&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">):</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">InputModel</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_pydantic</span><span class="p">(</span><span class="n">InputModel</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">OutputModel</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">expect_pydantic</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p>The input and output paths will be identical to the JSON test, since we re-used the name of the test function.</p>
 <h3 id="todo-resource-path-construction">TODO: Resource Path Construction</h3>
 <p><strong>To Document:</strong></p>
@@ -1018,26 +1018,26 @@
 <p>Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the <code>--respect-accept</code> flag to update all the expectations. You can also use the <code>--respect-accept-one</code> and <code>--respect-accept-max=n</code> flags to update only a single expectation or the first <code>n</code> expectations before failing on any remaining differences.</p>
 <h3 id="parametric-tests">Parametric Tests</h3>
 <p>The load and expect (and other) methods can take multiple strings for the resource file name <code>parts</code>. In the earlier examples we only used <code>"input"</code> and <code>"output"</code> parts and failures implicitly added an <code>"actual"</code> part. We can pass in as many parts as we like, which nicely brings us to parametric tests:</p>
-<pre><code class="language-python">@pytest.mark.paramtrize(&quot;case&quot;, [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;])
-def test_compute(resources, case):
-    input = resources.load_json(&quot;input&quot;, case)
-    output = compute(input)
-    resources.expect_json(output, &quot;output&quot;, case)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">paramtrize</span><span class="p">(</span><span class="s2">&quot;case&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">,</span> <span class="n">case</span><span class="p">):</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">case</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">expect_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">case</span><span class="p">)</span>
+</code></pre></div>
 <p>Omitting the directory name, this test will load each of <code>test_compute__input__red.json</code>, <code>test_compute__input__green.json</code>, <code>test_compute__input__blue.json</code> and compare the results to <code>test_compute__output__red.json</code>, <code>test_compute__output__green.json</code>, <code>test_compute__output__blue.json</code></p>
 <h3 id="data-driven-parametric-tests">Data-driven Parametric Tests</h3>
 <p>We can use the <code>list_resources</code> function to generate a list of resource names to run parametric tests over. With the below fixture, the content of the resource directory is listed, and the fixture is run once for each match. We can then add test cases simply by adding new resource files:</p>
-<pre><code class="language-python">@pytest.fixture(params=list_resources(&quot;widget_*.json&quot;, exclude=[&quot;*__actual.json&quot;], strip_ext=True))
-def each_widget_name(request) -&gt; str:
-    &quot;&quot;&quot;Request this fixture to run for each widget file in the resource directory.&quot;&quot;&quot;
-    return request.param
-</code></pre>
-<p>The <code>list_resources</code> function is run in a static context and so doesn&rsquo;t have a test function or class to build paths from. Instead, it constructs a path to the file that it is called from and uses the <code>pm_only_file</code> path maker by default. However, it takes an optional <code>path_maker</code> argument to override this.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">list_resources</span><span class="p">(</span><span class="s2">&quot;widget_*.json&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*__actual.json&quot;</span><span class="p">],</span> <span class="n">strip_ext</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">each_widget_name</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Request this fixture to run for each widget file in the resource directory.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+</code></pre></div>
+<p>The <code>list_resources</code> function is run in a static context and so doesn't have a test function or class to build paths from. Instead, it constructs a path to the file that it is called from and uses the <code>pm_only_file</code> path maker by default. However, it takes an optional <code>path_maker</code> argument to override this.</p>
 <p>Tests can then request <code>each_widget_name</code> to run on each of the resources but will have to use a suitable path-maker to find the resource files:</p>
-<pre><code class="language-python">def test_load_json_resource(resources, each_widget_name):
-    widget = resources.load_json(each_widget_name, path_maker=resources.pm_only_file)
-    assert transform(widget) == 42
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_load_json_resource</span><span class="p">(</span><span class="n">resources</span><span class="p">,</span> <span class="n">each_widget_name</span><span class="p">):</span>
+    <span class="n">widget</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">each_widget_name</span><span class="p">,</span> <span class="n">path_maker</span><span class="o">=</span><span class="n">resources</span><span class="o">.</span><span class="n">pm_only_file</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">transform</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span>
+</code></pre></div>
 <p><strong>To Document:</strong></p>
 <ul>
 <li>Using <code>list</code> function</li>
@@ -1065,7 +1065,7 @@ def each_widget_name(request) -&gt; str:
 <li>Run <code>pytest</code> to verify installation.</li>
 </ul>
 <h3 id="testing">Testing</h3>
-<p>This is a pytest plugin so you&rsquo;re expected to know how to run pytest when hacking on it. Additionally, <code>scripts/pytest-extras</code> runs the test suite with different sets of optional extras. The CI Pipelines will go through an equivalent process for each Pull Request.</p>
+<p>This is a pytest plugin so you're expected to know how to run pytest when hacking on it. Additionally, <code>scripts/pytest-extras</code> runs the test suite with different sets of optional extras. The CI Pipelines will go through an equivalent process for each Pull Request.</p>
 
 
 
