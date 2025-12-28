@@ -7,7 +7,7 @@ import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from types import EllipsisType, UnionType
-from typing import Any, Protocol, TypeAlias, TypedDict, TypeVar, Union, Unpack
+from typing import Any, Protocol, TypedDict, TypeVar, Union, Unpack
 
 from pytest import FixtureRequest
 
@@ -45,7 +45,8 @@ class PathMaker(Protocol):
     ) -> PathParts: ...
 
 
-IncEx: TypeAlias = set[int] | set[str] | Mapping[int, Union["IncEx", bool]] | Mapping[str, Union["IncEx", bool]]
+type IncEx = set[int] | set[str] | Mapping[int, Union["IncEx", bool]] | Mapping[str, Union["IncEx", bool]]  # noqa UP007
+# You can't make a union with a string type alias but ruff 0.14.10 doesn't know that
 
 
 class PydanticDumpArgs(TypedDict):
