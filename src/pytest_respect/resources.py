@@ -4,12 +4,14 @@ import builtins
 import fnmatch
 import inspect
 import json
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from types import EllipsisType, UnionType
-from typing import Any, Protocol, TypeVar
+from typing import Any, Protocol, TypedDict, TypeVar, Union, Unpack
 
 from pytest import FixtureRequest
+
+from pytest_respect.utils import _coalesce, prepare_for_json_encode
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -20,8 +22,6 @@ except ImportError:  # pragma: no cover
 
 # Dont' include in pytest tracebacks. We patch this out in unit tests to see where in our code errors occur.
 __tracebackhide__ = True
-
-from pytest_respect.utils import _coalesce, prepare_for_json_encode
 
 DEFAULT_RESOURCES_DIR = "resources"
 
@@ -43,6 +43,24 @@ class PathMaker(Protocol):
         test_class_name: str | None,
         test_name: str,
     ) -> PathParts: ...
+
+
+type IncEx = set[int] | set[str] | Mapping[int, Union["IncEx", bool]] | Mapping[str, Union["IncEx", bool]]  # noqa UP007
+# You can't make a union with a string type alias but ruff 0.14.10 doesn't know that
+
+
+class PydanticDumpArgs(TypedDict):
+    """Arguments to pass to pydantic.BaseModel.model_dump or pydantic.TypeAdapter.dump_python."""
+
+    context: Any
+    include: IncEx
+    exclude: IncEx
+    by_alias: bool | None
+    exclude_unset: bool
+    exclude_defaults: bool
+    exclude_none: bool
+    round_trip: bool
+    serialize_as_any: bool
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -87,16 +105,20 @@ def list_resources(
 
     Parametric Test Example:
 
-        @pytest.mark.parametrize("curve_name", list_resources("power_curve_*.json")
-        def test_power_curve(resources, curve_name):
-           curve = resources.load_pydantic(PowerCurve, curve_name)
-           assert len(curve.points) >= 2
+    ```python
+    @pytest.mark.parametrize("curve_name", list_resources("power_curve_*.json")
+    def test_power_curve(resources, curve_name):
+       curve = resources.load_pydantic(PowerCurve, curve_name)
+       assert len(curve.points) >= 2
+    ```
 
     Parametric Fixture Example:
 
-        @pytest.fixture(params=list_resources("power_curve_*.json", exclude=["*__actual*"], strip_ext=".json"))
-        def each_power_curve(request, resources) -> PowerCurve:
-           return resources.load_pydantic(PowerCurve, request.param)
+    ```python
+    @pytest.fixture(params=list_resources("power_curve_*.json", exclude=["*__actual*"], strip_ext=".json"))
+    def each_power_curve(request, resources) -> PowerCurve:
+       return resources.load_pydantic(PowerCurve, request.param)
+    ```
 
     Args:
         include: one or more glob patterns for filenames to include
@@ -676,11 +698,11 @@ class TestResources:
         path_maker: PathMaker | None = None,
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
-        context: Any = None,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Write pydantic data to a resource relative to the current test."""
-        actual_data = data.model_dump(mode="json", context=context)
-        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
+        dumped = data.model_dump(mode="json", **dump_args)
+        self.save_json(dumped, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
         """Delete a json resource relative to the current test."""
@@ -694,12 +716,12 @@ class TestResources:
         path_maker: PathMaker | None = None,
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
-        context: Any = None,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
-        actual_data = actual.model_dump(mode="json", context=context)
+        actual_dumped = actual.model_dump(mode="json", **dump_args)
         self.expect_json(
-            actual_data,
+            actual_dumped,
             *parts,
             ext=ext,
             path_maker=path_maker,
@@ -732,12 +754,12 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
-        context: Any = None,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Write pydantic data to a resource relative to the current test."""
         type_ = type_ or type(data)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
-        actual_data: T = adapter.dump_python(data, mode="json", context=context)
+        actual_data: T = adapter.dump_python(data, mode="json", **dump_args)
         self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
@@ -753,13 +775,13 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
-        context: Any = None,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Assert that the type adapter encodes the actual value to the JSON content from resource. This allows us to
         pass a context to the serializers of any objects embedded within actual."""
         type_ = type_ or type(actual)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
-        actual_data: T = adapter.dump_python(actual, mode="json", context=context)
+        actual_data: T = adapter.dump_python(actual, mode="json", **dump_args)
         self.expect_json(
             actual_data,
             *parts,

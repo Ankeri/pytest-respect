@@ -1,6 +1,6 @@
 """Fake classes and other constructs with just enough stub code to make pyright accept our optional imports."""
 
-from typing import Any, Generic, NoReturn, TypeVar, final
+from typing import Any, NoReturn, TypeVar, final
 
 T = TypeVar("T")
 
@@ -26,7 +26,7 @@ class BaseModel:
 
 
 @final
-class TypeAdapter(Generic[T]):
+class TypeAdapter[T]:
     def __init__(self, type: Any, **kw) -> NoReturn:
         needs("pydantic")
 

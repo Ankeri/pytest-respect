@@ -11,6 +11,7 @@ from pytest_respect.resources import (
     Defaults,
     JsonLoader,
     PathMaker,
+    PydanticDumpArgs,
     TestResources,
     list_dir,
     list_resources,
@@ -26,9 +27,21 @@ try:
 except ImportError:  # pragma: no cover
     from pytest_respect._fakes import BaseModel, ValidationError, WrapSerializer
 
-
 THIS_FILE = Path(__file__).absolute()
 THIS_DIR = THIS_FILE.parent
+
+ALL_PYDANTIC_DUMP_ARGS = PydanticDumpArgs(
+    context="context",
+    include={"foo", "frodo", "fairchild"},
+    exclude={1, 2, 3},
+    by_alias=True,
+    exclude_unset=True,
+    exclude_defaults=True,
+    exclude_none=True,
+    round_trip=True,
+    serialize_as_any=True,
+)
+"""All optional PydanticDumpArgs"""
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -110,7 +123,7 @@ def test_list_dir(tmp_path: Path):
     # Having tested the file-access code we can use `mock_list_dir` for the rest.
     listed = list_dir(THIS_DIR / "test_resources", "*_load_*", exclude="*__actual.*")
     assert listed == [
-        "test_expected_json__ndigits__test_load_json.json",
+        "test_expect_json__ndigits__test_load_json.json",
         "test_load_json.json",
         "test_load_pydantic.json",
         "test_load_pydantic_adapter.json",
@@ -654,13 +667,21 @@ def test_save_json__overrides(resources):
     resources.delete_json()
 
 
+@pytest.mark.pydantic
+def test_save_pydantic__all_optional_dump_args(resources, mocker):
+    """The model_dump method accepts all the arguments. We don't assert on the results."""
+    mock_save_json = mocker.patch.object(resources, "save_json")
+    resources.save_pydantic(MyModel(), **ALL_PYDANTIC_DUMP_ARGS)
+    mock_save_json.assert_called_once_with({}, ext="json", path_maker=None, json_encoder=..., ndigits=...)
+
+
 def test_delete_json(resources, mock_delete):
     resources.delete_json("one", "two", path_maker=resources.pm_file)
 
     mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
 
-def test_expected_json(resources):
+def test_expect_json(resources):
     resources.expect_json(
         {
             "look": ["what", "I", "found"],
@@ -669,7 +690,7 @@ def test_expected_json(resources):
     )
 
 
-def test_expected_json__compact(resources):
+def test_expect_json__compact(resources):
     resources.default.json_encoder = python_compact_json_encoder
     resources.expect_json(
         {
@@ -679,7 +700,7 @@ def test_expected_json__compact(resources):
     )
 
 
-def test_expected_json__ndigits(resources):
+def test_expect_json__ndigits(resources):
     actual = {
         "float": 0.1234321,  # more digits than the resource
     }
@@ -693,7 +714,7 @@ def test_expected_json__ndigits(resources):
     resources.expect_json(actual, "test_load_json", ndigits=4)
 
 
-def test_expected_json__default_digits(resources_4digits):
+def test_expect_json__default_digits(resources_4digits):
     actual = {
         "float": 0.1234321,  # more digits than the resource
     }
@@ -707,7 +728,7 @@ def test_expected_json__default_digits(resources_4digits):
 
 
 class MyModel(BaseModel):  # type: ignore
-    look: list[str | float]
+    look: list[str | float] = ["the", "default"]
 
 
 class MyModelWithDates(BaseModel):  # type: ignore
@@ -801,12 +822,12 @@ def test_delete_pydantic(resources, mock_delete):
 
 
 @pytest.mark.pydantic
-def test_expected_pydantic(resources):
+def test_expect_pydantic(resources):
     resources.expect_pydantic(MyModel(look=["I", "was", "expecting", "this"]))
 
 
 @pytest.mark.pydantic
-def test_expected_pydantic__with_context(resources):
+def test_expect_pydantic__with_context(resources):
     resources.expect_pydantic(
         MyModelWithContext(look=["I", "was", "expecting", "this"]),
         context=["with", "context"],
@@ -814,6 +835,30 @@ def test_expected_pydantic__with_context(resources):
 
     # Show that the expectation contains the context
     assert resources.load_json()["look"] == ["I", "was", "expecting", "this", "with", "context"]
+
+
+@pytest.mark.pydantic
+def test_expect_pydantic__defaults(resources):
+    resources.expect_pydantic(MyModel())
+
+    # Show that the expectation contains the default values
+    assert resources.load_json() == {"look": ["the", "default"]}
+
+
+@pytest.mark.pydantic
+def test_expect_pydantic__exclude_defaults(resources):
+    resources.expect_pydantic(MyModel(), exclude_defaults=True)
+
+    # Show that the expectation excludes the default values
+    assert resources.load_json() == {}
+
+
+@pytest.mark.pydantic
+def test_expect_pydantic__all_optional_dump_args(resources, mocker):
+    """The model_dump method accepts all the arguments. We don't assert on the results."""
+    mock_expect_json = mocker.patch.object(resources, "expect_json")
+    resources.expect_pydantic(MyModel(), **ALL_PYDANTIC_DUMP_ARGS)
+    mock_expect_json.assert_called_once_with({}, ext="json", path_maker=None, json_encoder=..., ndigits=...)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -892,6 +937,14 @@ def test_save_pydantic_adapter__overrides(resources):
     resources.delete_pydantic()
 
 
+@pytest.mark.pydantic
+def test_save_pydantic_adapter__all_optional_dump_args(resources, mocker):
+    """The model_dump method accepts all the arguments. We don't assert on the results."""
+    mock_save_json = mocker.patch.object(resources, "save_json")
+    resources.save_pydantic_adapter({"foo": 42, "bar": 88}, **ALL_PYDANTIC_DUMP_ARGS)
+    mock_save_json.assert_called_once_with({"foo": 42}, ext="json", path_maker=None, json_encoder=..., ndigits=...)
+
+
 def test_delete_pydantic_adapter(resources, mock_delete):
     resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
 
@@ -899,9 +952,17 @@ def test_delete_pydantic_adapter(resources, mock_delete):
 
 
 @pytest.mark.pydantic
-def test_expected_pydantic_adapter(resources):
+def test_expect_pydantic_adapter(resources):
     data: dict[int, MyModelWithContext] = {
         1: MyModelWithContext(look=["I", "was", "expecting", "this"]),
         2: MyModel(look=["and", "also", "this"]),  # Won't have the context
     }
     resources.expect_pydantic_adapter(data, context=["with", "context"])
+
+
+@pytest.mark.pydantic
+def test_expect_pydantic_adapter__all_optional_dump_args(resources, mocker):
+    """The model_dump method accepts all the arguments. We don't assert on the results."""
+    mock_expect_json = mocker.patch.object(resources, "expect_json")
+    resources.expect_pydantic_adapter({"foo": 42}, **ALL_PYDANTIC_DUMP_ARGS)
+    mock_expect_json.assert_called_once_with({"foo": 42}, ext="json", path_maker=None, json_encoder=..., ndigits=...)

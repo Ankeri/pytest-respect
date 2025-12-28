@@ -104,9 +104,9 @@ def test_prepare_for_json_encode__date_and_time():
     original = {
         "date": dt.date(2025, 7, 22),
         "time": dt.time(11, 9, 23),
-        "time_utc": dt.time(11, 9, 23, tzinfo=dt.timezone.utc),
+        "time_utc": dt.time(11, 9, 23, tzinfo=dt.UTC),
         "datetime": dt.datetime(2025, 7, 22, 11, 9, 23),
-        "datetime_utc": dt.datetime(2025, 7, 22, 11, 9, 23, tzinfo=dt.timezone.utc),
+        "datetime_utc": dt.datetime(2025, 7, 22, 11, 9, 23, tzinfo=dt.UTC),
     }
 
     prepared = prepare_for_json_encode(original)
