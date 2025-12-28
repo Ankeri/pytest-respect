@@ -4,10 +4,10 @@ import builtins
 import fnmatch
 import inspect
 import json
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from types import EllipsisType, UnionType
-from typing import Any, Mapping, Protocol, TypeAlias, TypeVar, TypedDict, Union, Unpack
+from typing import Any, Protocol, TypeAlias, TypedDict, TypeVar, Union, Unpack
 
 from pytest import FixtureRequest
 
@@ -45,7 +45,7 @@ class PathMaker(Protocol):
     ) -> PathParts: ...
 
 
-IncEx: TypeAlias = Union[set[int], set[str], Mapping[int, Union["IncEx", bool]], Mapping[str, Union["IncEx", bool]]]
+IncEx: TypeAlias = set[int] | set[str] | Mapping[int, Union["IncEx", bool]] | Mapping[str, Union["IncEx", bool]]
 
 
 class PydanticDumpArgs(TypedDict):

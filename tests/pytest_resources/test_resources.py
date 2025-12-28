@@ -667,6 +667,7 @@ def test_save_json__overrides(resources):
     resources.delete_json()
 
 
+@pytest.mark.pydantic
 def test_save_pydantic__all_optional_dump_args(resources, mocker):
     """The model_dump method accepts all the arguments. We don't assert on the results."""
     mock_save_json = mocker.patch.object(resources, "save_json")
@@ -852,6 +853,7 @@ def test_expect_pydantic__exclude_defaults(resources):
     assert resources.load_json() == {}
 
 
+@pytest.mark.pydantic
 def test_expect_pydantic__all_optional_dump_args(resources, mocker):
     """The model_dump method accepts all the arguments. We don't assert on the results."""
     mock_expect_json = mocker.patch.object(resources, "expect_json")
@@ -935,6 +937,7 @@ def test_save_pydantic_adapter__overrides(resources):
     resources.delete_pydantic()
 
 
+@pytest.mark.pydantic
 def test_save_pydantic_adapter__all_optional_dump_args(resources, mocker):
     """The model_dump method accepts all the arguments. We don't assert on the results."""
     mock_save_json = mocker.patch.object(resources, "save_json")
@@ -957,6 +960,7 @@ def test_expect_pydantic_adapter(resources):
     resources.expect_pydantic_adapter(data, context=["with", "context"])
 
 
+@pytest.mark.pydantic
 def test_expect_pydantic_adapter__all_optional_dump_args(resources, mocker):
     """The model_dump method accepts all the arguments. We don't assert on the results."""
     mock_expect_json = mocker.patch.object(resources, "expect_json")
