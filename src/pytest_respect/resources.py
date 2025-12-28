@@ -7,11 +7,11 @@ import json
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from types import EllipsisType, UnionType
-from typing import Any, Protocol, TypeVar
+from typing import Any, Mapping, Protocol, TypeAlias, TypeVar, TypedDict, Union, Unpack
 
 from pytest import FixtureRequest
 
-from pytest_respect.utils import _coalesce, _dict_without_ellipsis, prepare_for_json_encode
+from pytest_respect.utils import _coalesce, prepare_for_json_encode
 
 # Optional imports falling back to stub implementations to make the type checker happy
 try:
@@ -43,6 +43,23 @@ class PathMaker(Protocol):
         test_class_name: str | None,
         test_name: str,
     ) -> PathParts: ...
+
+
+IncEx: TypeAlias = Union[set[int], set[str], Mapping[int, Union["IncEx", bool]], Mapping[str, Union["IncEx", bool]]]
+
+
+class PydanticDumpArgs(TypedDict):
+    """Arguments to pass to pydantic.BaseModel.model_dump or pydantic.TypeAdapter.dump_python."""
+
+    context: Any
+    include: IncEx
+    exclude: IncEx
+    by_alias: bool | None
+    exclude_unset: bool
+    exclude_defaults: bool
+    exclude_none: bool
+    round_trip: bool
+    serialize_as_any: bool
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -680,31 +697,10 @@ class TestResources:
         path_maker: PathMaker | None = None,
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
-        # Optional arguments for data.model_dump
-        context: Any = None | EllipsisType,
-        include: Any | EllipsisType = ...,
-        exclude: Any | EllipsisType = ...,
-        by_alias: bool | None | EllipsisType = ...,
-        exclude_unset: bool | EllipsisType = ...,
-        exclude_defaults: bool | EllipsisType = ...,
-        exclude_none: bool | EllipsisType = ...,
-        round_trip: bool | EllipsisType = ...,
-        serialize_as_any: bool | EllipsisType = ...,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Write pydantic data to a resource relative to the current test."""
-        # Avoid arguments that are not explicitly set to avoid pydantic version problems
-        options = _dict_without_ellipsis(
-            context=context,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            round_trip=round_trip,
-            serialize_as_any=serialize_as_any,
-        )
-        dumped = data.model_dump(mode="json", **options)
+        dumped = data.model_dump(mode="json", **dump_args)
         self.save_json(dumped, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
@@ -719,31 +715,10 @@ class TestResources:
         path_maker: PathMaker | None = None,
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
-        # Optional arguments for actual.model_dump
-        context: Any = None | EllipsisType,
-        include: Any | EllipsisType = ...,
-        exclude: Any | EllipsisType = ...,
-        by_alias: bool | None | EllipsisType = ...,
-        exclude_unset: bool | EllipsisType = ...,
-        exclude_defaults: bool | EllipsisType = ...,
-        exclude_none: bool | EllipsisType = ...,
-        round_trip: bool | EllipsisType = ...,
-        serialize_as_any: bool | EllipsisType = ...,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Assert that the actual value encodes to the JSON content from resource."""
-        # Avoid arguments that are not explicitly set to avoid pydantic version problems
-        options = _dict_without_ellipsis(
-            context=context,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            round_trip=round_trip,
-            serialize_as_any=serialize_as_any,
-        )
-        actual_dumped = actual.model_dump(mode="json", **options)
+        actual_dumped = actual.model_dump(mode="json", **dump_args)
         self.expect_json(
             actual_dumped,
             *parts,
@@ -778,32 +753,12 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
-        # Optional arguments for adapter.dump_python
-        context: Any = None | EllipsisType,
-        include: Any | EllipsisType = ...,
-        exclude: Any | EllipsisType = ...,
-        by_alias: bool | None | EllipsisType = ...,
-        exclude_unset: bool | EllipsisType = ...,
-        exclude_defaults: bool | EllipsisType = ...,
-        exclude_none: bool | EllipsisType = ...,
-        round_trip: bool | EllipsisType = ...,
-        serialize_as_any: bool | EllipsisType = ...,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Write pydantic data to a resource relative to the current test."""
         type_ = type_ or type(data)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
-        options = _dict_without_ellipsis(
-            context=context,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            round_trip=round_trip,
-            serialize_as_any=serialize_as_any,
-        )
-        actual_data: T = adapter.dump_python(data, mode="json", **options)
+        actual_data: T = adapter.dump_python(data, mode="json", **dump_args)
         self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
 
     def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
@@ -819,33 +774,13 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
-        # Optional arguments for adapter.dump_python
-        context: Any = None | EllipsisType,
-        include: Any | EllipsisType = ...,
-        exclude: Any | EllipsisType = ...,
-        by_alias: bool | None | EllipsisType = ...,
-        exclude_unset: bool | EllipsisType = ...,
-        exclude_defaults: bool | EllipsisType = ...,
-        exclude_none: bool | EllipsisType = ...,
-        round_trip: bool | EllipsisType = ...,
-        serialize_as_any: bool | EllipsisType = ...,
+        **dump_args: Unpack[PydanticDumpArgs],
     ) -> None:
         """Assert that the type adapter encodes the actual value to the JSON content from resource. This allows us to
         pass a context to the serializers of any objects embedded within actual."""
         type_ = type_ or type(actual)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
-        options = _dict_without_ellipsis(
-            context=context,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            round_trip=round_trip,
-            serialize_as_any=serialize_as_any,
-        )
-        actual_data: T = adapter.dump_python(actual, mode="json", **options)
+        actual_data: T = adapter.dump_python(actual, mode="json", **dump_args)
         self.expect_json(
             actual_data,
             *parts,

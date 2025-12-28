@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+- Required python version is now 3.12+ for [PEP-692](https://peps.python.org/pep-0692/) keyword arguments
 - `resources.default.path_maker` is now `pm_file` instead of `pm_class`. This only affects resources relative to a test `some_package.TestSomeThing.test_an_aspect` where the base path is now `some_package/TestSomeThing__test_an_aspect` instead of `some_package__TestSomeThing/test_an_aspect`. This gives fewer directories next to the test file and less clutter.
 - Made `utils._coalesce` and `utils._JSON_PREPPERS` private.
 - Made `resources._accept_count` private.

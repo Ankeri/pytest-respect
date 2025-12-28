@@ -22,10 +22,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Framework :: Pytest"
 ]
@@ -33,7 +32,7 @@ classifiers = [
 
 # DEPENDENCIES
 
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 dependencies = [
     "pytest>=8.0.0",
