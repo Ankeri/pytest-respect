@@ -1083,6 +1083,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 </ul>
 <h3 id="breaking">Breaking</h3>
 <ul>
+<li>Required <a href="https://devguide.python.org/versions/">python version</a> is now 3.12+ for <a href="https://peps.python.org/pep-0692/">PEP-692</a> keyword arguments</li>
 <li><code>resources.default.path_maker</code> is now <code>pm_file</code> instead of <code>pm_class</code>. This only affects resources relative to a test <code>some_package.TestSomeThing.test_an_aspect</code> where the base path is now <code>some_package/TestSomeThing__test_an_aspect</code> instead of <code>some_package__TestSomeThing/test_an_aspect</code>. This gives fewer directories next to the test file and less clutter.</li>
 <li>Made <code>utils._coalesce</code> and <code>utils._JSON_PREPPERS</code> private.</li>
 <li>Made <code>resources._accept_count</code> private.</li>
