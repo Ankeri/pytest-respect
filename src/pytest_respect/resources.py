@@ -19,7 +19,6 @@ try:
 except ImportError:  # pragma: no cover
     from ._fakes import BaseModel, TypeAdapter
 
-
 # Dont' include in pytest tracebacks. We patch this out in unit tests to see where in our code errors occur.
 __tracebackhide__ = True
 
@@ -27,7 +26,6 @@ DEFAULT_RESOURCES_DIR = "resources"
 
 PMT = TypeVar("PMT", bound=BaseModel)
 T = TypeVar("T")
-
 
 PathParts = tuple[Path, str | None]
 """Directory and base file-name for a resource path, returned by PathMakers when locating resources."""
@@ -46,6 +44,8 @@ class PathMaker(Protocol):
 
 
 type IncEx = set[int] | set[str] | Mapping[int, Union["IncEx", bool]] | Mapping[str, Union["IncEx", bool]]  # noqa UP007
+
+
 # You can't make a union with a string type alias but ruff 0.14.10 doesn't know that
 
 
@@ -219,7 +219,7 @@ class Defaults:
         self.path_maker: PathMaker = TestResources.pm_file
         """
         Function used to make paths to resources. Defaults to pm_file making resource paths like
-        ``<dir>/test_file/test_function.<ext>``, or  ``<dir>/test_file/TestClass__test_method.<ext>`` if the test is
+        `<dir>/test_file/test_function.<ext>`, or  `<dir>/test_file/TestClass__test_method.<ext>` if the test is
         within a class.
         """
 
@@ -276,15 +276,14 @@ class TestResources:
         """PathMaker to build directory from test_file, class if present, and function. No contribution is made to the
         file name.
 
-        - ``<dir>/test_file__test_function/data.<ext>``
-        - ``<dir>/test_file__TestClass__test_method/data.<ext>``
+        - `<dir>/test_file__test_function/data.<ext>`
+        - `<dir>/test_file__TestClass__test_method/data.<ext>`
         """
         if test_class_name:
-            dir = test_dir / f"{test_file_name}__{test_class_name}__{test_name}"
+            dir_name = f"{test_file_name}__{test_class_name}__{test_name}"
         else:
-            dir = test_dir / f"{test_file_name}__{test_name}"
-
-        return dir, None
+            dir_name = f"{test_file_name}__{test_name}"
+        return test_dir / dir_name, None
 
     @staticmethod
     def pm_class(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
@@ -292,34 +291,34 @@ class TestResources:
 
         This is the default method for constructing resource paths.
 
-        - ``<dir>/test_file/test_function.<ext>``
-        - ``<dir>/test_file__TestClass/test_method.<ext>``
+        - `<dir>/test_file/test_function.<ext>`
+        - `<dir>/test_file__TestClass/test_method.<ext>`
         """
         if test_class_name:
-            dir = test_dir / f"{test_file_name}__{test_class_name}"
+            dir_name = f"{test_file_name}__{test_class_name}"
         else:
-            dir = test_dir / test_file_name
-        return dir, test_name
+            dir_name = test_file_name
+        return test_dir / dir_name, test_name
 
     @staticmethod
     def pm_only_class(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and class if present and contribute nothing to the file-name
 
-        - ``<dir>/test_file__TestClass/data.<ext>``
-        - ``<dir>/test_file/data.<ext>``
+        - `<dir>/test_file/data.<ext>`
+        - `<dir>/test_file__TestClass/data.<ext>`
         """
         if test_class_name:
-            dir = test_dir / f"{test_file_name}__{test_class_name}"
+            dir_name = f"{test_file_name}__{test_class_name}"
         else:
-            dir = test_dir / test_file_name
-        return dir, None
+            dir_name = test_file_name
+        return test_dir / dir_name, None
 
     @staticmethod
     def pm_file(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and file-name from test class if present, and test method.
 
-        - ``<dir>/test_file/test_function.<ext>``
-        - ``<dir>/test_file/TestClass__test_method.<ext>``
+        - `<dir>/test_file/test_function.<ext>`
+        - `<dir>/test_file/TestClass__test_method.<ext>`
         """
         if test_class_name:
             file = f"{test_class_name}__{test_name}"
@@ -336,7 +335,7 @@ class TestResources:
     ) -> tuple[Path, str | None]:
         """PathMaker to build directory from test_file and contribute to the file-name.
 
-        - ``<dir>/test_file/data.<ext>``
+        - `<dir>/test_file/data.<ext>`
         """
         return test_dir / test_file_name, None
 
@@ -345,8 +344,8 @@ class TestResources:
         """PathMaker to use "resources" for directory and build file-name from test file, test class if present and
         test function.
 
-        - ``<dir>/resources/test_file__test_function.<ext>``
-        - ``<dir>/resources/test_file__TestClass__test_method.<ext>``
+        - `<dir>/resources/test_file__test_function.<ext>`
+        - `<dir>/resources/test_file__TestClass__test_method.<ext>`
         """
         path_maker = TestResources.pm_dir_named(DEFAULT_RESOURCES_DIR)
         return path_maker(test_dir, test_file_name, test_class_name, test_name)
@@ -356,8 +355,8 @@ class TestResources:
         """PathMaker to use the given name for directory and build file-name from test file, test class if present and
         test function.
 
-        - ``<dir>/<dir_name>/test_file__test_function.<ext>``
-        - ``<dir>/<dir_name>/test_file__TestClass__test_method.<ext>``
+        - `<dir>/<dir_name>/test_file__test_function.<ext>`
+        - `<dir>/<dir_name>/test_file__TestClass__test_method.<ext>`
         """
 
         def path_from_dir(
@@ -434,7 +433,7 @@ class TestResources:
             parts: Concatenate these parts to the function name, with __ separator to
                 make file-name.
             ext: Add this extension to the file-name if not already present. Defaults
-                to nothing which can be appropriate if we knot that the last ``part``
+                to nothing which can be appropriate if we knot that the last `part`
                 already has an extension.
             path_maker: Function to turn test co-ordinates into a directory and partial
                 file-name for the resource. Defaults to one which uses the test file
@@ -498,10 +497,11 @@ class TestResources:
         *parts,
         ext: str | None = None,
         path_maker: PathMaker | None = None,
-    ):
+    ) -> Path:
         """Delete a string resource relative to the current test."""
         path = self.path(*parts, ext=ext, path_maker=path_maker)
         path.unlink(missing_ok=True)
+        return path
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Text Resources
@@ -522,7 +522,7 @@ class TestResources:
         *parts,
         ext: str = "txt",
         path_maker: PathMaker | None = None,
-    ) -> None:
+    ) -> Path:
         """Write a string to a resource relative to the current test."""
         path = self.path(*parts, ext=ext, path_maker=path_maker)
         if not path.parent.exists():
@@ -530,15 +530,16 @@ class TestResources:
         print(f"write {len(text)} chars to {path}")
         path.parent.mkdir(parents=False, exist_ok=True)
         path.write_text(text)
+        return path
 
     def delete_text(
         self,
         *parts,
         ext: str = "txt",
         path_maker: PathMaker | None = None,
-    ):
+    ) -> Path:
         """Delete a json resource relative to the current test."""
-        self.delete(*parts, ext=ext, path_maker=path_maker)
+        return self.delete(*parts, ext=ext, path_maker=path_maker)
 
     def expect_text(
         self,
@@ -643,19 +644,19 @@ class TestResources:
         path_maker: PathMaker | None = None,
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
-    ) -> None:
+    ) -> Path:
         """Write JSON data to a resource relative to the current test."""
         text = self.data_to_json(data, json_encoder=json_encoder, ndigits=ndigits)
-        self.save_text(text, *parts, ext=ext, path_maker=path_maker)
+        return self.save_text(text, *parts, ext=ext, path_maker=path_maker)
 
     def delete_json(
         self,
         *parts,
         ext: str = "json",
         path_maker: PathMaker | None = None,
-    ):
+    ) -> Path:
         """Delete a json resource relative to the current test."""
-        self.delete(*parts, ext=ext, path_maker=path_maker)
+        return self.delete(*parts, ext=ext, path_maker=path_maker)
 
     def expect_json(
         self,
@@ -699,14 +700,21 @@ class TestResources:
         json_encoder: JsonEncoder | EllipsisType = ...,
         ndigits: int | None | EllipsisType = ...,
         **dump_args: Unpack[PydanticDumpArgs],
-    ) -> None:
+    ) -> Path:
         """Write pydantic data to a resource relative to the current test."""
         dumped = data.model_dump(mode="json", **dump_args)
-        self.save_json(dumped, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
+        return self.save_json(
+            dumped,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+            json_encoder=json_encoder,
+            ndigits=ndigits,
+        )
 
-    def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
+    def delete_pydantic(self, *parts, ext: str = "json", path_maker: PathMaker | None = None) -> Path:
         """Delete a json resource relative to the current test."""
-        self.delete(*parts, ext=ext, path_maker=path_maker)
+        return self.delete(*parts, ext=ext, path_maker=path_maker)
 
     def expect_pydantic(
         self,
@@ -755,16 +763,23 @@ class TestResources:
         ndigits: int | None | EllipsisType = ...,
         type_: type[T] | TypeAdapter[T] | None = None,
         **dump_args: Unpack[PydanticDumpArgs],
-    ) -> None:
+    ) -> Path:
         """Write pydantic data to a resource relative to the current test."""
         type_ = type_ or type(data)
         adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         actual_data: T = adapter.dump_python(data, mode="json", **dump_args)
-        self.save_json(actual_data, *parts, ext=ext, path_maker=path_maker, json_encoder=json_encoder, ndigits=ndigits)
+        return self.save_json(
+            actual_data,
+            *parts,
+            ext=ext,
+            path_maker=path_maker,
+            json_encoder=json_encoder,
+            ndigits=ndigits,
+        )
 
-    def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None):
+    def delete_pydantic_adapter(self, *parts, ext: str = "json", path_maker: PathMaker | None = None) -> Path:
         """Delete a json resource relative to the current test."""
-        self.delete(*parts, ext=ext, path_maker=path_maker)
+        return self.delete(*parts, ext=ext, path_maker=path_maker)
 
     def expect_pydantic_adapter(
         self,
