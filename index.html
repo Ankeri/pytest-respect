@@ -401,21 +401,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pydantic-models" class="md-nav__link">
+  <a href="#pydantic-models-and-type-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pydantic Models
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#todo-resource-path-construction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TODO: Resource Path Construction
+        Pydantic Models and Type Adapters
       
     </span>
   </a>
@@ -427,6 +416,67 @@
     <span class="md-ellipsis">
       
         Failing Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-path-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Path Construction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Path Construction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiple-path-parts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple path parts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-makers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Makers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-path-makers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Path Makers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-io-on-resource-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other I/O on Resource Files
       
     </span>
   </a>
@@ -467,10 +517,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#to-document" class="md-nav__link">
+  <a href="#todo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        To Document:
+        TODO:
       
     </span>
   </a>
@@ -805,21 +855,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pydantic-models" class="md-nav__link">
+  <a href="#pydantic-models-and-type-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pydantic Models
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#todo-resource-path-construction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TODO: Resource Path Construction
+        Pydantic Models and Type Adapters
       
     </span>
   </a>
@@ -831,6 +870,67 @@
     <span class="md-ellipsis">
       
         Failing Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-path-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Path Construction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Path Construction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiple-path-parts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple path parts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-makers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Makers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-path-makers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Path Makers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-io-on-resource-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other I/O on Resource Files
       
     </span>
   </a>
@@ -871,10 +971,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#to-document" class="md-nav__link">
+  <a href="#todo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        To Document:
+        TODO:
       
     </span>
   </a>
@@ -978,7 +1078,7 @@
 <h2 id="usage">Usage</h2>
 <h3 id="text-data">Text Data</h3>
 <p>The simplest use-case is loading textual input data and comparing textual output to an expectation file:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_translate</span><span class="p">(</span><span class="n">resources</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_translate</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
     <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_text</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">translate</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
     <span class="n">resources</span><span class="o">.</span><span class="n">expect_text</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
@@ -987,44 +1087,137 @@
 <p>The expectation must also match on trailing spaces and trailing empty lines for the test to pass.</p>
 <h3 id="json-data">Json Data</h3>
 <p>A much more interesting example is doing the same with JSON data:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
     <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
     <span class="n">resources</span><span class="o">.</span><span class="n">expect_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>This will load the content of <code>foo/test_stuff/test_compute__input.json</code>, run the <code>compute</code> function on it, and assert that the output exactly matches the content of the file <code>foo/test_stuff/test_compute__output.json</code>.</p>
 <p>The expectation matching is done on a text representation of the JSON data. This avoids having to parse the expectation files, and allows us to use text-based diff tools, but instead we must avoid other tools reformating the expectations. By default the JSON formatting is by <code>json.dumps(obj, sort_keys=True, indent=2)</code> but see the section on <a href="#json-formatting-and-parsing">JSON Formatting and Parsing</a>.</p>
-<h3 id="pydantic-models">Pydantic Models</h3>
+<h3 id="pydantic-models-and-type-adapters">Pydantic Models and Type Adapters</h3>
 <p>With the optional
 <code>pydantic</code> extra, the same can be done with pydantic data if you have models for your input and output data:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">InputModel</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_pydantic</span><span class="p">(</span><span class="n">InputModel</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">OutputModel</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
     <span class="n">resources</span><span class="o">.</span><span class="n">expect_pydantic</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>The input and output paths will be identical to the JSON test, since we re-used the name of the test function.</p>
-<h3 id="todo-resource-path-construction">TODO: Resource Path Construction</h3>
-<p><strong>To Document:</strong></p>
-<ul>
-<li>Multiple path parts</li>
-<li>Default path maker</li>
-<li>Alternative path makers</li>
-<li>Custom path makers</li>
-</ul>
+<p>There are also <code>load_pydantic_adatper</code> and <code>expect_pydantic_adapter</code> variants which take a pydantic <code>TypeAdapter</code> instead of a model class, or they can take an arbitrary type to wrap in a <code>TypeAdapter</code> instance. Please refer to the pudantic documentation for how type adapters work.</p>
 <h3 id="failing-tests">Failing Tests</h3>
 <p>If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an <code>actual</code> part appended. So in the JSON and Pydantic examples above, it would create the file <code>foo/test_stuff/test_compute__output__actual.json</code>. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.</p>
-<p>When the values being compared are more complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual values and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.</p>
+<p>When the values being compared are large or complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual files and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.</p>
 <p>Once the test passes, the <code>__actual</code> file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.</p>
 <p>Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the <code>--respect-accept</code> flag to update all the expectations. You can also use the <code>--respect-accept-one</code> and <code>--respect-accept-max=n</code> flags to update only a single expectation or the first <code>n</code> expectations before failing on any remaining differences.</p>
+<h3 id="resource-path-construction">Resource Path Construction</h3>
+<h4 id="multiple-path-parts">Multiple path parts</h4>
+<p>In all of the above examples, we passed a single string <code>"input"</code> or <code>"output"</code> to the load or expect methods. We can pass as many such strings or path parts as we like, which affects name of the resource file.</p>
+<p>Using the JSON and Pydantic examples above, these paths could be constructed:</p>
+<ul>
+<li><code>resources.load_json()</code> → <code>foo/test_stuff/test_compute.json</code></li>
+<li><code>resources.load_json("data")</code> → <code>foo/test_stuff/test_compute__data.json</code></li>
+<li><code>resources.load_json("scenario", "funky")</code> → <code>foo/test_stuff/test_compute__scenario__funky.json</code></li>
+</ul>
+<h4 id="path-makers">Path Makers</h4>
+<p>So far all our resource paths have been fairly rigidly constructed from the path to the test file and the test function within it. The way this is done is in fact fully configurable by passing a custom <code>PathMaker</code> to any method which accesses resource files, or by assigning a different one to <code>resources.default.path_maker</code>. A path maker is any function which implements the <code>PathMaker</code> protocol and a few standard ones are already present on the <code>resources</code> fixture.</p>
+<p>If we revisit the JSON example from above, but using a different path maker, it will function in exactly the same way except that the resource files will be at <code>foo/test_stuff/input.json</code> and <code>foo/test_stuff/input.json</code> instead, ignoring the test function name.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">path_maker</span><span class="o">=</span><span class="n">resources</span><span class="o">.</span><span class="n">pm_only_file</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">expect_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The table below shows the paths made by the different path makers when calling <code>resource.path("data")</code> in a <code>test_function</code> in a <code>test_file.py</code> in a <code>&lt;dir&gt;</code>, including when it is a member of a <code>TestClass</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Path Maker</th>
+<th><code>test_compute</code></th>
+<th><code>TestMachine.test_compute</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pm_function</code></td>
+<td><code>&lt;dir&gt;/test_file__test_function/data.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/test_file__TestClass__test_method/data.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_class</code></td>
+<td><code>&lt;dir&gt;/test_file/test_function.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/test_file__TestClass/test_method.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_only_class</code></td>
+<td><code>&lt;dir&gt;/test_file/data.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/test_file__TestClass/data.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_file</code></td>
+<td><code>&lt;dir&gt;/test_file/test_function.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/test_file/TestClass__test_method.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_only_file</code></td>
+<td><code>&lt;dir&gt;/test_file/data.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/test_file/data.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_dir</code></td>
+<td><code>&lt;dir&gt;/resources/test_file__test_function.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/resources/test_file__TestClass__test_method.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_dir_named("dir_name")</code></td>
+<td><code>&lt;dir&gt;/dir_name/test_file__test_function.&lt;ext&gt;</code></td>
+<td><code>&lt;dir&gt;/dir_name/test_file__TestClass__test_method.&lt;ext&gt;</code></td>
+</tr>
+<tr>
+<td><code>pm_only_dir</code></td>
+<td><code>&lt;dir&gt;/resources</code></td>
+<td><code>&lt;dir&gt;/resources</code></td>
+</tr>
+<tr>
+<td><code>pm_only_dir_named("dir_name")</code></td>
+<td><code>&lt;dir&gt;/dir_name</code></td>
+<td><code>&lt;dir&gt;/dir_name</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="custom-path-makers">Custom Path Makers</h4>
+<p>If none of these strategies suits your needs, then you can make your own path maker with the same signature as one of the included ones and use that instead.</p>
+<p>The following example is similar to the default <code>pm_file</code> path maker, but creates a sub-directory for each date inside the resource directory:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pm_file_dated</span><span class="p">(</span><span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_class_name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">test_class_name</span> <span class="k">else</span> <span class="n">test_name</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">test_dir</span> <span class="o">/</span> <span class="n">date</span> <span class="o">/</span> <span class="n">test_file_name</span><span class="p">,</span> <span class="n">file</span>
+</code></pre></div>
+<h3 id="other-io-on-resource-files">Other I/O on Resource Files</h3>
+<p>Each of the <code>load</code> and <code>expect</code> methods above also has a corresponding <code>save</code> method which simply writes the data to a file, as well as a <code>delete</code> method. The resource path resolution is also exposed as the <code>resources.path(*parts: str, ext: str | None = None, path_maker: PathMaker | None = None)</code> method if you need to access the files directly.</p>
+<p>Using those, we can test a function which manilpulates external data files:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_external_processing</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">save_json</span><span class="p">(</span><span class="n">make_data</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">external_processing</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">42</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">delete_json</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>As a utility, the <code>save_foo</code> and <code>delete_foo</code>methods also return the path to the affected file, so the test can be written as:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_external_processing</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">save_json</span><span class="p">(</span><span class="n">make_data</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">external_processing</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">42</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+</code></pre></div>
+<p>Finally, the <code>resources.list()</code> method lists the names of resources within the test's resource folder as constructed by the path maker. It takes one or more include or exclude glob patterns to filter the results and defaults to <code>inclues="*"</code> with no <code>excludes</code>.</p>
 <h3 id="parametric-tests">Parametric Tests</h3>
-<p>The load and expect (and other) methods can take multiple strings for the resource file name <code>parts</code>. In the earlier examples we only used <code>"input"</code> and <code>"output"</code> parts and failures implicitly added an <code>"actual"</code> part. We can pass in as many parts as we like, which nicely brings us to parametric tests:</p>
+<p>We have seen how the <code>load</code> and <code>expect</code> (and other) methods can take multiple strings for the resource file name <code>parts</code>. In the earlier examples we only used <code>"input"</code> and <code>"output"</code> parts and failures implicitly added an <code>"actual"</code> part. But using multiple parts is useful when working with parametric tests:</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">paramtrize</span><span class="p">(</span><span class="s2">&quot;case&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">,</span> <span class="n">case</span><span class="p">):</span>
-    <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">case</span><span class="p">)</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">case</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-    <span class="n">resources</span><span class="o">.</span><span class="n">expect_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">case</span><span class="p">)</span>
+    <span class="n">resources</span><span class="o">.</span><span class="n">expect_json</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">case</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>Omitting the directory name, this test will load each of <code>test_compute__input__red.json</code>, <code>test_compute__input__green.json</code>, <code>test_compute__input__blue.json</code> and compare the results to <code>test_compute__output__red.json</code>, <code>test_compute__output__green.json</code>, <code>test_compute__output__blue.json</code></p>
+<p>Omitting the directory name, this test will load each of <code>test_compute__red__input.json</code>, <code>test_compute__green__input.json</code>, <code>test_compute__blue__input.json</code> and compare the results to <code>test_compute__red__output.json</code>, <code>test_compute__green__output.json</code>, <code>test_compute__blue__output.json</code></p>
 <h3 id="data-driven-parametric-tests">Data-driven Parametric Tests</h3>
 <p>We can use the <code>list_resources</code> function to generate a list of resource names to run parametric tests over. With the below fixture, the content of the resource directory is listed, and the fixture is run once for each match. We can then add test cases simply by adding new resource files:</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">list_resources</span><span class="p">(</span><span class="s2">&quot;widget_*.json&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*__actual.json&quot;</span><span class="p">],</span> <span class="n">strip_ext</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -1038,19 +1231,15 @@
     <span class="n">widget</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">each_widget_name</span><span class="p">,</span> <span class="n">path_maker</span><span class="o">=</span><span class="n">resources</span><span class="o">.</span><span class="n">pm_only_file</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">transform</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span>
 </code></pre></div>
-<p><strong>To Document:</strong></p>
-<ul>
-<li>Using <code>list</code> function</li>
-</ul>
 <h3 id="json-formatting-and-parsing">JSON Formatting and Parsing</h3>
-<h3 id="to-document">To Document:</h3>
+<h3 id="todo">TODO:</h3>
 <ul>
 <li>Default JSON formatter and parser</li>
 <li>Alternative JSON formatter</li>
 <li>Jsonyx extension</li>
 </ul>
 <h3 id="configuration">Configuration</h3>
-<p><strong>To Document:</strong></p>
+<p><strong>TODO</strong></p>
 <ul>
 <li>Default path makers</li>
 <li>Default JSON encoder and loader</li>
