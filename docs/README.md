@@ -70,7 +70,7 @@ def test_compute(resources: TestResources):
 
 The input and output paths will be identical to the JSON test, since we re-used the name of the test function.
 
-There are also `load_pydantic_adatper` and `expect_pydantic_adapter` variants which take a pydantic `TypeAdapter` instead of a model class, or they can take an arbitrary type to wrap in a `TypeAdapter` instance. Please refer to the pudantic documentation for how type adapters work.
+There are also `load_pydantic_adatper` and `expect_pydantic_adapter` variants which take a pydantic `TypeAdapter` instead of a model class, or they can take an arbitrary type to wrap in a `TypeAdapter` instance. Please refer to the pydantic documentation for how type adapters work.
 
 ### Failing Tests
 
@@ -80,15 +80,15 @@ When the values being compared are large or complex, the difference shown on the
 
 Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.
 
-Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations. You can also use the `--respect-accept-one` and `--respect-accept-max=n` flags to update only a single expectation or the first `n` expectations before failing on any remaining differences.
+Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations. You can also use the `--respect-accept-one` and `--respect-accept-max=n` flags to update only a single expectation or the first `n` expectations for each test, before failing on any remaining differences.
 
 ### Resource Path Construction
 
-#### Multiple path parts
+#### Multiple name parts
 
-In all of the above examples, we passed a single string `"input"` or `"output"` to the load or expect methods. We can pass as many such strings or path parts as we like, which affects name of the resource file.
+In all of the above examples, we passed a single string `"input"` or `"output"` to the load or expect methods. We can pass as many such name parts as we like, which affects the name of the resource file.
 
-Using the JSON and Pydantic examples above, these paths could be constructed:
+Using the JSON and Pydantic examples above, these paths would be constructed:
 
 - `resources.load_json()` → `foo/test_stuff/test_compute.json`
 - `resources.load_json("data")` → `foo/test_stuff/test_compute__data.json`
@@ -98,7 +98,7 @@ Using the JSON and Pydantic examples above, these paths could be constructed:
 
 So far all our resource paths have been fairly rigidly constructed from the path to the test file and the test function within it. The way this is done is in fact fully configurable by passing a custom `PathMaker` to any method which accesses resource files, or by assigning a different one to `resources.default.path_maker`. A path maker is any function which implements the `PathMaker` protocol and a few standard ones are already present on the `resources` fixture.
 
-If we revisit the JSON example from above, but using a different path maker, it will function in exactly the same way except that the resource files will be at `foo/test_stuff/input.json` and `foo/test_stuff/input.json` instead, ignoring the test function name.
+If we revisit the JSON example from above, but using a different path maker, it will function in exactly the same way except that the resource files will be at `foo/test_stuff/input.json` and `foo/test_stuff/output.json` instead, ignoring the test function name.
 
 ```python
 def test_compute(resources: TestResources):
@@ -130,8 +130,8 @@ The following example is similar to the default `pm_file` path maker, but create
 ```python
 def pm_file_dated(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
     file = f"{test_class_name}__{test_name}" if test_class_name else test_name
-    date = dt.datetime.now().strftime("%Y%m%d")
-    return test_dir / date / test_file_name, file
+    sub = date.today().isoformat()
+    return test_dir / sub / test_file_name, file
 ```
 
 ### Other I/O on Resource Files
