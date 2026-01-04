@@ -435,10 +435,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#multiple-path-parts" class="md-nav__link">
+  <a href="#multiple-name-parts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multiple path parts
+        Multiple name parts
       
     </span>
   </a>
@@ -889,10 +889,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#multiple-path-parts" class="md-nav__link">
+  <a href="#multiple-name-parts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multiple path parts
+        Multiple name parts
       
     </span>
   </a>
@@ -1103,16 +1103,16 @@
     <span class="n">resources</span><span class="o">.</span><span class="n">expect_pydantic</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>The input and output paths will be identical to the JSON test, since we re-used the name of the test function.</p>
-<p>There are also <code>load_pydantic_adatper</code> and <code>expect_pydantic_adapter</code> variants which take a pydantic <code>TypeAdapter</code> instead of a model class, or they can take an arbitrary type to wrap in a <code>TypeAdapter</code> instance. Please refer to the pudantic documentation for how type adapters work.</p>
+<p>There are also <code>load_pydantic_adatper</code> and <code>expect_pydantic_adapter</code> variants which take a pydantic <code>TypeAdapter</code> instead of a model class, or they can take an arbitrary type to wrap in a <code>TypeAdapter</code> instance. Please refer to the pydantic documentation for how type adapters work.</p>
 <h3 id="failing-tests">Failing Tests</h3>
 <p>If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an <code>actual</code> part appended. So in the JSON and Pydantic examples above, it would create the file <code>foo/test_stuff/test_compute__output__actual.json</code>. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.</p>
 <p>When the values being compared are large or complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual files and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.</p>
 <p>Once the test passes, the <code>__actual</code> file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.</p>
-<p>Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the <code>--respect-accept</code> flag to update all the expectations. You can also use the <code>--respect-accept-one</code> and <code>--respect-accept-max=n</code> flags to update only a single expectation or the first <code>n</code> expectations before failing on any remaining differences.</p>
+<p>Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the <code>--respect-accept</code> flag to update all the expectations. You can also use the <code>--respect-accept-one</code> and <code>--respect-accept-max=n</code> flags to update only a single expectation or the first <code>n</code> expectations for each test, before failing on any remaining differences.</p>
 <h3 id="resource-path-construction">Resource Path Construction</h3>
-<h4 id="multiple-path-parts">Multiple path parts</h4>
-<p>In all of the above examples, we passed a single string <code>"input"</code> or <code>"output"</code> to the load or expect methods. We can pass as many such strings or path parts as we like, which affects name of the resource file.</p>
-<p>Using the JSON and Pydantic examples above, these paths could be constructed:</p>
+<h4 id="multiple-name-parts">Multiple name parts</h4>
+<p>In all of the above examples, we passed a single string <code>"input"</code> or <code>"output"</code> to the load or expect methods. We can pass as many such name parts as we like, which affects the name of the resource file.</p>
+<p>Using the JSON and Pydantic examples above, these paths would be constructed:</p>
 <ul>
 <li><code>resources.load_json()</code> → <code>foo/test_stuff/test_compute.json</code></li>
 <li><code>resources.load_json("data")</code> → <code>foo/test_stuff/test_compute__data.json</code></li>
@@ -1120,7 +1120,7 @@
 </ul>
 <h4 id="path-makers">Path Makers</h4>
 <p>So far all our resource paths have been fairly rigidly constructed from the path to the test file and the test function within it. The way this is done is in fact fully configurable by passing a custom <code>PathMaker</code> to any method which accesses resource files, or by assigning a different one to <code>resources.default.path_maker</code>. A path maker is any function which implements the <code>PathMaker</code> protocol and a few standard ones are already present on the <code>resources</code> fixture.</p>
-<p>If we revisit the JSON example from above, but using a different path maker, it will function in exactly the same way except that the resource files will be at <code>foo/test_stuff/input.json</code> and <code>foo/test_stuff/input.json</code> instead, ignoring the test function name.</p>
+<p>If we revisit the JSON example from above, but using a different path maker, it will function in exactly the same way except that the resource files will be at <code>foo/test_stuff/input.json</code> and <code>foo/test_stuff/output.json</code> instead, ignoring the test function name.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_compute</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">):</span>
     <span class="nb">input</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">path_maker</span><span class="o">=</span><span class="n">resources</span><span class="o">.</span><span class="n">pm_only_file</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
@@ -1188,8 +1188,8 @@
 <p>The following example is similar to the default <code>pm_file</code> path maker, but creates a sub-directory for each date inside the resource directory:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pm_file_dated</span><span class="p">(</span><span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
     <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_class_name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">test_class_name</span> <span class="k">else</span> <span class="n">test_name</span>
-    <span class="n">date</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">test_dir</span> <span class="o">/</span> <span class="n">date</span> <span class="o">/</span> <span class="n">test_file_name</span><span class="p">,</span> <span class="n">file</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">test_dir</span> <span class="o">/</span> <span class="n">sub</span> <span class="o">/</span> <span class="n">test_file_name</span><span class="p">,</span> <span class="n">file</span>
 </code></pre></div>
 <h3 id="other-io-on-resource-files">Other I/O on Resource Files</h3>
 <p>Each of the <code>load</code> and <code>expect</code> methods above also has a corresponding <code>save</code> method which simply writes the data to a file, as well as a <code>delete</code> method. The resource path resolution is also exposed as the <code>resources.path(*parts: str, ext: str | None = None, path_maker: PathMaker | None = None)</code> method if you need to access the files directly.</p>
