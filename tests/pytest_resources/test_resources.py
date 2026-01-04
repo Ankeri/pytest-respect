@@ -385,8 +385,10 @@ def test_delete(resources):
     path.write_text("temporary")
     assert path.is_file()
 
-    resources.delete()
+    path_out = resources.delete()
+
     assert not path.is_file()
+    assert path_out == path
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -415,10 +417,12 @@ def test_save_text__dir_does_not_exist(resources):
         def make_missing_path(*a, **kw):
             return (missing_dir, new_file_name)
 
-        resources.save_text("Some text is here", path_maker=make_missing_path)
+        path_out = resources.save_text("Some text is here", path_maker=make_missing_path)
 
         text = new_file.read_text()
+
         assert text == "Some text is here"
+        assert path_out == new_file
 
     finally:
         new_file.unlink(missing_ok=True)
@@ -427,8 +431,9 @@ def test_save_text__dir_does_not_exist(resources):
 
 
 def test_delete_text(resources, mock_delete):
-    resources.delete_text("one", "two", path_maker=resources.pm_file)
+    path = resources.delete_text("one", "two", path_maker=resources.pm_file)
 
+    assert path is mock_delete.return_value
     mock_delete.assert_called_once_with("one", "two", ext="txt", path_maker=resources.pm_file)
 
 
@@ -635,12 +640,14 @@ def test_save_json(resources):
         "foo": 1.23456,
     }
 
-    resources.save_json(data)
+    path = resources.save_json(data)
 
     assert resources.load_json() == {
         "here": ["is", "a", "new", "one"],
         "foo": 1.23456,
     }
+    assert str(path).endswith("/test_resources/test_save_json.json")
+
     resources.delete_json()
 
 
@@ -653,7 +660,7 @@ def test_save_json__overrides(resources):
         "foo": 1.23456,
     }
 
-    resources.save_json(
+    path = resources.save_json(
         data,
         json_encoder=json_encoder,
         ndigits=2,
@@ -664,20 +671,16 @@ def test_save_json__overrides(resources):
         "foo": 1.23,
     }
     assert json_encoder.call_count == 1
+
+    assert str(path).endswith("/test_resources/test_save_json__overrides.json")
+
     resources.delete_json()
 
 
-@pytest.mark.pydantic
-def test_save_pydantic__all_optional_dump_args(resources, mocker):
-    """The model_dump method accepts all the arguments. We don't assert on the results."""
-    mock_save_json = mocker.patch.object(resources, "save_json")
-    resources.save_pydantic(MyModel(), **ALL_PYDANTIC_DUMP_ARGS)
-    mock_save_json.assert_called_once_with({}, ext="json", path_maker=None, json_encoder=..., ndigits=...)
-
-
 def test_delete_json(resources, mock_delete):
-    resources.delete_json("one", "two", path_maker=resources.pm_file)
+    path = resources.delete_json("one", "two", path_maker=resources.pm_file)
 
+    assert path is mock_delete.return_value
     mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
 
@@ -777,11 +780,13 @@ def test_save_pydantic(resources):
     resources.delete_pydantic()
     data = MyModel(look=["saved", "pydantic", "data", 1.2345])
 
-    resources.save_pydantic(data)
+    path = resources.save_pydantic(data)
 
     assert resources.load_json() == {
         "look": ["saved", "pydantic", "data", 1.2345],
     }
+    assert str(path).endswith("/test_resources/test_save_pydantic.json")
+
     resources.delete_pydantic()
 
 
@@ -812,12 +817,19 @@ def test_save_pydantic__overrides(resources):
     }
     resources.delete_pydantic()
 
-    assert json_encoder.call_count == 1
+
+@pytest.mark.pydantic
+def test_save_pydantic__all_optional_dump_args(resources, mocker):
+    """The model_dump method accepts all the arguments. We don't assert on the results."""
+    mock_save_json = mocker.patch.object(resources, "save_json")
+    resources.save_pydantic(MyModel(), **ALL_PYDANTIC_DUMP_ARGS)
+    mock_save_json.assert_called_once_with({}, ext="json", path_maker=None, json_encoder=..., ndigits=...)
 
 
 def test_delete_pydantic(resources, mock_delete):
-    resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
+    path = resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
 
+    assert path is mock_delete.return_value
     mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
 
@@ -902,12 +914,14 @@ def test_save_pydantic_adapter(resources):
         2: MyModel(look=["and", "also", "this", 1.2345]),  # Won't have the context
     }
 
-    resources.save_pydantic_adapter(data, context=["with", "context"])
+    path = resources.save_pydantic_adapter(data, context=["with", "context"])
 
     assert resources.load_json() == {
         "1": {"look": ["I", "was", "expecting", "this", "with", "context"]},
         "2": {"look": ["and", "also", "this", 1.2345]},  # without context
     }
+    assert str(path).endswith("/test_resources/test_save_pydantic_adapter.json")
+
     resources.delete_pydantic()
 
 
@@ -946,8 +960,9 @@ def test_save_pydantic_adapter__all_optional_dump_args(resources, mocker):
 
 
 def test_delete_pydantic_adapter(resources, mock_delete):
-    resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
+    path = resources.delete_pydantic("one", "two", path_maker=resources.pm_file)
 
+    assert path is mock_delete.return_value
     mock_delete.assert_called_once_with("one", "two", ext="json", path_maker=resources.pm_file)
 
 

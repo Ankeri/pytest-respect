@@ -5,11 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-12-2x
+## [1.0.0] - 2026-01-0x
 
 ### Added
 
 - In `resources`, the methods `expect_pydantic`, `save_pydantic`, `expect_pydantic_adapter` and `save_pydantic_adapter` now accept several new arguments which are passed to the pydantic `model_dump` or `python_dump` methods: `include`, `exclude`, `by_alias`, `exclude_unset`, `exclude_defaults`, `exclude_none`, `round_trip`, `serialize_as_any`.
+- In `resources`, all `save` and `delete` methods now return the path to the affected file.
 
 ### Breaking
 
