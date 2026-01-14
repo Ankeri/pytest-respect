@@ -7,7 +7,7 @@ import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from types import EllipsisType, UnionType
-from typing import Any, Protocol, TypedDict, TypeVar, Union, Unpack
+from typing import Any, NotRequired, Protocol, TypedDict, TypeVar, Union, Unpack
 
 from pytest import FixtureRequest
 
@@ -52,15 +52,15 @@ type IncEx = set[int] | set[str] | Mapping[int, Union["IncEx", bool]] | Mapping[
 class PydanticDumpArgs(TypedDict):
     """Arguments to pass to pydantic.BaseModel.model_dump or pydantic.TypeAdapter.dump_python."""
 
-    context: Any
-    include: IncEx
-    exclude: IncEx
-    by_alias: bool | None
-    exclude_unset: bool
-    exclude_defaults: bool
-    exclude_none: bool
-    round_trip: bool
-    serialize_as_any: bool
+    context: NotRequired[Any]
+    include: NotRequired[IncEx]
+    exclude: NotRequired[IncEx]
+    by_alias: NotRequired[bool | None]
+    exclude_unset: NotRequired[bool]
+    exclude_defaults: NotRequired[bool]
+    exclude_none: NotRequired[bool]
+    round_trip: NotRequired[bool]
+    serialize_as_any: NotRequired[bool]
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
