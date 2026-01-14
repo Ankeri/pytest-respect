@@ -74,11 +74,15 @@ There are also `load_pydantic_adatper` and `expect_pydantic_adapter` variants wh
 
 ### Failing Tests
 
+#### Actual Files
+
 If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an `actual` part appended. So in the JSON and Pydantic examples above, it would create the file `foo/test_stuff/test_compute__output__actual.json`. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.
 
 When the values being compared are large or complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual files and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
 
 Once the test passes, the `__actual` file will be removed. Note that if you change the name of a test after an actual file has been created, then it will have to be deleted manually.
+
+#### Accepting Changes
 
 Alternatively, if you know that all the actual files from a test run are correct, you can run the test with the `--respect-accept` flag to update all the expectations. You can also use the `--respect-accept-one` and `--respect-accept-max=n` flags to update only a single expectation or the first `n` expectations for each test, before failing on any remaining differences.
 
