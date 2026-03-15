@@ -14,7 +14,7 @@ def needs(name: str) -> NoReturn:
 
 
 class BaseModel:
-    def __init__(self, type: Any, **kw) -> NoReturn:
+    def __init__(self, t: Any, **kw) -> NoReturn:
         needs("pydantic")
 
     @classmethod
@@ -27,7 +27,7 @@ class BaseModel:
 
 @final
 class TypeAdapter[T]:
-    def __init__(self, type: Any, **kw) -> NoReturn:
+    def __init__(self, t: type[T], **kw) -> NoReturn:
         needs("pydantic")
 
     def validate_python(self, obj: Any, *a, **kw) -> NoReturn:
