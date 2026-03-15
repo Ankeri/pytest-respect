@@ -1,4 +1,4 @@
-"""Fake classes and other constructs with just enough stub code to make pyright accept our optional imports."""
+"""Fake classes and other constructs with just enough stub code to make type checkers accept our optional imports."""
 
 from typing import Any, NoReturn, TypeVar, final
 

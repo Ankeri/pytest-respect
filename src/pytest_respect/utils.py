@@ -6,24 +6,22 @@ from collections.abc import Callable, Collection, Iterable, Mapping
 from functools import partial
 from itertools import chain
 from types import EllipsisType, UnionType
-from typing import Any, Literal, TypeVar, overload
-
-T = TypeVar("T")
+from typing import Any, Literal, overload
 
 
 @overload
-def _coalesce(default: T | None | None, *args: T | None | EllipsisType, nonable: Literal[True]) -> T | None: ...
+def _coalesce[T](default: T | None | None, *args: T | None | EllipsisType, nonable: Literal[True]) -> T | None: ...
 
 
 @overload
-def _coalesce(default: T, *args: T | None | EllipsisType, nonable: Literal[False]) -> T: ...
+def _coalesce[T](default: T, *args: T | None | EllipsisType, nonable: Literal[False]) -> T: ...
 
 
 @overload
-def _coalesce(default: T, *args: T | None | EllipsisType) -> T: ...
+def _coalesce[T](default: T, *args: T | None | EllipsisType) -> T: ...
 
 
-def _coalesce(default: T | None, *args: T | None | EllipsisType, nonable: bool = False) -> T | None:
+def _coalesce[T](default: T | None, *args: T | None | EllipsisType, nonable: bool = False) -> T | None:
     """Return the first value among default, *args that is not ... and, if nonable is Fals, is not None either."""
     value: T | None = default
     for arg in args:

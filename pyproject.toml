@@ -97,6 +97,9 @@ select = [
 
 # TESTING
 
+[tool.pyrefly]
+
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"  # To help pyright in pre-commit
