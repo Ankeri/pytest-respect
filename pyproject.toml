@@ -49,6 +49,7 @@ dev = [
     "mkdocs-material>=9.7.1",
     "mkdocstrings[python]>=1.0.0",
     "pre-commit>=4.2.0",
+    "pyrefly>=0.56.0",
     "pyright==1.1.*",
     "pytest-cov==6.*",
     "pytest-mock==3.*",
