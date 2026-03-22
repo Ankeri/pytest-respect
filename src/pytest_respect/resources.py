@@ -750,7 +750,7 @@ class TestResources:
     ) -> T:
         """Load a resource with a pydantic TypeAdapter relative to the current test."""
         data = self.load_json(*parts, ext=ext, path_maker=path_maker, json_loader=json_loader)
-        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)  # pyright: ignore
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         return adapter.validate_python(data)
 
     def save_pydantic_adapter(
@@ -766,7 +766,7 @@ class TestResources:
     ) -> Path:
         """Write pydantic data to a resource relative to the current test."""
         type_ = type_ or type(data)
-        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)  # pyright: ignore
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         actual_data: T = adapter.dump_python(data, mode="json", **dump_args)
         return self.save_json(
             actual_data,
@@ -795,7 +795,7 @@ class TestResources:
         """Assert that the type adapter encodes the actual value to the JSON content from resource. This allows us to
         pass a context to the serializers of any objects embedded within actual."""
         type_ = type_ or type(actual)
-        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)  # pyright: ignore
+        adapter: TypeAdapter[T] = type_ if isinstance(type_, TypeAdapter) else TypeAdapter(type_)
         actual_data: T = adapter.dump_python(actual, mode="json", **dump_args)
         self.expect_json(
             actual_data,
