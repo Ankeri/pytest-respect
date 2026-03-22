@@ -262,19 +262,43 @@ If a value is converted into a dict, list or tuple, then the preparation continu
 
 #### Loading
 
+JSON loading is done with a JSON-loader, which is a simple function converting a string to data. By default this is `python_json_loader` which just wraps a call to `json.loads(text)` for standard JSON parsing.
 
-### TODO:
+You can change the loading by passing a `json_loader` argument to any function which reads JSON files or by assigning a different one to `resources.default.json_loader`.
 
-- Default loader
-- Alternative jsonyx loader
+The following loaders are included with the library, but the one prefixed with `jsonyx` requires the `jsonyx` extra dependency to be installed:
+
+| JSON Loader                | Properties
+|----------------------------|--------------------------------------------------------------------
+| `python_json_loader`       | Standard JSON loader
+| `jsonyx_permissive_loader` | JSONYX loader which allows non-string dict keys and other extensions
 
 ### Configuration
 
-**TODO**
+You can configure default behavior for all tests in your project by customizing the `resources` fixture in a `conftest.py` file. This allows you to set defaults for path makers, JSON encoders and loaders, and float rounding without having to specify them in every test.
 
-- Default path makers
-- Default JSON encoder and loader
-- Default ndigits
+```python
+@pytest.fixture
+def resources(request: pytest.FixtureRequest) -> TestResources:
+    """Load file resources relative to test functions and fixtures."""
+    accept = request.config.getoption("--respect-accept-max")
+    resources = TestResources(request, accept_count=accept)
+
+    # Configure defaults here
+    resources.default.ndigits = 4
+    resources.default.json_encoder = python_json_encoder
+    resources.default.json_loader = python_json_loader
+    resources.default.path_maker = resources.pm_file
+
+    return resources
+```
+
+The available configuration options are:
+
+- `resources.default.ndigits` - How many digits to round floats to when comparing JSON data. Defaults to `None` to disable rounding.
+- `resources.default.json_encoder` - Function used to convert data to JSON encoded text (default: `python_json_encoder`).
+- `resources.default.json_loader` - Function used to convert JSON encoded text to python data (default: `python_json_loader`).
+- `resources.default.path_maker` - Function used to construct paths to resource files (default: `pm_file`).
 
 ## Development
 
