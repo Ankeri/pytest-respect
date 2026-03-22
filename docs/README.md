@@ -6,6 +6,8 @@ Pytest plugin to load resource files relative to test code and to expect values 
 
 The primary use-case is running tests over moderately large datasets where adding them as constants in the test code would be cumbersome. This happens frequently with integration tests or when retrofitting tests onto an existing code-base. If you find your test _code_ being obscured by the test _data_, filling with complex data generation code, or ad-hoc reading of input data or expected results, then pytest-respect is for you.
 
+What differentiates pytest-respect from similar libraries is that comparisons are made on text dumps of your data, rather than constructing complex comparators. It has native integration for dumping pydantic and numpy data to JSON and an easy way to customize dumping of other data types.
+
 ## Installation
 
 Install with your favourite package manager such as:
@@ -18,7 +20,7 @@ See your package management tool for details, especially on how to install optio
 
 ### Extras
 
-The following extra dependencies are required for additional functionality:
+Add the following extra dependencies for additional functionality:
 
 - `poetry` - Load, save, and expect pydantic models or arbitrary data through type adapters.
 - `numpy` - Convert numpy arrays and scalars to python equivalents when generating JSON, both in save and expect.
@@ -70,13 +72,13 @@ def test_compute(resources: TestResources):
 
 The input and output paths will be identical to the JSON test, since we re-used the name of the test function.
 
-There are also `load_pydantic_adatper` and `expect_pydantic_adapter` variants which take a pydantic `TypeAdapter` instead of a model class, or they can take an arbitrary type to wrap in a `TypeAdapter` instance. Please refer to the pydantic documentation for how type adapters work.
+There are also `load_pydantic_adatper` and `expect_pydantic_adapter` variants which take a pydantic `TypeAdapter` instead of a model class, or they can take an arbitrary type to wrap in a `TypeAdapter` instance. Please refer to the pydantic documentation for more information on type adapters.
 
 ### Failing Tests
 
 #### Actual Files
 
-If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an `actual` part appended. So in the JSON and Pydantic examples above, it would create the file `foo/test_stuff/test_compute__output__actual.json`. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.
+If an expectation fails, then a new file is created containing the actual value passed to the expect function. Its path is constructed in the same way as that of the expectation file, but with an `actual` part appended. In the JSON and Pydantic examples above, it would create the file `foo/test_stuff/test_compute__output__actual.json`. In addition to this, the normal pytest assert re-writing is done to show the difference between the expected value and the actual value.
 
 When the values being compared are large or complex, the difference shown on the console may be overwhelming. Then you can instead use your existing diff tools to compare the expected and actual files and perhaps pick individual changes from the actual file before fixing the code to deal with any remaining differences.
 
@@ -108,22 +110,32 @@ If we revisit the JSON example from above, but using a different path maker, it 
 def test_compute(resources: TestResources):
     input = resources.load_json("input", path_maker=resources.pm_only_file)
     output = compute(input)
+    resources.expect_json(output, "output", path_maker=resources.pm_only_file)
+```
+
+The same test can instead be written by setting the default path_maker with:
+
+```python
+def test_compute(resources: TestResources):
+    resources.default.path_maker = resources.pm_only_file
+    input = resources.load_json("input")
+    output = compute(input)
     resources.expect_json(output, "output")
 ```
 
-The table below shows the paths made by the different path makers when calling `resource.path("data")` in a `test_function` in a `test_file.py` in a `<dir>`, including when it is a member of a `TestClass`.
+The table below shows the paths made by the different path makers when calling `resource.path("data")` in a `test_function` in a `test_file.py` in `<dir>`, or if `test_function` is a member of a `TestClass`.
 
-| Path Maker                      | `test_compute`                                   | `TestMachine.test_compute`
-|---------------------------------|--------------------------------------------------|-----------------------------------------------------------
-| `pm_function`                   | `<dir>/test_file__test_function/data.<ext>`      | `<dir>/test_file__TestClass__test_method/data.<ext>`
-| `pm_class`                      | `<dir>/test_file/test_function.<ext>`            | `<dir>/test_file__TestClass/test_method.<ext>`
-| `pm_only_class`                 | `<dir>/test_file/data.<ext>`                     | `<dir>/test_file__TestClass/data.<ext>`
-| `pm_file`                       | `<dir>/test_file/test_function.<ext>`            | `<dir>/test_file/TestClass__test_method.<ext>`
-| `pm_only_file`                  | `<dir>/test_file/data.<ext>`                     | `<dir>/test_file/data.<ext>`
-| `pm_dir`                        | `<dir>/resources/test_file__test_function.<ext>` | `<dir>/resources/test_file__TestClass__test_method.<ext>`
-| `pm_dir_named("dir_name")`      | `<dir>/dir_name/test_file__test_function.<ext>`  | `<dir>/dir_name/test_file__TestClass__test_method.<ext>`
-| `pm_only_dir`                   | `<dir>/resources`                                | `<dir>/resources`
-| `pm_only_dir_named("dir_name")` | `<dir>/dir_name`                                 | `<dir>/dir_name`
+| Path Maker                      | **test_function**<br/> **TestClass.test_method**
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------------
+| `pm_function`                   | `<dir>/test_file__test_function/data.ext`            <br/>`<dir>/test_file__TestClass__test_method/data.ext`
+| `pm_class`                      | `<dir>/test_file/test_function__data.ext`            <br/> `<dir>/test_file__TestClass/test_method__data.ext`
+| `pm_only_class`                 | `<dir>/test_file/data.ext`                           <br/> `<dir>/test_file__TestClass/data.ext`
+| `pm_file`                       | `<dir>/test_file/test_function__data.ext`            <br/> `<dir>/test_file/TestClass__test_method__data.ext`
+| `pm_only_file`                  | `<dir>/test_file/data.ext`                           <br/> `<dir>/test_file/data.ext`
+| `pm_dir`                        | `<dir>/resources/test_file__test_function__data.ext` <br/> `<dir>/resources/test_file__TestClass__test_method__data.ext`
+| `pm_dir_named("dir_name")`      | `<dir>/dir_name/test_file__test_function__data.ext`  <br/> `<dir>/dir_name/test_file__TestClass__test_method__data.ext`
+| `pm_only_dir`                   | `<dir>/resources/data.ext`                           <br/> `<dir>/resources/data.ext`
+| `pm_only_dir_named("dir_name")` | `<dir>/dir_name/data.ext`                            <br/> `<dir>/dir_name/data.ext`
 
 #### Custom Path Makers
 
@@ -163,7 +175,19 @@ def test_external_processing(resources: TestResources):
     path.unlink()
 ```
 
-Finally, the `resources.list()` method lists the names of resources within the test's resource folder as constructed by the path maker. It takes one or more include or exclude glob patterns to filter the results and defaults to `inclues="*"` with no `excludes`.
+Finally, the `resources.list()` method lists the names of resources within the test's resource folder as constructed by the path maker. It takes one or more include or exclude glob patterns to filter the results and defaults to `inclue="*"` with no `exclude`.
+
+```python
+def test_compute(resources: TestResources):
+    widget_names: list[str] = resources.list("widget_*.json", strip_ext=True)
+    for widget_name in widget_names:
+        widget = resources.load_json(widget_name)
+        assert transform(widget) == 42
+```
+
+Depending on the rest of your test, you may want to exclude the `*__actual.json` files which might have been created in a previous test run.
+
+This tetst also has the problem that if the assert fails on one file, then the test terminates and we won't know if this is an isolated problem of affects more files. See the section on  [Data-driven Parametric Tests|#data-driven-parametric-tests] for a solution to that.
 
 ### Parametric Tests
 
@@ -184,7 +208,7 @@ Omitting the directory name, this test will load each of `test_compute__red__inp
 We can use the `list_resources` function to generate a list of resource names to run parametric tests over. With the below fixture, the content of the resource directory is listed, and the fixture is run once for each match. We can then add test cases simply by adding new resource files:
 
 ```python
-@pytest.fixture(params=list_resources("widget_*.json", exclude=["*__actual.json"], strip_ext=True))
+@pytest.fixture(params=list_resources("widget_*.json", strip_ext=True))
 def each_widget_name(request) -> str:
     """Request this fixture to run for each widget file in the resource directory."""
     return request.param
@@ -200,13 +224,49 @@ def test_load_json_resource(resources, each_widget_name):
     assert transform(widget) == 42
 ```
 
-### JSON Formatting and Parsing
+### JSON Files
+
+#### Deterministic Output
+
+Since `expect_json`and `expect_pydantic` both ultimately create a JSON text representation of the data, which then gets compared with an expectation file on disk, the generated files need to be predictable. Much of that is up to the developer, to make sure that their code always generates the same output for the same input. In certain cases that's not possible or feasible, and then these external libraries may be of help:
+
+- [pytest-freezer](https://pypi.org/project/pytest-freezer/) to freeze time and return the same timestamps in each test run.
+- [pytest-randomly](https://pypi.org/project/pytest-randomly/) to freeze random number generators and return the same random numbers in each test run.
+- [pytest-mock](https://pypi.org/project/pytest-mock/) to mock out any non-deterministic functions called by the code under test.
+
+#### Formatting
+
+JSON formatting is done with a JSON-encoder, which is a simple function converting data to a string. By default this is `python_json_encoder` which just wraps a call to `json.dumps(obj, sort_keys=True, indent=2)` for a standard verbose JSON dump.
+
+You can change the encoding by passing a `json_encoder` argument to any function which writes JSON files or compares data to such files or by assigning a different one to `resources.default.json_encoder`.
+
+The following encoders are included with the library, but the ones with `jsonyx` in the name require the `jsonyx` extra dependency to be installed:
+
+| JSON Encoder                  | Properties
+|-------------------------------|--------------------------------------------------------------------
+| `python_json_encoder`         | Standard JSON encoder in very verbose mode
+| `python_compact_json_encoder` | Standard JSON encoder in very compact mode
+| `jsonyx_encoder`              | JSONYX encoder which allows non-string dict keys
+| `jsonyx_compactish_encoder`   | Like `jsonyx_encoder` but with deepest nested structure unindented
+| `jsonyx_compact_encoder`      | Like `jsonyx_encoder` but in very compact mode
+
+#### Data Prepping
+
+In the Formatting section there is no talk of dealing with data which is not normally JSON encodeable. This functionality is separated out into "JSON Preppers" which know how to convert certain types of data into JSON-encodeable forms. At launch time, an attempt is made to install preppers for Pydantic models and numpy arrays if the corresponding libraries are found.
+
+You can register your own global preppers by calling `pytest_respect.utils.add_json_prepper(type, prepper)` or a short-lived one by calling `resources.add_json_prepper(type, prepper)`.
+
+When preparing a particular value for JSON encoding, a search is made for a prepper for that type (or a super-type thereof), starting with the ones added on the `resources` fixture and then continuing on to the global ones. When a prepper is found, it is called with the value and the result is used in its place, unless the prepper raises the `AbortJsonPrep` exception, in which case that prepper is ignored and the search continues.
+
+If a value is converted into a dict, list or tuple, then the preparation continues recursively inside the converted value so that you can prepare fields nested deep within pydantic models or other mutually reursive types.
+
+#### Loading
+
 
 ### TODO:
 
-- Default JSON formatter and parser
-- Alternative JSON formatter
-- Jsonyx extension
+- Default loader
+- Alternative jsonyx loader
 
 ### Configuration
 
