@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: check-toml
@@ -11,10 +11,10 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
       - id: no-commit-to-branch
-        args: [--branch, main]
+        args: [ --branch, main ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.7
+    rev: v0.15.6
     hooks:
       # Allow this highly trusted tool to modify files before commit
       - id: ruff-check
@@ -24,6 +24,14 @@ repos:
 
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.403
+    rev: v1.1.408
     hooks:
       - id: pyright
+
+  - repo: https://github.com/facebook/pyrefly-pre-commit
+    rev: 0.56.0  # hook version, not pyrefly version
+    hooks:
+      - id: pyrefly-check
+        name: Pyrefly (type checking)
+        pass_filenames: false  # It's fast. Check all files.
+        language: system  # Use system-installed pyrefly

@@ -20,7 +20,7 @@ except ImportError:  # pragma: no cover
     from ._fakes import BaseModel, TypeAdapter
 
 # Dont' include in pytest tracebacks. We patch this out in unit tests to see where in our code errors occur.
-__tracebackhide__ = True
+__tracebackhide__: bool = True
 
 DEFAULT_RESOURCES_DIR = "resources"
 
@@ -172,7 +172,7 @@ def strip_extensions(
         resources = [r.rsplit(".", 1)[0] for r in resources]
     elif isinstance(strip_ext, str):
         resources = [r.removesuffix(strip_ext) for r in resources]
-    elif not isinstance(strip_ext, list):
+    elif not isinstance(resources, list):
         resources = list(resources)
     return resources
 
