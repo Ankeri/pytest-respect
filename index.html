@@ -1443,14 +1443,11 @@
 </tbody>
 </table>
 <h3 id="configuration">Configuration</h3>
-<p>You can configure default behavior for all tests in your project by customizing the <code>resources</code> fixture in a <code>conftest.py</code> file. This allows you to set defaults for path makers, JSON encoders and loaders, and float rounding without having to specify them in every test.</p>
+<p>You can configure default behavior of the <code>resources</code> fixture in your project by overriding in any particular scope. For global configuration, do this in your project's root <code>conftest.py</code> file. This allows you to set defaults for path makers, JSON encoders and loaders, and float rounding without having to specify them in every test.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">resources</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">FixtureRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TestResources</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load file resources relative to test functions and fixtures.&quot;&quot;&quot;</span>
-    <span class="n">accept</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getoption</span><span class="p">(</span><span class="s2">&quot;--respect-accept-max&quot;</span><span class="p">)</span>
-    <span class="n">resources</span> <span class="o">=</span> <span class="n">TestResources</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">accept_count</span><span class="o">=</span><span class="n">accept</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resources</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="n">TestResources</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TestResources</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure resources for the scope of this fixture.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Configure defaults here</span>
     <span class="n">resources</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">ndigits</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">resources</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">json_encoder</span> <span class="o">=</span> <span class="n">python_json_encoder</span>
     <span class="n">resources</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">json_loader</span> <span class="o">=</span> <span class="n">python_json_loader</span>
