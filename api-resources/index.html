@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -2140,15 +2140,15 @@ within a class.</p>
 <span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PydanticDumpArgs</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Arguments to pass to pydantic.BaseModel.model_dump or pydantic.TypeAdapter.dump_python.&quot;&quot;&quot;</span>
 
-    <span class="n">context</span><span class="p">:</span> <span class="n">Any</span>
-    <span class="n">include</span><span class="p">:</span> <span class="n">IncEx</span>
-    <span class="n">exclude</span><span class="p">:</span> <span class="n">IncEx</span>
-    <span class="n">by_alias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">exclude_unset</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">exclude_defaults</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">exclude_none</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">round_trip</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">serialize_as_any</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+    <span class="n">include</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">IncEx</span><span class="p">]</span>
+    <span class="n">exclude</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">IncEx</span><span class="p">]</span>
+    <span class="n">by_alias</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">exclude_unset</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">exclude_defaults</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">exclude_none</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">round_trip</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">serialize_as_any</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2763,7 +2763,14 @@ within a class.</p>
 <span class="normal">804</span>
 <span class="normal">805</span>
 <span class="normal">806</span>
-<span class="normal">807</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestResources</span><span class="p">:</span>
+<span class="normal">807</span>
+<span class="normal">808</span>
+<span class="normal">809</span>
+<span class="normal">810</span>
+<span class="normal">811</span>
+<span class="normal">812</span>
+<span class="normal">813</span>
+<span class="normal">814</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestResources</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements the `resources` pytest fixture.</span>
 
@@ -2796,8 +2803,8 @@ within a class.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pm_function</span><span class="p">(</span><span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file, class if present, and function. No contribution is made to the</span>
-<span class="sd">        file name.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file, class if present, and function.</span>
+<span class="sd">        No contribution is made to the file name.</span>
 
 <span class="sd">        - `&lt;dir&gt;/test_file__test_function/data.&lt;ext&gt;`</span>
 <span class="sd">        - `&lt;dir&gt;/test_file__TestClass__test_method/data.&lt;ext&gt;`</span>
@@ -2814,8 +2821,8 @@ within a class.</p>
 
 <span class="sd">        This is the default method for constructing resource paths.</span>
 
-<span class="sd">        - `&lt;dir&gt;/test_file/test_function.&lt;ext&gt;`</span>
-<span class="sd">        - `&lt;dir&gt;/test_file__TestClass/test_method.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/test_file/test_function__data.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/test_file__TestClass/test_method__data.&lt;ext&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">test_class_name</span><span class="p">:</span>
             <span class="n">dir_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_file_name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">test_class_name</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2840,8 +2847,8 @@ within a class.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">pm_file</span><span class="p">(</span><span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file and file-name from test class if present, and test method.</span>
 
-<span class="sd">        - `&lt;dir&gt;/test_file/test_function.&lt;ext&gt;`</span>
-<span class="sd">        - `&lt;dir&gt;/test_file/TestClass__test_method.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/test_file/test_function__data.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/test_file/TestClass__test_method__data.&lt;ext&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">test_class_name</span><span class="p">:</span>
             <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_class_name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2856,7 +2863,7 @@ within a class.</p>
         <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file and contribute to the file-name.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file and contribute nothing to the file-name.</span>
 
 <span class="sd">        - `&lt;dir&gt;/test_file/data.&lt;ext&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2867,8 +2874,8 @@ within a class.</p>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to use &quot;resources&quot; for directory and build file-name from test file, test class if present and</span>
 <span class="sd">        test function.</span>
 
-<span class="sd">        - `&lt;dir&gt;/resources/test_file__test_function.&lt;ext&gt;`</span>
-<span class="sd">        - `&lt;dir&gt;/resources/test_file__TestClass__test_method.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/resources/test_file__test_function__data.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/resources/test_file__TestClass__test_method__data.&lt;ext&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">path_maker</span> <span class="o">=</span> <span class="n">TestResources</span><span class="o">.</span><span class="n">pm_dir_named</span><span class="p">(</span><span class="n">DEFAULT_RESOURCES_DIR</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">path_maker</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">,</span> <span class="n">test_name</span><span class="p">)</span>
@@ -2878,8 +2885,8 @@ within a class.</p>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;PathMaker to use the given name for directory and build file-name from test file, test class if present and</span>
 <span class="sd">        test function.</span>
 
-<span class="sd">        - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__test_function.&lt;ext&gt;`</span>
-<span class="sd">        - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__TestClass__test_method.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__test_function__data.&lt;ext&gt;`</span>
+<span class="sd">        - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__TestClass__test_method__data.&lt;ext&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">path_from_dir</span><span class="p">(</span>
@@ -2903,12 +2910,19 @@ within a class.</p>
         <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use &quot;resources&quot; for directory and nothing for the file-name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use &quot;resources&quot; for directory and nothing for the file-name.</span>
+
+<span class="sd">        - `&lt;dir&gt;/resources/data.&lt;ext&gt;`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">test_dir</span> <span class="o">/</span> <span class="n">DEFAULT_RESOURCES_DIR</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pm_only_dir_named</span><span class="p">(</span><span class="n">dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_RESOURCES_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathMaker</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the given name for directory nothing for the file-name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the given name for directory nothing for the file-name.</span>
+
+<span class="sd">        - `&lt;dir&gt;/dir_name/data.&lt;ext&gt;`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">path_from_dir</span><span class="p">(</span>
             <span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -3517,18 +3531,18 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
-<span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">602</span>
 <span class="normal">603</span>
 <span class="normal">604</span>
 <span class="normal">605</span>
-<span class="normal">606</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_json_prepper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">prepper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_json_prepper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">UnionType</span><span class="p">,</span> <span class="n">prepper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a local JSON prepper for a given type, including sub-classes.</span>
 
 <span class="sd">    The prepper can return a few kinds of values:</span>
@@ -3562,20 +3576,20 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">624</span>
-<span class="normal">625</span>
-<span class="normal">626</span>
-<span class="normal">627</span>
-<span class="normal">628</span>
-<span class="normal">629</span>
-<span class="normal">630</span>
-<span class="normal">631</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">631</span>
 <span class="normal">632</span>
 <span class="normal">633</span>
 <span class="normal">634</span>
 <span class="normal">635</span>
 <span class="normal">636</span>
-<span class="normal">637</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">data_to_json</span><span class="p">(</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">data_to_json</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">json_encoder</span><span class="p">:</span> <span class="n">JsonEncoder</span> <span class="o">|</span> <span class="n">EllipsisType</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
@@ -3611,16 +3625,16 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">495</span>
-<span class="normal">496</span>
-<span class="normal">497</span>
-<span class="normal">498</span>
-<span class="normal">499</span>
-<span class="normal">500</span>
-<span class="normal">501</span>
-<span class="normal">502</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">502</span>
 <span class="normal">503</span>
-<span class="normal">504</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3652,14 +3666,14 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">652</span>
-<span class="normal">653</span>
-<span class="normal">654</span>
-<span class="normal">655</span>
-<span class="normal">656</span>
-<span class="normal">657</span>
-<span class="normal">658</span>
-<span class="normal">659</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_json</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_json</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
@@ -3689,9 +3703,9 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">715</span>
-<span class="normal">716</span>
-<span class="normal">717</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_pydantic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">path_maker</span><span class="p">:</span> <span class="n">PathMaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">722</span>
+<span class="normal">723</span>
+<span class="normal">724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_pydantic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">path_maker</span><span class="p">:</span> <span class="n">PathMaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a json resource relative to the current test.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span> <span class="n">path_maker</span><span class="o">=</span><span class="n">path_maker</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -3716,9 +3730,9 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">780</span>
-<span class="normal">781</span>
-<span class="normal">782</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_pydantic_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">path_maker</span><span class="p">:</span> <span class="n">PathMaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">787</span>
+<span class="normal">788</span>
+<span class="normal">789</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_pydantic_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">path_maker</span><span class="p">:</span> <span class="n">PathMaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a json resource relative to the current test.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span> <span class="n">path_maker</span><span class="o">=</span><span class="n">path_maker</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -3743,14 +3757,14 @@ within a class.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span>
-<span class="normal">541</span>
-<span class="normal">542</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_text</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete_text</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span>
@@ -3812,14 +3826,7 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">403</span>
-<span class="normal">404</span>
-<span class="normal">405</span>
-<span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
-<span class="normal">409</span>
-<span class="normal">410</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">410</span>
 <span class="normal">411</span>
 <span class="normal">412</span>
 <span class="normal">413</span>
@@ -3831,7 +3838,14 @@ file-name for the resource. The file part will be ignored.</p>
 <span class="normal">419</span>
 <span class="normal">420</span>
 <span class="normal">421</span>
-<span class="normal">422</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_maker</span><span class="p">:</span> <span class="n">PathMaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_maker</span><span class="p">:</span> <span class="n">PathMaker</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Directory for resources belonging to the test.</span>
 
 <span class="sd">    Args:</span>
@@ -3873,14 +3887,7 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">661</span>
-<span class="normal">662</span>
-<span class="normal">663</span>
-<span class="normal">664</span>
-<span class="normal">665</span>
-<span class="normal">666</span>
-<span class="normal">667</span>
-<span class="normal">668</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">668</span>
 <span class="normal">669</span>
 <span class="normal">670</span>
 <span class="normal">671</span>
@@ -3889,7 +3896,14 @@ file-name for the resource. The file part will be ignored.</p>
 <span class="normal">674</span>
 <span class="normal">675</span>
 <span class="normal">676</span>
-<span class="normal">677</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_json</span><span class="p">(</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_json</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">actual</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -3928,14 +3942,7 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">719</span>
-<span class="normal">720</span>
-<span class="normal">721</span>
-<span class="normal">722</span>
-<span class="normal">723</span>
-<span class="normal">724</span>
-<span class="normal">725</span>
-<span class="normal">726</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">726</span>
 <span class="normal">727</span>
 <span class="normal">728</span>
 <span class="normal">729</span>
@@ -3947,7 +3954,14 @@ file-name for the resource. The file part will be ignored.</p>
 <span class="normal">735</span>
 <span class="normal">736</span>
 <span class="normal">737</span>
-<span class="normal">738</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_pydantic</span><span class="p">(</span>
+<span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_pydantic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">actual</span><span class="p">:</span> <span class="n">BaseModel</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -3990,14 +4004,7 @@ pass a context to the serializers of any objects embedded within actual.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">784</span>
-<span class="normal">785</span>
-<span class="normal">786</span>
-<span class="normal">787</span>
-<span class="normal">788</span>
-<span class="normal">789</span>
-<span class="normal">790</span>
-<span class="normal">791</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">791</span>
 <span class="normal">792</span>
 <span class="normal">793</span>
 <span class="normal">794</span>
@@ -4013,7 +4020,14 @@ pass a context to the serializers of any objects embedded within actual.</p>
 <span class="normal">804</span>
 <span class="normal">805</span>
 <span class="normal">806</span>
-<span class="normal">807</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_pydantic_adapter</span><span class="p">(</span>
+<span class="normal">807</span>
+<span class="normal">808</span>
+<span class="normal">809</span>
+<span class="normal">810</span>
+<span class="normal">811</span>
+<span class="normal">812</span>
+<span class="normal">813</span>
+<span class="normal">814</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_pydantic_adapter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">actual</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -4059,14 +4073,7 @@ pass a context to the serializers of any objects embedded within actual.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">544</span>
-<span class="normal">545</span>
-<span class="normal">546</span>
-<span class="normal">547</span>
-<span class="normal">548</span>
-<span class="normal">549</span>
-<span class="normal">550</span>
-<span class="normal">551</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">551</span>
 <span class="normal">552</span>
 <span class="normal">553</span>
 <span class="normal">554</span>
@@ -4100,7 +4107,14 @@ pass a context to the serializers of any objects embedded within actual.</p>
 <span class="normal">582</span>
 <span class="normal">583</span>
 <span class="normal">584</span>
-<span class="normal">585</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_text</span><span class="p">(</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expect_text</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">actual</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -4233,14 +4247,7 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">470</span>
-<span class="normal">471</span>
-<span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">477</span>
 <span class="normal">478</span>
 <span class="normal">479</span>
 <span class="normal">480</span>
@@ -4256,7 +4263,14 @@ file-name for the resource. The file part will be ignored.</p>
 <span class="normal">490</span>
 <span class="normal">491</span>
 <span class="normal">492</span>
-<span class="normal">493</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4302,21 +4316,21 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">615</span>
 <span class="normal">616</span>
 <span class="normal">617</span>
 <span class="normal">618</span>
 <span class="normal">619</span>
 <span class="normal">620</span>
 <span class="normal">621</span>
-<span class="normal">622</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_json</span><span class="p">(</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_json</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
@@ -4353,17 +4367,17 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">682</span>
-<span class="normal">683</span>
-<span class="normal">684</span>
-<span class="normal">685</span>
-<span class="normal">686</span>
-<span class="normal">687</span>
-<span class="normal">688</span>
-<span class="normal">689</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">689</span>
 <span class="normal">690</span>
 <span class="normal">691</span>
-<span class="normal">692</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_pydantic</span><span class="p">(</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_pydantic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">model_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">PMT</span><span class="p">],</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -4396,18 +4410,18 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">743</span>
-<span class="normal">744</span>
-<span class="normal">745</span>
-<span class="normal">746</span>
-<span class="normal">747</span>
-<span class="normal">748</span>
-<span class="normal">749</span>
-<span class="normal">750</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">750</span>
 <span class="normal">751</span>
 <span class="normal">752</span>
 <span class="normal">753</span>
-<span class="normal">754</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_pydantic_adapter</span><span class="p">(</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span>
+<span class="normal">759</span>
+<span class="normal">760</span>
+<span class="normal">761</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_pydantic_adapter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">TypeAdapter</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -4441,15 +4455,15 @@ file-name for the resource. The file part will be ignored.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_text</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_text</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span>
@@ -4548,14 +4562,7 @@ file-name for the resource. Defaults to one which uses the test file
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span>
-<span class="normal">430</span>
-<span class="normal">431</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">431</span>
 <span class="normal">432</span>
 <span class="normal">433</span>
 <span class="normal">434</span>
@@ -4589,7 +4596,14 @@ file-name for the resource. Defaults to one which uses the test file
 <span class="normal">462</span>
 <span class="normal">463</span>
 <span class="normal">464</span>
-<span class="normal">465</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4655,8 +4669,8 @@ file-name for the resource. Defaults to one which uses the test file
         <p>PathMaker to build directory from test_file and class if present, and file-name from test method.</p>
 <p>This is the default method for constructing resource paths.</p>
 <ul>
-<li><code>&lt;dir&gt;/test_file/test_function.&lt;ext&gt;</code></li>
-<li><code>&lt;dir&gt;/test_file__TestClass/test_method.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/test_file/test_function__data.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/test_file__TestClass/test_method__data.&lt;ext&gt;</code></li>
 </ul>
 
 
@@ -4681,8 +4695,8 @@ file-name for the resource. Defaults to one which uses the test file
 
 <span class="sd">    This is the default method for constructing resource paths.</span>
 
-<span class="sd">    - `&lt;dir&gt;/test_file/test_function.&lt;ext&gt;`</span>
-<span class="sd">    - `&lt;dir&gt;/test_file__TestClass/test_method.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/test_file/test_function__data.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/test_file__TestClass/test_method__data.&lt;ext&gt;`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">test_class_name</span><span class="p">:</span>
         <span class="n">dir_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_file_name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">test_class_name</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -4713,8 +4727,8 @@ file-name for the resource. Defaults to one which uses the test file
         <p>PathMaker to use "resources" for directory and build file-name from test file, test class if present and
 test function.</p>
 <ul>
-<li><code>&lt;dir&gt;/resources/test_file__test_function.&lt;ext&gt;</code></li>
-<li><code>&lt;dir&gt;/resources/test_file__TestClass__test_method.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/resources/test_file__test_function__data.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/resources/test_file__TestClass__test_method__data.&lt;ext&gt;</code></li>
 </ul>
 
 
@@ -4734,8 +4748,8 @@ test function.</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to use &quot;resources&quot; for directory and build file-name from test file, test class if present and</span>
 <span class="sd">    test function.</span>
 
-<span class="sd">    - `&lt;dir&gt;/resources/test_file__test_function.&lt;ext&gt;`</span>
-<span class="sd">    - `&lt;dir&gt;/resources/test_file__TestClass__test_method.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/resources/test_file__test_function__data.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/resources/test_file__TestClass__test_method__data.&lt;ext&gt;`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path_maker</span> <span class="o">=</span> <span class="n">TestResources</span><span class="o">.</span><span class="n">pm_dir_named</span><span class="p">(</span><span class="n">DEFAULT_RESOURCES_DIR</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">path_maker</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">,</span> <span class="n">test_name</span><span class="p">)</span>
@@ -4763,8 +4777,8 @@ test function.</p>
         <p>PathMaker to use the given name for directory and build file-name from test file, test class if present and
 test function.</p>
 <ul>
-<li><code>&lt;dir&gt;/&lt;dir_name&gt;/test_file__test_function.&lt;ext&gt;</code></li>
-<li><code>&lt;dir&gt;/&lt;dir_name&gt;/test_file__TestClass__test_method.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/&lt;dir_name&gt;/test_file__test_function__data.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/&lt;dir_name&gt;/test_file__TestClass__test_method__data.&lt;ext&gt;</code></li>
 </ul>
 
 
@@ -4796,8 +4810,8 @@ test function.</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to use the given name for directory and build file-name from test file, test class if present and</span>
 <span class="sd">    test function.</span>
 
-<span class="sd">    - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__test_function.&lt;ext&gt;`</span>
-<span class="sd">    - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__TestClass__test_method.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__test_function__data.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/&lt;dir_name&gt;/test_file__TestClass__test_method__data.&lt;ext&gt;`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">path_from_dir</span><span class="p">(</span>
@@ -4836,8 +4850,8 @@ test function.</p>
 
         <p>PathMaker to build directory from test_file and file-name from test class if present, and test method.</p>
 <ul>
-<li><code>&lt;dir&gt;/test_file/test_function.&lt;ext&gt;</code></li>
-<li><code>&lt;dir&gt;/test_file/TestClass__test_method.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/test_file/test_function__data.&lt;ext&gt;</code></li>
+<li><code>&lt;dir&gt;/test_file/TestClass__test_method__data.&lt;ext&gt;</code></li>
 </ul>
 
 
@@ -4858,8 +4872,8 @@ test function.</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">pm_file</span><span class="p">(</span><span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file and file-name from test class if present, and test method.</span>
 
-<span class="sd">    - `&lt;dir&gt;/test_file/test_function.&lt;ext&gt;`</span>
-<span class="sd">    - `&lt;dir&gt;/test_file/TestClass__test_method.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/test_file/test_function__data.&lt;ext&gt;`</span>
+<span class="sd">    - `&lt;dir&gt;/test_file/TestClass__test_method__data.&lt;ext&gt;`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">test_class_name</span><span class="p">:</span>
         <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_class_name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -4887,8 +4901,8 @@ test function.</p>
 
     <div class="doc doc-contents ">
 
-        <p>PathMaker to build directory from test_file, class if present, and function. No contribution is made to the
-file name.</p>
+        <p>PathMaker to build directory from test_file, class if present, and function.
+No contribution is made to the file name.</p>
 <ul>
 <li><code>&lt;dir&gt;/test_file__test_function/data.&lt;ext&gt;</code></li>
 <li><code>&lt;dir&gt;/test_file__TestClass__test_method/data.&lt;ext&gt;</code></li>
@@ -4911,8 +4925,8 @@ file name.</p>
 <span class="normal">285</span>
 <span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pm_function</span><span class="p">(</span><span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file, class if present, and function. No contribution is made to the</span>
-<span class="sd">    file name.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file, class if present, and function.</span>
+<span class="sd">    No contribution is made to the file name.</span>
 
 <span class="sd">    - `&lt;dir&gt;/test_file__test_function/data.&lt;ext&gt;`</span>
 <span class="sd">    - `&lt;dir&gt;/test_file__TestClass__test_method/data.&lt;ext&gt;`</span>
@@ -4997,6 +5011,9 @@ file name.</p>
     <div class="doc doc-contents ">
 
         <p>Use "resources" for directory and nothing for the file-name.</p>
+<ul>
+<li><code>&lt;dir&gt;/resources/data.&lt;ext&gt;</code></li>
+</ul>
 
 
             <details class="mkdocstrings-source">
@@ -5009,14 +5026,20 @@ file name.</p>
 <span class="normal">381</span>
 <span class="normal">382</span>
 <span class="normal">383</span>
-<span class="normal">384</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pm_only_dir</span><span class="p">(</span>
     <span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">test_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathParts</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use &quot;resources&quot; for directory and nothing for the file-name.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use &quot;resources&quot; for directory and nothing for the file-name.</span>
+
+<span class="sd">    - `&lt;dir&gt;/resources/data.&lt;ext&gt;`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">test_dir</span> <span class="o">/</span> <span class="n">DEFAULT_RESOURCES_DIR</span><span class="p">,</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5040,14 +5063,14 @@ file name.</p>
     <div class="doc doc-contents ">
 
         <p>Use the given name for directory nothing for the file-name.</p>
+<ul>
+<li><code>&lt;dir&gt;/dir_name/data.&lt;ext&gt;</code></li>
+</ul>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">386</span>
-<span class="normal">387</span>
-<span class="normal">388</span>
-<span class="normal">389</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">389</span>
 <span class="normal">390</span>
 <span class="normal">391</span>
 <span class="normal">392</span>
@@ -5056,9 +5079,20 @@ file name.</p>
 <span class="normal">395</span>
 <span class="normal">396</span>
 <span class="normal">397</span>
-<span class="normal">398</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pm_only_dir_named</span><span class="p">(</span><span class="n">dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_RESOURCES_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathMaker</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use the given name for directory nothing for the file-name.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use the given name for directory nothing for the file-name.</span>
+
+<span class="sd">    - `&lt;dir&gt;/dir_name/data.&lt;ext&gt;`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">path_from_dir</span><span class="p">(</span>
         <span class="n">test_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -5090,7 +5124,7 @@ file name.</p>
 
     <div class="doc doc-contents ">
 
-        <p>PathMaker to build directory from test_file and contribute to the file-name.</p>
+        <p>PathMaker to build directory from test_file and contribute nothing to the file-name.</p>
 <ul>
 <li><code>&lt;dir&gt;/test_file/data.&lt;ext&gt;</code></li>
 </ul>
@@ -5116,7 +5150,7 @@ file name.</p>
     <span class="n">test_class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">test_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file and contribute to the file-name.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PathMaker to build directory from test_file and contribute nothing to the file-name.</span>
 
 <span class="sd">    - `&lt;dir&gt;/test_file/data.&lt;ext&gt;`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -5143,18 +5177,18 @@ file name.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">646</span>
 <span class="normal">647</span>
 <span class="normal">648</span>
 <span class="normal">649</span>
-<span class="normal">650</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_json</span><span class="p">(</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_json</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -5188,14 +5222,7 @@ file name.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">694</span>
-<span class="normal">695</span>
-<span class="normal">696</span>
-<span class="normal">697</span>
-<span class="normal">698</span>
-<span class="normal">699</span>
-<span class="normal">700</span>
-<span class="normal">701</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">701</span>
 <span class="normal">702</span>
 <span class="normal">703</span>
 <span class="normal">704</span>
@@ -5207,7 +5234,14 @@ file name.</p>
 <span class="normal">710</span>
 <span class="normal">711</span>
 <span class="normal">712</span>
-<span class="normal">713</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_pydantic</span><span class="p">(</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_pydantic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -5249,14 +5283,7 @@ file name.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">756</span>
-<span class="normal">757</span>
-<span class="normal">758</span>
-<span class="normal">759</span>
-<span class="normal">760</span>
-<span class="normal">761</span>
-<span class="normal">762</span>
-<span class="normal">763</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">763</span>
 <span class="normal">764</span>
 <span class="normal">765</span>
 <span class="normal">766</span>
@@ -5271,7 +5298,14 @@ file name.</p>
 <span class="normal">775</span>
 <span class="normal">776</span>
 <span class="normal">777</span>
-<span class="normal">778</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_pydantic_adapter</span><span class="p">(</span>
+<span class="normal">778</span>
+<span class="normal">779</span>
+<span class="normal">780</span>
+<span class="normal">781</span>
+<span class="normal">782</span>
+<span class="normal">783</span>
+<span class="normal">784</span>
+<span class="normal">785</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_pydantic_adapter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -5316,21 +5350,21 @@ file name.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/pytest_respect/resources.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">519</span>
-<span class="normal">520</span>
-<span class="normal">521</span>
-<span class="normal">522</span>
-<span class="normal">523</span>
-<span class="normal">524</span>
-<span class="normal">525</span>
-<span class="normal">526</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">526</span>
 <span class="normal">527</span>
 <span class="normal">528</span>
 <span class="normal">529</span>
 <span class="normal">530</span>
 <span class="normal">531</span>
 <span class="normal">532</span>
-<span class="normal">533</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_text</span><span class="p">(</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_text</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="n">parts</span><span class="p">,</span>
@@ -5875,7 +5909,7 @@ suffixes such as <code>__bad.json</code></p>
         <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resources</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strip_ext</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="n">strip_ext</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resources</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strip_ext</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resources</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">resources</span>
 </code></pre></div></td></tr></table></div>
