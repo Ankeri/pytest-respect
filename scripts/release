@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# Abort on any error
+set -e
+
+read -p "Release $(uv version)? [yN] " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+fi
+
+# Bump and version and rebuild
+uv version --bump $bump
+uv build --clear
+uv build
+
+# Retreive version string and push git tag
+version=$(uv version --short)
+git tag release/${version}
+git push origin tag release/${version}
+
+uv publish

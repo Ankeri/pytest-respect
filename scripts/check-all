@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+HRULE=$(printf '▃%.0s' {1..1000})
+HRULE=${HRULE:0:$(tput cols)}
+COL="\033[0;35m"
+RST="\033[0m"
+
+shout() {
+  echo "${COL}\n${HRULE}\n$@\n${RST}"
+}
+
+shout "Build Package"
+uv build || exit 1
+
+shout "Check: pyright"
+uv run pyright || exit 1
+
+shout "Check: pyrefly"
+uv run pyrefly check || exit 1
+
+shout "Check: ruff"
+uv run ruff check || exit 1
+
+dir=$(dirname $0)
+$dir/pytest-extras || exit 1
