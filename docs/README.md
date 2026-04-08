@@ -275,16 +275,13 @@ The following loaders are included with the library, but the one prefixed with `
 
 ### Configuration
 
-You can configure default behavior for all tests in your project by customizing the `resources` fixture in a `conftest.py` file. This allows you to set defaults for path makers, JSON encoders and loaders, and float rounding without having to specify them in every test.
+You can configure default behavior of the `resources` fixture in your project by overriding in any particular scope. For global configuration, do this in your project's root `conftest.py` file. This allows you to set defaults for path makers, JSON encoders and loaders, and float rounding without having to specify them in every test.
 
 ```python
 @pytest.fixture
-def resources(request: pytest.FixtureRequest) -> TestResources:
-    """Load file resources relative to test functions and fixtures."""
-    accept = request.config.getoption("--respect-accept-max")
-    resources = TestResources(request, accept_count=accept)
+def resources(resources: TestResources) -> TestResources:
+    """Configure resources for the scope of this fixture."""
 
-    # Configure defaults here
     resources.default.ndigits = 4
     resources.default.json_encoder = python_json_encoder
     resources.default.json_loader = python_json_loader
