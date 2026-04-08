@@ -35,13 +35,15 @@ class AbortJsonPrep(Exception):  # noqa: N818
     handled by this prepper and any other ones should be given the oportuinty to handle it."""
 
 
-_JSON_PREPPERS: list[tuple[type | UnionType, Callable[[Any], Any]]] = [
+type Prepper[T] = tuple[type[T], Callable[[T], Any]]
+
+_JSON_PREPPERS: list[Prepper] = [
     (dt.date | dt.time | dt.datetime, lambda v: v.isoformat()),
 ]
 """List of types along with functions to prepare instances of (any sub-class of) those types for JSON encoding."""
 
 
-def add_json_prepper(type_: type | UnionType, prepper: Callable[[Any], Any]) -> None:
+def add_json_prepper[T](type_: type[T], prepper: Callable[[T], Any]) -> None:
     """Register a global JSON prepper for a given type, including sub-classes.
 
     The prepper can return a few kinds of values:

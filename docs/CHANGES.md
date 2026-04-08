@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In `resources`, the methods `expect_pydantic`, `save_pydantic`, `expect_pydantic_adapter` and `save_pydantic_adapter` now accept several new arguments which are passed to the pydantic `model_dump` or `python_dump` methods: `include`, `exclude`, `by_alias`, `exclude_unset`, `exclude_defaults`, `exclude_none`, `round_trip`, `serialize_as_any`.
 - In `resources`, all `save` and `delete` methods now return the path to the affected file.
+- Tightened typing of `add_json_prepper` so lambdas now know the type of the argument.
 
 ### Breaking
 

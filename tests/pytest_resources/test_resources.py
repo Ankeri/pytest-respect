@@ -888,7 +888,8 @@ def test_load_pydantic_adapter__failing(resources):
     with pytest.raises(ValidationError) as exi:
         resources.load_pydantic_adapter(dict[str, int])
 
-    assert exi.value.errors()[0]["msg"] == ("Input should be a valid integer, unable to parse string as an integer")
+    message = exi.value.errors()[0]["msg"]
+    assert message == "Input should be a valid integer, unable to parse string as an integer"
 
 
 @pytest.mark.pydantic
