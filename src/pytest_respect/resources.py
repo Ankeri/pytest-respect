@@ -273,8 +273,8 @@ class TestResources:
 
     @staticmethod
     def pm_function(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
-        """PathMaker to build directory from test_file, class if present, and function. No contribution is made to the
-        file name.
+        """PathMaker to build directory from test_file, class if present, and function.
+        No contribution is made to the file name.
 
         - `<dir>/test_file__test_function/data.<ext>`
         - `<dir>/test_file__TestClass__test_method/data.<ext>`
@@ -291,8 +291,8 @@ class TestResources:
 
         This is the default method for constructing resource paths.
 
-        - `<dir>/test_file/test_function.<ext>`
-        - `<dir>/test_file__TestClass/test_method.<ext>`
+        - `<dir>/test_file/test_function__data.<ext>`
+        - `<dir>/test_file__TestClass/test_method__data.<ext>`
         """
         if test_class_name:
             dir_name = f"{test_file_name}__{test_class_name}"
@@ -317,8 +317,8 @@ class TestResources:
     def pm_file(test_dir: Path, test_file_name: str, test_class_name: str | None, test_name: str) -> PathParts:
         """PathMaker to build directory from test_file and file-name from test class if present, and test method.
 
-        - `<dir>/test_file/test_function.<ext>`
-        - `<dir>/test_file/TestClass__test_method.<ext>`
+        - `<dir>/test_file/test_function__data.<ext>`
+        - `<dir>/test_file/TestClass__test_method__data.<ext>`
         """
         if test_class_name:
             file = f"{test_class_name}__{test_name}"
@@ -333,7 +333,7 @@ class TestResources:
         test_class_name: str | None = None,
         test_name: str | None = None,
     ) -> tuple[Path, str | None]:
-        """PathMaker to build directory from test_file and contribute to the file-name.
+        """PathMaker to build directory from test_file and contribute nothing to the file-name.
 
         - `<dir>/test_file/data.<ext>`
         """
@@ -344,8 +344,8 @@ class TestResources:
         """PathMaker to use "resources" for directory and build file-name from test file, test class if present and
         test function.
 
-        - `<dir>/resources/test_file__test_function.<ext>`
-        - `<dir>/resources/test_file__TestClass__test_method.<ext>`
+        - `<dir>/resources/test_file__test_function__data.<ext>`
+        - `<dir>/resources/test_file__TestClass__test_method__data.<ext>`
         """
         path_maker = TestResources.pm_dir_named(DEFAULT_RESOURCES_DIR)
         return path_maker(test_dir, test_file_name, test_class_name, test_name)
@@ -355,8 +355,8 @@ class TestResources:
         """PathMaker to use the given name for directory and build file-name from test file, test class if present and
         test function.
 
-        - `<dir>/<dir_name>/test_file__test_function.<ext>`
-        - `<dir>/<dir_name>/test_file__TestClass__test_method.<ext>`
+        - `<dir>/<dir_name>/test_file__test_function__data.<ext>`
+        - `<dir>/<dir_name>/test_file__TestClass__test_method__data.<ext>`
         """
 
         def path_from_dir(
@@ -380,12 +380,19 @@ class TestResources:
         test_class_name: str | None = None,
         test_name: str | None = None,
     ) -> PathParts:
-        """Use "resources" for directory and nothing for the file-name."""
+        """Use "resources" for directory and nothing for the file-name.
+
+        - `<dir>/resources/data.<ext>`
+        """
         return test_dir / DEFAULT_RESOURCES_DIR, None
 
     @staticmethod
     def pm_only_dir_named(dir_name: str = DEFAULT_RESOURCES_DIR) -> PathMaker:
-        """Use the given name for directory nothing for the file-name."""
+        """Use the given name for directory nothing for the file-name.
+
+        - `<dir>/dir_name/data.<ext>`
+
+        """
 
         def path_from_dir(
             test_dir: Path,

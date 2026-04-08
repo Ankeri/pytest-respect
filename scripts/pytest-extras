@@ -21,17 +21,17 @@ shout() {
 }
 
 
-shout "NO EXTRAS"
+shout "Test: with no extras"
 uv sync --only-dev
 uv run pytest -m "${NO_EXTRAS}" || exit $?
 
 for extra in ${EXTRAS}
 do
-  shout "EXTRA: ${extra}"
+  shout "Test: with ${extra}"
   uv sync --dev --extra ${extra}
   uv run pytest -m "${extra}" || exit $?
 done
 
-shout "ALL EXTRAS"
+shout "Test: with all extras"
 uv sync --all-extras
 uv run pytest || exit $?
